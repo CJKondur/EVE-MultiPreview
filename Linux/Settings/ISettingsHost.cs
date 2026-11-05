@@ -72,4 +72,17 @@ public interface ISettingsHost
     /// <summary>The character's client window as it shows on the screen, its frame included (a slot's "Copy from a client"), or
     /// null when it isn't running or is minimized or maximized.</summary>
     (int X, int Y, int Width, int Height)? ClientFrame(string character);
+    // ── S6: the thumbnail wall's layout (Linux/PreviewsLayout.cs, ThumbnailManager's) ──
+    /// <summary>The wall as a named layout, or null with no thumbnails.</summary>
+    LayoutPreset? CaptureLayout(string name);
+    void ApplyLayoutPreset(LayoutPreset preset, bool forMonitors = false);
+    void ApplyLayoutPresetMapped(LayoutPreset preset, Dictionary<int, string> mapping);
+    IReadOnlyList<System.Drawing.Rectangle> CurrentMonitorBounds();
+    IReadOnlyList<LayoutMonitor> CurrentMonitors();
+    bool CanUndoLayout { get; }
+    bool CanRedoLayout { get; }
+    bool UndoLayout();
+    bool RedoLayout();
+    void ResetThumbnailPositions();
+    bool ApplyAlign(AlignOp op, IReadOnlyList<string> names, int dx = 0, int dy = 0);
 }

@@ -44,7 +44,6 @@
     <sys:String x:Key="L.Linux.UpdateNotWritable">Votre compte ne peut pas écrire dans le dossier de MultiPreview. Téléchargez la nouvelle version depuis la page de la version.</sys:String>
     <sys:String x:Key="L.Linux.NotYet">Pas encore disponible sous Linux : {0}</sys:String>
     <sys:String x:Key="L.Linux.VolumeDesc">Le volume de chaque client dans le serveur de son de ce bureau. Un client s'en souvient pour la prochaine fois.</sys:String>
-    <sys:String x:Key="L.Linux.ResizeAllDesc">Largeur × hauteur. « Appliquer à toutes » redimensionne chaque vignette sur place, et les nouvelles vignettes démarrent à cette taille.</sys:String>
     <sys:String x:Key="L.Linux.LookGallery.Desc">Un clic change la fenêtre des paramètres et ses dialogues à la fois. Les miniatures restent telles quelles.</sys:String>
     <sys:String x:Key="L.Linux.LookHelp.Body">Chaque carte montre un petit aperçu d'une apparence ; un clic la choisit. La fenêtre de paramètres et ses dialogues changent aussitôt ; rien ne redémarre. Les miniatures, leurs menus et les notifications du bureau restent tels quels.&#x0A;&#x0A;**Classique** est le bleu marine de l'ancienne fenêtre de paramètres. **Windows 11** est l'apparence sombre des Paramètres de Windows 11. **Contraste élevé** est en noir et blanc, avec un texte plus grand. Les neuf autres ont leurs propres couleurs et caractères ; **Capsule**, **Plan**, **Encre** et **Terminal** disposent aussi la page à leur façon.</sys:String>
     <sys:String x:Key="L.Linux.LookThemeSection">Bureau clair et sombre</sys:String>

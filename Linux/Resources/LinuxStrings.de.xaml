@@ -44,7 +44,6 @@
     <sys:String x:Key="L.Linux.UpdateNotWritable">Dein Konto kann den Ordner von MultiPreview nicht beschreiben. Lade die neue Version von der Release-Seite herunter.</sys:String>
     <sys:String x:Key="L.Linux.NotYet">Unter Linux noch nicht verfügbar: {0}</sys:String>
     <sys:String x:Key="L.Linux.VolumeDesc">Die Lautstärke jedes Clients im Soundserver dieses Desktops. Ein Client merkt sie sich für das nächste Mal.</sys:String>
-    <sys:String x:Key="L.Linux.ResizeAllDesc">Breite × Höhe. „Auf alle anwenden“ skaliert jedes Vorschaubild an Ort und Stelle; neue Vorschaubilder starten mit dieser Größe.</sys:String>
     <sys:String x:Key="L.Linux.LookGallery.Desc">Ein Klick ändert das Einstellungsfenster und seine Dialoge auf einmal. Die Vorschaubilder bleiben, wie sie sind.</sys:String>
     <sys:String x:Key="L.Linux.LookHelp.Body">Jede Karte zeigt eine kleine Vorschau eines Aussehens; ein Klick wählt es. Das Einstellungsfenster und seine Dialoge ändern sich sofort; nichts muss neu starten. Die Vorschaubilder, ihre Menüs und die Desktop-Benachrichtigungen bleiben, wie sie sind.&#x0A;&#x0A;**Klassisch** ist das Marineblau des alten Einstellungsfensters. **Windows 11** ist das dunkle Aussehen der Einstellungen von Windows 11. **Hoher Kontrast** ist schwarz-weiß, mit größerer Schrift. Die anderen neun haben eigene Farben und Schriften; **Kapsel**, **Blaupause**, **Tinte** und **Terminal** ordnen auch die Seite auf ihre eigene Art an.</sys:String>
     <sys:String x:Key="L.Linux.LookThemeSection">Desktop hell und dunkel</sys:String>

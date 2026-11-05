@@ -44,7 +44,6 @@
     <sys:String x:Key="L.Linux.UpdateNotWritable">내 계정으로는 MultiPreview 폴더에 쓸 수 없습니다. 릴리스 페이지에서 새 버전을 내려받으세요.</sys:String>
     <sys:String x:Key="L.Linux.NotYet">Linux에서는 아직 사용할 수 없어요: {0}</sys:String>
     <sys:String x:Key="L.Linux.VolumeDesc">이 데스크톱 사운드 서버에서의 각 클라이언트 볼륨이에요. 클라이언트는 다음을 위해 이를 기억해요.</sys:String>
-    <sys:String x:Key="L.Linux.ResizeAllDesc">너비 × 높이. '모두에 적용'은 각 썸네일을 제자리에서 크기 조정하며, 새 썸네일도 이 크기로 시작해요.</sys:String>
     <sys:String x:Key="L.Linux.LookGallery.Desc">한 번 클릭하면 설정 창과 대화 상자가 한꺼번에 바뀌어요. 미리보기는 그대로예요.</sys:String>
     <sys:String x:Key="L.Linux.LookHelp.Body">각 카드는 모양을 작게 보여 줘요. 한 번 클릭하면 선택돼요. 설정 창과 대화 상자가 바로 바뀌고 다시 시작할 필요가 없어요. 미리보기와 그 메뉴, 데스크톱 알림은 그대로예요.&#x0A;&#x0A;**클래식**은 예전 설정 창의 남색이에요. **Windows 11**은 Windows 11 설정의 어두운 모양이에요. **고대비**는 흑백이고 글자가 더 커요. 나머지 아홉 가지는 저마다 색과 글꼴이 있고, **캡슐**, **청사진**, **잉크**, **터미널**은 페이지 배치도 달라요.</sys:String>
     <sys:String x:Key="L.Linux.LookThemeSection">데스크톱 밝게와 어둡게</sys:String>

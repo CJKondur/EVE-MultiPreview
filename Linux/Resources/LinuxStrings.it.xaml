@@ -44,7 +44,6 @@
     <sys:String x:Key="L.Linux.UpdateNotWritable">Il tuo account non può scrivere nella cartella di MultiPreview. Scarica la nuova versione dalla pagina della release.</sys:String>
     <sys:String x:Key="L.Linux.NotYet">Non ancora disponibile su Linux: {0}</sys:String>
     <sys:String x:Key="L.Linux.VolumeDesc">Il volume di ogni client nel server audio di questo desktop. Un client lo ricorda per la volta successiva.</sys:String>
-    <sys:String x:Key="L.Linux.ResizeAllDesc">Larghezza × altezza. «Applica a tutte» ridimensiona ogni miniatura dov'è, e le nuove miniature partono da questa dimensione.</sys:String>
     <sys:String x:Key="L.Linux.LookGallery.Desc">Un clic cambia insieme la finestra delle impostazioni e i suoi dialoghi. Le miniature restano come sono.</sys:String>
     <sys:String x:Key="L.Linux.LookHelp.Body">Ogni scheda mostra una piccola anteprima di un aspetto; un clic lo sceglie. La finestra delle impostazioni e i suoi dialoghi cambiano subito; nulla si riavvia. Le miniature, i loro menu e le notifiche del desktop restano come sono.&#x0A;&#x0A;**Classico** è il blu navy della vecchia finestra delle impostazioni. **Windows 11** è l'aspetto scuro delle Impostazioni di Windows 11. **Contrasto elevato** è in bianco e nero, con testo più grande. Gli altri nove hanno colori e caratteri propri, e **Capsula**, **Progetto**, **Inchiostro** e **Terminale** dispongono anche la pagina a modo loro.</sys:String>
     <sys:String x:Key="L.Linux.LookThemeSection">Desktop chiaro e scuro</sys:String>

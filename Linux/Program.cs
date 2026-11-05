@@ -40,7 +40,7 @@ public sealed class App : Application
 /// <summary>Keeps one thumbnail per EVE client: looks for clients every 2 s, redraws every 100 ms, and draws each
 /// thumbnail as the settings say (the same settings file and rules as the Windows app). Prints the average time a
 /// redraw of all thumbnails takes every 10 s.</summary>
-public sealed class Previews : ITrayActions, ISettingsHost
+public sealed partial class Previews : ITrayActions, ISettingsHost
 {
     private readonly EveClients _clients = new();
     private readonly SettingsService _settings;
@@ -945,6 +945,9 @@ public sealed class Previews : ITrayActions, ISettingsHost
         keys.Add((S.ProfileCycleBackwardHotkey, () => CycleProfile(false)));
         keys.Add((S.CloseAllClientsHotkey, CloseAllClients));
         keys.Add((S.OpenSettingsHotkey, OpenSettings));
+        // S6: the layout history (HotkeyService's UndoLayoutHotkey / RedoLayoutHotkey).
+        keys.Add((S.UndoLayoutHotkey, () => UndoLayout()));
+        keys.Add((S.RedoLayoutHotkey, () => RedoLayout()));
         var wanted = keys.Where(k => !string.IsNullOrWhiteSpace(k.Item1)).ToList();
         var refused = _hotkeys.Bind(wanted);
         Console.WriteLine($"Hotkeys: {wanted.Count - refused.Count} bound");
@@ -1459,6 +1462,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
 
     void ISettingsHost.ResizeThumbnails(int width, int height)
     {
+        PushLayoutSnapshot();   // one snapshot for the whole operation (ThumbnailManager.ApplySizeToAll)
         S.ThumbnailStartLocation.Width = width;
         S.ThumbnailStartLocation.Height = height;
         foreach (var thumb in _thumbs.Values)
@@ -1649,6 +1653,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         foreach (var client in found.Where(f => _atLogin.Contains(f.Window)))
             if (ClientReady.ShouldRaise("", client.Character, _syncs > 0)) _alerts?.Raise(DateTime.UtcNow, client.Character, ClientReady.EventKey, ClientReady.Severity);
         _atLogin = atLogin.ToHashSet();
+        FollowMonitors();
         // Fixed slots: a client at the login screen sits in the default slot (once; it moves to its character's own slot when it
         // logs in and gets its thumbnail).
         _loginPlaced.IntersectWith(_atLogin);
@@ -1892,20 +1897,23 @@ public sealed class Previews : ITrayActions, ISettingsHost
     }
 
     /// <summary>The character's saved place, else the next free spot of the column MultiPreview lays out for new clients
-    /// (ThumbnailManager.FlowSlot): down from the start location, a new column at the bottom of the screen, ThumbnailGutter
-    /// apart (0-200, as the card allows).</summary>
+    /// (ThumbnailManager.CreateThumbnailForWindow): from the start location in the preferred monitor's work area (Home ›
+    /// Monitor; the primary's without one), a new column at the bottom of that area, ThumbnailGutter apart (FlowSlot). A
+    /// place on no screen at all is brought onto the primary one (EnsureOnScreen, issue #74). Before any MultiPreview window
+    /// exists there is no screen to ask: the start location is then taken as it is.</summary>
     private PixelRect Place(string character)
     {
+        int x, y, w, h;
         if (_settings.GetThumbnailPosition(character) is { Width: > 0, Height: > 0 } saved)
-            return new PixelRect((int)saved.X, (int)saved.Y, (int)saved.Width, (int)saved.Height);
-        var start = S.ThumbnailStartLocation;
-        int w = Math.Max(1, (int)start.Width), h = Math.Max(1, (int)start.Height);
-        int x = (int)start.X, y = (int)start.Y;
-        // Copy of ThumbnailManager.FlowSlot (a WPF file) — keep in sync.
-        int gap = Math.Clamp(S.ThumbnailGutter, 0, 200);
-        int bottom = _thumbs.Values.Select(t => t.Screens.Primary?.WorkingArea.Bottom).FirstOrDefault(b => b != null) ?? int.MaxValue / 4;
-        int perColumn = Math.Max(1, (bottom - y) / Math.Max(1, h + gap));
-        int index = _thumbs.Count;
-        return new PixelRect(x + index / perColumn * (w + gap), y + index % perColumn * (h + gap), w, h);
+            (x, y, w, h) = ((int)saved.X, (int)saved.Y, (int)saved.Width, (int)saved.Height);
+        else
+        {
+            var start = S.ThumbnailStartLocation;
+            (w, h) = (Math.Max(1, (int)start.Width), Math.Max(1, (int)start.Height));
+            var wa = AnyScreens != null ? TargetWorkArea(S.PreferredMonitor) : new System.Drawing.Rectangle(0, 0, int.MaxValue / 4, int.MaxValue / 4);
+            (x, y) = FlowSlot(_thumbs.Count, wa.Left + (int)start.X, wa.Top + (int)start.Y, w, h, S.ThumbnailGutter, wa.Bottom);
+        }
+        (x, y) = EnsureOnScreen(x, y, w, h);
+        return new PixelRect(x, y, w, h);
     }
 }

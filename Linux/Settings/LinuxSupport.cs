@@ -36,7 +36,7 @@ internal static class LinuxSupport
         // ── Home ──
         ["home.simpleBanner"] = S, ["home.showAllRow"] = S, ["home.tiles"] = S, ["home.groupKeys"] = S,
         ["home.next"] = S, ["home.previous"] = S, ["home.size"] = S, ["home.opacity"] = S,
-        ["home.monitor"] = N,                 // PreferredMonitor: Linux places thumbnails without a chosen monitor
+        ["home.monitor"] = S,                 // PreferredMonitor: Previews.Place / TargetWorkArea (S6)
         ["home.alertAttack"] = S, ["home.alertScram"] = S, ["home.alertDecloak"] = S, ["home.alertFleet"] = S, ["home.alertSound"] = S,
         ["home.quickActions"] = S,            // Linux/Settings/MoreEditors.cs (S3b)
         ["home.startWithWindows"] = W,        // the Windows Run registry key
@@ -57,7 +57,8 @@ internal static class LinuxSupport
         ["clients.hotkeys.cycleSameSystem"] = S, ["clients.hotkeys.cycleAlerting"] = S, ["clients.hotkeys.cycleSkipMuted"] = S,   // CycleFilter (S3b)
         ["clients.hotkeys.backToPrevious"] = S, ["clients.hotkeys.lastAlert"] = S,
         ["clients.hotkeys.suspend"] = S, ["clients.hotkeys.clickThrough"] = S, ["clients.hotkeys.hidePrimary"] = S,   // Previews.BindHotkeys (S3b)
-        ["clients.hotkeys.quickSwitch"] = N, ["clients.hotkeys.undo"] = N, ["clients.hotkeys.redo"] = N,   // no quick-switch sheet, no layout history
+        ["clients.hotkeys.quickSwitch"] = N,   // no quick-switch sheet
+        ["clients.hotkeys.undo"] = S, ["clients.hotkeys.redo"] = S,   // Previews.UndoLayout / RedoLayout (S6)
         ["clients.hotkeys.profileNext"] = S, ["clients.hotkeys.profilePrevious"] = S, ["clients.hotkeys.closeAll"] = S,   // (S3b)
         ["clients.hotkeys.sheet"] = N,        // no hotkey sheet window on Linux
         ["clients.hotkeys.openSettings"] = S, // (S3b)
@@ -107,13 +108,15 @@ internal static class LinuxSupport
         ["thumbs.text.notResponding"] = S, ["thumbs.text.disconnected"] = S, ["thumbs.text.disconnectSeconds"] = S,
 
         // ── Thumbnails › Layout ──
-        ["thumbs.layout.monitor"] = N,
+        ["thumbs.layout.monitor"] = S,        // S6: Linux/Settings/LayoutEditors.cs, Previews.TargetWorkArea
         ["thumbs.layout.identifyRow"] = W,    // MonitorIdentify: a badge window per Windows monitor
         ["thumbs.layout.startX"] = S, ["thumbs.layout.startY"] = S, ["thumbs.layout.startWidth"] = S, ["thumbs.layout.startHeight"] = S,
         ["thumbs.layout.gap"] = S,            // Previews.Place, ThumbnailManager.FlowSlot (S3b)
         ["thumbs.layout.snap"] = S, ["thumbs.layout.snapDistance"] = S, ["thumbs.layout.confine"] = S,   // Previews.SnapThumbnail, ThumbnailWindow.Confined (S5)
-        ["thumbs.layout.lock"] = S, ["thumbs.layout.autoOnMonitorChange"] = N, ["thumbs.layout.presets"] = N,
-        ["thumbs.layout.align"] = N, ["thumbs.layout.history"] = N,
+        // S6 (Linux/PreviewsLayout.cs, Linux/Settings/LayoutEditors.cs): saved layouts, the layout for the monitors (asked at
+        // the 2 s client look), align / distribute / nudge, undo / redo / reset.
+        ["thumbs.layout.lock"] = S, ["thumbs.layout.autoOnMonitorChange"] = S, ["thumbs.layout.presets"] = S,
+        ["thumbs.layout.align"] = S, ["thumbs.layout.history"] = S,
 
         // ── Thumbnails › Visibility ──
         ["thumbs.visibility.alwaysOnTop"] = S, ["thumbs.visibility.aboveClients"] = N,
@@ -290,9 +293,9 @@ internal static class LinuxSupport
         ["L.S.alerts.hub.enabled"] = "L.Linux.NotifyOn",
         ["L.S.alerts.hub.enabled.Desc"] = "L.Linux.NotifyOn.Desc",
         ["L.S.app.general.acceptCommands.Desc"] = "L.Linux.AcceptCommands.Desc",
-        // S3b: the editors' Windows words (a volume "in Windows", an undo Linux has not, the alert hub's toasts).
+        // S3b: the editors' Windows words (a volume "in Windows", the alert hub's toasts). S6: Linux has the layout undo now, so
+        // "Apply to all" keeps its Windows description.
         ["L.S.clients.audio.volume.Desc"] = "L.Linux.VolumeDesc",
-        ["L.S.thumbs.appearance.resizeAll.Desc"] = "L.Linux.ResizeAllDesc",
         ["L.S.Severity.ColHub"] = "L.Linux.Notifications",
         // S4: the looks change the settings window and its dialogs on Linux (not the menus and alerts), and Daylight follows
         // the desktop's colour scheme instead of Windows' app theme.

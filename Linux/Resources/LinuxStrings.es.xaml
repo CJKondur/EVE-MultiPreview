@@ -44,7 +44,6 @@
     <sys:String x:Key="L.Linux.UpdateNotWritable">Tu cuenta no puede escribir en la carpeta de MultiPreview. Descarga la nueva versión desde la página de la versión.</sys:String>
     <sys:String x:Key="L.Linux.NotYet">Aún no disponible en Linux: {0}</sys:String>
     <sys:String x:Key="L.Linux.VolumeDesc">El volumen de cada cliente en el servidor de sonido de este escritorio. Un cliente lo recuerda para la próxima vez.</sys:String>
-    <sys:String x:Key="L.Linux.ResizeAllDesc">Ancho × alto. «Aplicar a todas» cambia el tamaño de cada miniatura donde está, y las miniaturas nuevas empiezan con este tamaño.</sys:String>
     <sys:String x:Key="L.Linux.LookGallery.Desc">Un clic cambia la ventana de ajustes y sus diálogos a la vez. Las miniaturas no cambian.</sys:String>
     <sys:String x:Key="L.Linux.LookHelp.Body">Cada tarjeta muestra una pequeña vista previa de un aspecto; un clic lo elige. La ventana de ajustes y sus diálogos cambian al momento; nada se reinicia. Las miniaturas, sus menús y las notificaciones del escritorio no cambian.&#x0A;&#x0A;**Clásico** es el azul marino de la ventana de ajustes anterior. **Windows 11** es el aspecto oscuro de la Configuración de Windows 11. **Contraste alto** usa blanco y negro, con texto más grande. Los otros nueve tienen sus propios colores y tipografía, y **Cápsula**, **Plano técnico**, **Tinta** y **Terminal** también organizan la página a su manera.</sys:String>
     <sys:String x:Key="L.Linux.LookThemeSection">Escritorio claro y oscuro</sys:String>

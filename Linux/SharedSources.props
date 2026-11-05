@@ -63,6 +63,7 @@
     <Compile Include="..\Services\JumpCounter.cs" Link="Shared\Services\JumpCounter.cs" />
     <Compile Include="..\Services\KeepAwake.cs" Link="Shared\Services\KeepAwake.cs" />
     <Compile Include="..\Services\LayoutAlign.cs" Link="Shared\Services\LayoutAlign.cs" />
+    <Compile Include="..\Services\LayoutImage.cs" Link="Shared\Services\LayoutImage.cs" />
     <Compile Include="..\Services\LayoutPresetService.cs" Link="Shared\Services\LayoutPresetService.cs" />
     <Compile Include="..\Services\LiveState.cs" Link="Shared\Services\LiveState.cs" />
     <Compile Include="..\Services\LogMonitorService.cs" Link="Shared\Services\LogMonitorService.cs" />

@@ -44,7 +44,6 @@
     <sys:String x:Key="L.Linux.UpdateNotWritable">あなたのアカウントでは MultiPreview のフォルダーに書き込めません。リリースページから新しいバージョンをダウンロードしてください。</sys:String>
     <sys:String x:Key="L.Linux.NotYet">Linux ではまだ使えません：{0}</sys:String>
     <sys:String x:Key="L.Linux.VolumeDesc">このデスクトップのサウンドサーバーでの各クライアントの音量です。クライアントは次回のために記憶します。</sys:String>
-    <sys:String x:Key="L.Linux.ResizeAllDesc">幅 × 高さ。「すべてに適用」で各サムネイルをその場でリサイズし、新しいサムネイルもこのサイズで始まります。</sys:String>
     <sys:String x:Key="L.Linux.LookGallery.Desc">1 回のクリックで、設定ウィンドウとそのダイアログが一度に変わります。サムネイルはそのままです。</sys:String>
     <sys:String x:Key="L.Linux.LookHelp.Body">各カードには外観の小さなプレビューが表示されます。1 回のクリックで選べます。設定ウィンドウとそのダイアログはすぐに変わり、再起動は不要です。サムネイル、そのメニュー、デスクトップ通知はそのままです。&#x0A;&#x0A;**クラシック**は以前の設定ウィンドウの紺色です。**Windows 11** は Windows 11 の設定の暗い外観です。**ハイコントラスト**は白黒で、文字が大きめです。ほかの 9 つにはそれぞれ独自の色と書体があり、**カプセル**、**設計図**、**インク**、**ターミナル**はページの配置も独自です。</sys:String>
     <sys:String x:Key="L.Linux.LookThemeSection">デスクトップのライトとダーク</sys:String>

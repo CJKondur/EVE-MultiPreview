@@ -47,6 +47,12 @@ internal static class LinuxEditors
         { EditorIds.GroupSoundsEditor, (pages, ctx, _) => pages.GroupSoundsCard(ctx) },
         // S6 (Linux/Settings/SlotEditors.cs): fixed client slots.
         { "clients.windows.slotEditor", (pages, ctx, _) => pages.SlotsCard(ctx) },
+        // S6 (Linux/Settings/LayoutEditors.cs): the preferred monitor, saved layouts, align, the layout history.
+        { "home.monitor", (pages, ctx, _) => pages.MonitorPicker(ctx, "home.monitor") },
+        { "thumbs.layout.monitor", (pages, ctx, _) => pages.MonitorPicker(ctx, "thumbs.layout.monitor") },
+        { "thumbs.layout.presets", (pages, ctx, _) => pages.LayoutPresets(ctx) },
+        { "thumbs.layout.align", (pages, ctx, _) => pages.AlignCard(ctx) },
+        { "thumbs.layout.history", (pages, ctx, _) => pages.LayoutHistory(ctx) },
     };
 
     /// <summary>Every editor id Linux can build.</summary>
