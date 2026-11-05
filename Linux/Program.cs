@@ -307,6 +307,23 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         if (_downtimeWarnings.Due(DateTime.UtcNow) is int minutes) Alerts.Say(Downtime.WarningText(minutes, names), 10000);
     }
 
+    /// <summary>IDEAS #34 (App's _tranquilityWatch, S7): its fetch is the shared "not allowed" one until the owner approves the
+    /// live status check (TranquilityWatch.LiveCheckApproved), as on Windows, so it never reaches the network.</summary>
+    private readonly TranquilityWatch _tranquilityWatch = new(TranquilityWatch.NotAllowedFetch);
+
+    /// <summary>App.FollowTranquility, twice a second: nothing while the switch is off; then the watch decides whether a poll
+    /// is due and says once when the server is back up. A failure is logged (an async void must never raise).</summary>
+    private async void FollowTranquility()
+    {
+        try
+        {
+            if (!S.TranquilityBackUp) return;
+            if (await _tranquilityWatch.PollAsync(DateTime.UtcNow, CancellationToken.None) is int players)
+                Alerts.Say(TranquilityWatch.BalloonText(players), 10000);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException) { ErrorLog.Shared.Record(ex, "App", DateTime.Now); }
+    }
+
     // ── Switch profiles by who is logged in (IDEAS #11: App.FollowAutoProfile) ──
 
     private readonly AutoProfile _autoProfile = new();
@@ -1245,6 +1262,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             DiagnosticsService.GlobalSettings = S;
             FollowKeepAwake();
             FollowDowntime();
+            FollowTranquility();
         }
         if (_ticks % 50 == 0) LookAtMemory();
         if (_ticks % 10 == 0) SyncStats();   // S7: the stats overlay, once a second (Windows' stat timer)
