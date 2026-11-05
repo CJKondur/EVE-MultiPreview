@@ -130,7 +130,7 @@ public static class ClientsPages
             Hotkey("clients.hotkeys.cycleNext", s => s.GlobalCycleForwardHotkey),
             Hotkey("clients.hotkeys.cyclePrevious", s => s.GlobalCycleBackwardHotkey),
             Toggle("clients.hotkeys.cycleWhileHeld", s => s.CycleWhileHeld, "ChkCycleWhileHeld"),
-            new SettingItem(Setting.Number("clients.hotkeys.cycleDelay", s => s.CycleDelayMs, 25, 2000, "L.S.Unit.Ms") with
+            new SettingItem(Setting.Number("clients.hotkeys.cycleDelay", s => s.CycleDelayMs, 1, 2000, "L.S.Unit.Ms") with
             {
                 ShowIf = s => s.CycleWhileHeld,
                 Replaces = new[] { "TxtCycleDelay" },
