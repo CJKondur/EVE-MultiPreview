@@ -37,6 +37,9 @@ public sealed unsafe class EveClients : IDisposable
         _maxVert = Xcb.Atom(_c, "_NET_WM_STATE_MAXIMIZED_VERT");
         _maxHorz = Xcb.Atom(_c, "_NET_WM_STATE_MAXIMIZED_HORZ");
         _hidden = Xcb.Atom(_c, "_NET_WM_STATE_HIDDEN");
+        _skipTaskbar = Xcb.Atom(_c, "_NET_WM_STATE_SKIP_TASKBAR");
+        _skipPager = Xcb.Atom(_c, "_NET_WM_STATE_SKIP_PAGER");
+        _above = Xcb.Atom(_c, "_NET_WM_STATE_ABOVE");
         _composite = Xcb.InitComposite(_c);
         if (Environment.GetEnvironmentVariable("EVEMP_NO_RENDER") != "1") _renderFormats = XRender.Formats(_c);
     }
@@ -98,7 +101,17 @@ public sealed unsafe class EveClients : IDisposable
 
     public void Activate(uint window) => Xcb.RequestActivate(_c, _root, window, _netActiveWindow);
 
-    private readonly uint _netMoveResize, _netWmState, _maxVert, _maxHorz, _hidden;
+    private readonly uint _netMoveResize, _netWmState, _maxVert, _maxHorz, _hidden, _skipTaskbar, _skipPager, _above;
+
+    /// <summary>Before one of our own windows (a thumbnail, a crop, a stats overlay) is shown again: out of the taskbar and the
+    /// pager, and above other windows when <paramref name="above"/>. A window manager drops a window's states when it is
+    /// hidden (withdrawn), and Avalonia, which set them once, does not set them again when it maps the window, so every
+    /// thumbnail shown a second time had its own taskbar entry.</summary>
+    public void UnlistBeforeShow(uint window, bool above)
+    {
+        Span<uint> states = stackalloc uint[] { _skipTaskbar, _skipPager, _above };
+        Xcb.SetStatesBeforeMap(_c, window, _netWmState, above ? states : states[..2]);
+    }
 
     /// <summary>Asks the window manager to put the client's own area at (x, y) on the screen, and to size it when a width and
     /// height are given (ThumbnailManager's SetWindowPos / SetWindowPlacement for client windows).</summary>

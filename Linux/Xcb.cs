@@ -235,6 +235,18 @@ internal static unsafe class Xcb
         xcb_flush(c);
     }
 
+    /// <summary>Writes the states a window asks for (_NET_WM_STATE, a list of atoms) on a window that is not mapped: the window
+    /// manager reads them when it maps the window (EWMH). A round trip after it, so the server has the list before another
+    /// connection (Avalonia's) maps the window.</summary>
+    public static void SetStatesBeforeMap(IntPtr c, uint window, uint netWmState, ReadOnlySpan<uint> states)
+    {
+        const uint atomType = 4;
+        const byte replace = 0;
+        fixed (uint* data = states) xcb_change_property(c, replace, window, netWmState, atomType, 32, (uint)states.Length, data);
+        xcb_flush(c);
+        _ = Property(c, window, netWmState);   // the round trip
+    }
+
     /// <summary>Stacks the window above its siblings (ConfigureWindow, stack mode Above). The window manager decides.</summary>
     public static void Raise(IntPtr c, uint window)
     {

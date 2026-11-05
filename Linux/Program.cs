@@ -21,7 +21,10 @@ public static class Program
     public static int Main(string[] args) =>
         // A command line that is a command ("--focus Alpha") goes to the running MultiPreview and this start ends with its outcome.
         CommandSocket.SendFromCommandLine(args)
-        ?? AppBuilder.Configure<App>().UsePlatformDetect().StartWithClassicDesktopLifetime(args, ShutdownMode.OnExplicitShutdown);
+        // One MultiPreview at a time, as on Windows: a second start says so and ends.
+        ?? (SingleInstance.TryClaim()
+            ? AppBuilder.Configure<App>().UsePlatformDetect().StartWithClassicDesktopLifetime(args, ShutdownMode.OnExplicitShutdown)
+            : SingleInstance.TellAlreadyRunning(args));
 }
 
 public sealed class App : Application
@@ -1371,7 +1374,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             bool isActive = thumb.Client.Window == active;
             bool shown = !_allHidden && !_primaryHidden && !Hidden(thumb.Client.Character) && !(isActive && S.HideActiveThumbnail) && !lostFocus
                 && !FocusMode.Holds(_focusHeld, thumb.Client.Character) && !S.NameBarMode;   // the name bar holds the main thumbnails
-            if (shown != thumb.IsVisible) { if (shown) thumb.Show(); else thumb.Hide(); }
+            ShowOrHide(thumb, shown);
             if (!shown) continue;
             FollowClickThrough(thumb);
             thumb.CanDrag = !S.LockPositions && !_clickThrough;
@@ -1392,7 +1395,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         foreach (var (character, pip) in _pips)
         {
             bool shown = !_allHidden && !_pipsHidden && !FocusMode.Holds(_focusHeld, character) && !lostFocus;
-            if (shown != pip.IsVisible) { if (shown) pip.Show(); else pip.Hide(); }
+            ShowOrHide(pip, shown);
             if (!shown) continue;
             FollowClickThrough(pip);
             pip.CanDrag = !S.LockPositions && !_clickThrough;
@@ -1412,7 +1415,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             var def = SettingsUi.CropEdits.Of(S, crop.Character).FirstOrDefault(d => d.Id == id);
             if (def == null) continue;   // deleted on the settings page: the next SyncCrops closes it
             bool shown = !_allHidden && !_cropsHidden && !FocusMode.Holds(_focusHeld, crop.Character);
-            if (shown != crop.Window.IsVisible) { if (shown) crop.Window.Show(); else crop.Window.Hide(); }
+            ShowOrHide(crop.Window, shown);
             if (!shown) continue;
             var placed = PopupOf(def);
             if (placed != crop.Placed && !crop.Window.Busy)
@@ -1588,6 +1591,15 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
     /// <summary>ThumbnailManager's desiredTopmost (keep in sync): always with "Always on top", and with "Keep thumbnails above
     /// the clients" while an EVE client or MultiPreview is in front, so they drop back the moment another program is (S7).</summary>
     private bool ThumbnailsTopmost => S.ShowThumbnailsAlwaysOnTop || (S.KeepThumbnailsAboveClients && _eveFocused);
+
+    /// <summary>Shows or hides a thumbnail, crop or stats window; one shown again stays out of the taskbar (UnlistBeforeShow).</summary>
+    private void ShowOrHide(Window window, bool shown)
+    {
+        if (shown == window.IsVisible) return;
+        if (!shown) { window.Hide(); return; }
+        if (window.TryGetPlatformHandle() is { } handle) _clients.UnlistBeforeShow((uint)(long)handle.Handle, window.Topmost);
+        window.Show();
+    }
 
     private bool Hidden(string character) => S.ThumbnailVisibility.TryGetValue(character, out var v) && v != 0;
 

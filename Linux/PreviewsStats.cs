@@ -72,7 +72,7 @@ public sealed partial class Previews
         foreach (var (character, window) in _statWindows)
         {
             bool shown = any && !FocusMode.Holds(_focusHeld, character);
-            if (shown != window.IsVisible) { if (shown) window.Show(); else window.Hide(); }
+            ShowOrHide(window, shown);
             if (window.Topmost != ThumbnailsTopmost) window.Topmost = ThumbnailsTopmost;
             window.CanDrag = !S.LockPositions;
         }
