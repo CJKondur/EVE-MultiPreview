@@ -40,6 +40,10 @@ public sealed class Alerts : IDisposable
     /// thread-safe); the app reads it once a second.</summary>
     public StatTrackerService Stats { get; } = new();
 
+    /// <summary>S8: the jumps each character made this run (ThumbnailManager.Jumps, IDEAS P10), for a text template's {jumps};
+    /// fed by the log monitor's SystemMoved on the log thread, as App feeds it (the counter holds a lock).</summary>
+    public JumpCounter Jumps { get; } = new();
+
     /// <summary>The alert history, for the history window.</summary>
     public AlertHistory History => _history;
 
@@ -220,6 +224,7 @@ public sealed class Alerts : IDisposable
             _stragglers.Moved(character, system, DateTime.UtcNow);
             _idleWatch.Moved(character, DateTime.UtcNow);
         };
+        _monitor.SystemMoved += (character, from, to, backfill) => Jumps.Moved(character, to, from, backfill);   // S8: App's handler
         _monitor.DamageReceived += d =>
         {
             Stats.RecordDamage(d.CharacterName, d.Amount, true, d.IsNpc, damageType: d.Type);

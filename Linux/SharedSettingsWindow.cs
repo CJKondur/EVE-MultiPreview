@@ -1159,6 +1159,9 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     /// <summary>The characters with a client running now (the Linux app's).</summary>
     internal IReadOnlyCollection<string> RunningCharacters() => _app.RunningCharacters();
 
+    /// <summary>The Linux app behind this window (LinuxSupport's Linux bodies for shared buttons ask it).</summary>
+    internal ISettingsHost App => _app;
+
     /// <summary>Puts text on the clipboard (a look or profile code). False when this desktop has no clipboard to ask.</summary>
     internal bool CopyText(string text)
     {

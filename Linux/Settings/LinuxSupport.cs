@@ -96,7 +96,7 @@ internal static class LinuxSupport
 
         // ── Thumbnails › Text & borders ──
         ["thumbs.text.showText"] = S, ["thumbs.text.showSystem"] = S, ["thumbs.text.showTimer"] = S,   // Previews.Extras (S3b)
-        ["thumbs.text.template"] = N,         // no Linux editor; {jumps} and {week} have no Linux source
+        ["thumbs.text.template"] = S,         // S8: Linux/Settings/TextEditors.cs; Previews.TemplateLook ({jumps}: Alerts.Jumps, {week}: the playtime ledger)
         ["thumbs.text.streamer"] = S, ["thumbs.text.color"] = S, ["thumbs.text.font"] = S, ["thumbs.text.size"] = S,
         ["thumbs.text.marginX"] = S, ["thumbs.text.marginY"] = S,   // Previews.Extras (S3b)
         ["thumbs.text.showStats"] = S, ["thumbs.text.statsSize"] = S,   // S6: Previews.FollowProcessStats from /proc, ThumbnailWindow.SetStats
@@ -228,7 +228,7 @@ internal static class LinuxSupport
         ["app.diagnostics.errorCount"] = S, ["app.diagnostics.errorLog"] = S,
         ["app.diagnostics.uncleanExit"] = S,  // Previews.Start writes the run marker (S3b)
         ["app.diagnostics.bugReport"] = N,    // the report window (BugReportActions) is WPF; not ported yet
-        ["app.diagnostics.trackPlaytime"] = N, ["app.diagnostics.playtimeHistory"] = N,   // playtime shows only as the template's {week}: ported with thumbs.text.template
+        ["app.diagnostics.trackPlaytime"] = S, ["app.diagnostics.playtimeHistory"] = S,   // S8: Linux/PreviewsText.cs (the template's {week}); Clear empties the app's ledger
         ["app.diagnostics.note"] = S, ["app.diagnostics.cycling"] = S, ["app.diagnostics.alerts"] = S, ["app.diagnostics.folder"] = S,   // GlobalSettings set (S3b)
         ["app.diagnostics.windowHooks"] = S,  // S6: client windows found, closed and placed (fixed slots) go to the window events log
         ["app.diagnostics.injection"] = W, ["app.diagnostics.dwm"] = W,   // no key/click sending, no DWM on Linux
@@ -271,7 +271,7 @@ internal static class LinuxSupport
         var sections = new List<SectionDef>();
         foreach (var section in page.Sections)
         {
-            var items = section.Items.Where(i => Shows(i.Id)).Select(Linuxify).ToList();
+            var items = section.Items.Where(i => Shows(i.Id)).Select(i => Linuxify(i, page.Id)).ToList();
             if (items.Count > 0 || Additions.ContainsKey(section.Id)) sections.Add(section with { Items = items });
         }
         return sections.Count == 0 ? null : page with { Sections = sections };
@@ -375,14 +375,41 @@ internal static class LinuxSupport
             if (File.Exists(path)) OpenWithDesktop(path);
             else if (Path.GetDirectoryName(path) is { Length: > 0 } dir) OpenFolder(dir);
         },
+        // S8: PlaytimeActions.Clear empties what the running app holds through ThumbnailManager, which Linux has not: the Linux
+        // app's ledger instead (else its next save would write the history back).
+        ["app.diagnostics.clearPlaytime"] = ctx =>
+        {
+            if (App(ctx) is { } app) app.ClearPlaytime();
+            else new PlaytimeStore(ctx.Service.ConfigDirectory).Delete();
+            ctx.Host.Toast(SettingsContext.Str("L.S.Playtime.Cleared"));
+        },
     };
 
-    private static PageItem Linuxify(PageItem item) => item switch
+    /// <summary>The Linux app behind the settings window a card runs in, or null (a test's host).</summary>
+    private static ISettingsHost? App(SettingsContext ctx) => (ctx.Host as SharedSettingsWindow)?.App;
+
+    private static PageItem Linuxify(PageItem item, string pageId) => item switch
     {
         ActionRow row when row.Actions.Any(a => Runs.ContainsKey(a.Id))
             => row with { Actions = row.Actions.Select(a => Runs.TryGetValue(a.Id, out var run) ? a with { Run = run } : a).ToList() },
+        ActionRow row when row.Id == "character.forgetRow" && pageId.StartsWith(CharacterPage.IdFor(""), StringComparison.Ordinal)
+            => row with { Actions = row.Actions.Select(a => a.Id == "character.forget" ? a with { Run = ctx => Forget(ctx, pageId[CharacterPage.IdFor("").Length..]) } : a).ToList() },
         _ => item,
     };
+
+    /// <summary>S8: CharacterForget.ForgetInteractive with the Linux app in ThumbnailManager's place (keep in sync): asks first,
+    /// purges every entry for the name (the shared Purge), takes it out of the running app's playtime ledger and jump count
+    /// (else the next save writes it back), saves with a re-apply, says so and returns to Characters.</summary>
+    private static void Forget(SettingsContext ctx, string name)
+    {
+        if (!ctx.Host.Confirm(SettingsContext.Str("L.S.Character.ForgetTitle"),
+                string.Format(SettingsContext.Str("L.S.Character.ForgetConfirm"), name))) return;
+        CharacterForget.Purge(ctx.S, name);
+        bool playtimeGone = App(ctx) is { } app ? app.ForgetPlaytime(name) : PlaytimeActions.Forget(ctx, name);
+        ctx.Applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);
+        ctx.Host.Toast(string.Format(SettingsContext.Str(playtimeGone ? "L.S.Character.Forgotten" : "L.S.Character.ForgottenPlaytimeKept"), name));
+        ctx.Host.Navigate(ClientsPages.CharactersId);
+    }
 
     private static void OpenFolder(string dir)
     {

@@ -59,6 +59,8 @@ internal static class LinuxEditors
         { "tools.stats.metrics", (pages, ctx, _) => pages.StatMetricsCard(ctx) },
         { "tools.stats.characterTable", (pages, ctx, _) => pages.StatCharactersCard(ctx) },
         { "character.statsPicker", (pages, ctx, item) => pages.StatPickerCard(ctx, (string)item.Arg!) },
+        // S8 (Linux/Settings/TextEditors.cs): the thumbnail text template.
+        { EditorIds.TextTemplateEditor, (pages, ctx, _) => pages.TextTemplateCard(ctx) },
     };
 
     /// <summary>Every editor id Linux can build.</summary>

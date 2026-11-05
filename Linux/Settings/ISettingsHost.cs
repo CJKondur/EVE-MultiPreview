@@ -85,4 +85,10 @@ public interface ISettingsHost
     bool RedoLayout();
     void ResetThumbnailPositions();
     bool ApplyAlign(AlignOp op, IReadOnlyList<string> names, int dx = 0, int dy = 0);
+    // ── S8: the weekly playtime and the jump count (Linux/PreviewsText.cs, ThumbnailManager's) ──
+    /// <summary>ThumbnailManager.ForgetPlaytime + ForgetJumps: the name leaves the playtime ledger and playtime.json, and its
+    /// jump count goes. False when the name may still be in the file.</summary>
+    bool ForgetPlaytime(string name);
+    /// <summary>ThumbnailManager.ClearPlaytime: playtime.json deleted and what the app holds emptied.</summary>
+    void ClearPlaytime();
 }

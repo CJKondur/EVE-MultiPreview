@@ -916,6 +916,8 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         _keepAwake.Dispose();
         _runMarker?.End();
         CloseStatWindows();   // S7: their places are kept before the settings are written
+        try { FlushPlaytime(); }   // S8: what was counted since the last save (App's exit, IDEAS P11)
+        catch (Exception ex) when (ex is not OutOfMemoryException) { ErrorLog.Shared.Record(ex, "App", DateTime.Now); }
         _alerts?.Dispose();
         _settings.Dispose();
         foreach (var thumb in _thumbs.Values.Concat(_pips.Values).Concat(_crops.Values.Select(c => c.Window))) thumb.Close();
@@ -1265,7 +1267,11 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             FollowTranquility();
         }
         if (_ticks % 50 == 0) LookAtMemory();
-        if (_ticks % 10 == 0) SyncStats();   // S7: the stats overlay, once a second (Windows' stat timer)
+        if (_ticks % 10 == 0)
+        {
+            SyncStats();        // S7: the stats overlay, once a second (Windows' stat timer)
+            FollowPlaytime();   // S8: the weekly playtime ({week}), on the same second (ThumbnailManager's session-timer tick)
+        }
         var watch = Stopwatch.StartNew();
         uint active = _clients.Active();
         if (active != _lastActive && _thumbs.ContainsKey(active))
@@ -1319,7 +1325,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             thumb.ConfineDragsToMonitor = S.ConfineDragsToMonitor;
             thumb.HoverScale = S.ResizeThumbnailsOnHover ? S.HoverScale : 1.0;   // ThumbnailManager.HoverScaleFor
             thumb.SetBackground(Brush(S.ThumbnailBackgroundColor));   // S7: behind the picture until there is one
-            thumb.Apply(UnderFireLook(thumb.Client.Character, LoginLook(thumb.Client.Character, Look(thumb.Client.Character, isActive, thumb.Hovered))));
+            thumb.Apply(UnderFireLook(thumb.Client.Character, LoginLook(thumb.Client.Character, TemplateLook(thumb, Look(thumb.Client.Character, isActive, thumb.Hovered)))));
             thumb.MenuOpen = _menu != null;
             thumb.Follow();   // a drag that ended or a pointer that left lets a waiting enlargement happen
             thumb.SetMark(MarkOf(thumb.Client.Window) ?? LoginMark(thumb.Client.Character));
@@ -1410,8 +1416,9 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
     {
         var name = thumb.Client.Character;
         var margins = S.ThumbnailTextMargins;
-        string? system = S.ShowSystemName && _alerts?.SystemOf(name) is { Length: > 0 } sys ? StreamerMask.Name(StreamerKind.System, sys) : null;
-        string? timer = S.ShowSessionTimer ? (DateTime.UtcNow - thumb.SessionStartUtc).ToString(@"hh\:mm\:ss", System.Globalization.CultureInfo.InvariantCulture) : null;
+        // S8: with a text template the system and the timer are in the name line (PreviewsText.TemplateLook).
+        string? system = !TemplateOn && S.ShowSystemName && _alerts?.SystemOf(name) is { Length: > 0 } sys ? StreamerMask.Name(StreamerKind.System, sys) : null;
+        string? timer = !TemplateOn && S.ShowSessionTimer ? (DateTime.UtcNow - thumb.SessionStartUtc).ToString(@"hh\:mm\:ss", System.Globalization.CultureInfo.InvariantCulture) : null;
         thumb.SetExtras((int)Math.Round(margins?.X ?? 5), (int)Math.Round(margins?.Y ?? 5), system, timer, Math.Clamp(S.ThumbnailCornerRadius, 0, Models.Profile.MaxCornerRadius));
         bool alerting = _alertBorders.TryGetValue(name, out var alert) && S.ShowAlertTextOnThumbnails;
         thumb.SetAlertText(alerting ? EveMultiPreview.Views.AlertHub.EventDisplayName(alert!.AlertType) : null, alert?.Brush ?? Brushes.White,
