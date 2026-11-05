@@ -814,6 +814,7 @@ public sealed class ThumbnailManager : IDisposable
                 }
 
                 thumbWindow.UpdateCharacterName(window.CharacterName);
+                ApplyThumbnailCrop(thumbWindow);
 
                 // UpdateCharacterName force-shows the name overlay; re-assert the
                 // user's "show character name" preference so a disabled overlay
@@ -917,9 +918,24 @@ public sealed class ThumbnailManager : IDisposable
 
     // ── Settings Application ────────────────────────────────────────
 
+    private void ApplyThumbnailCrop(ThumbnailWindow thumb)
+    {
+        var s = _settings.Settings;
+        var crop = s.CropEnabled && s.Crops.TryGetValue(thumb.CharacterName, out var definitions)
+            ? definitions.FirstOrDefault(c => c.ReplaceThumbnail) : null;
+        thumb.SetSourceCrop(crop);
+    }
+
+    public void RefreshThumbnailCrops()
+    {
+        foreach (var thumb in _thumbnails.Values)
+            ApplyThumbnailCrop(thumb);
+    }
+
     private void ApplySettings(ThumbnailWindow thumb, EveWindow window)
     {
         var s = _settings.Settings;
+        ApplyThumbnailCrop(thumb);
 
         // Lock positions
         thumb.IsLocked = s.LockPositions;

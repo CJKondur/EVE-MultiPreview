@@ -35,6 +35,9 @@ public class ThumbnailWindow : Form
     private IntPtr _thumbId;
     private IntPtr _eveHwnd;
     private IntPtr _ownHwnd;
+    private DwmApi.RECT? _sourceCrop;
+    private RectangleF _snapshotClientBounds = new(0, 0, 1, 1);
+    private Size _snapshotClientSize;
 
     // Base dimensions (pre-hover)
     private int _baseWidth;
@@ -854,6 +857,27 @@ public class ThumbnailWindow : Form
 
     public void UpdateThumbnailSize() => ApplyThumbnailPresentation();
 
+    public void SetSourceCrop(Models.CropDefinition? crop)
+    {
+        DwmApi.RECT? source = crop == null ? null : new DwmApi.RECT(
+            Math.Max(0, crop.SourceX), Math.Max(0, crop.SourceY),
+            Math.Max(0, crop.SourceX) + Math.Max(1, crop.SourceWidth),
+            Math.Max(0, crop.SourceY) + Math.Max(1, crop.SourceHeight));
+        if (Nullable.Equals(_sourceCrop, source)) return;
+        bool clearing = _sourceCrop.HasValue && !source.HasValue;
+        _sourceCrop = source;
+        // DWM retains rcSource when RECTSOURCE is omitted. A new registration
+        // restores the full client area, including after subsequent client resizes.
+        if (clearing)
+        {
+            DwmApi.UnregisterThumbnail(_thumbId);
+            _thumbId = IntPtr.Zero;
+            RegisterDwmThumbnail();
+        }
+        else ApplyThumbnailPresentation();
+        if (IsHandleCreated) Invalidate();
+    }
+
     private void ApplyThumbnailPresentation()
     {
         if (_thumbId == IntPtr.Zero) return;
@@ -870,7 +894,23 @@ public class ThumbnailWindow : Form
         // opacity byte to anything other than 0 or 255 would compound with
         // LWA_ALPHA and produce a non-uniform fade.
         byte dwmOpacity = _isDwmHidden ? (byte)0 : (byte)255;
-        DwmApi.UpdateThumbnailInset(_thumbId, w, h, b, dwmOpacity, clientAreaOnly: true);
+        DwmApi.UpdateThumbnailInset(_thumbId, w, h, b, dwmOpacity, clientAreaOnly: true, sourceRect: _sourceCrop);
+
+        // PrintWindow snapshots include the window frame and may be downscaled.
+        // Cache client-area proportions while restored for the minimized fallback.
+        if (!User32.IsIconic(_eveHwnd) && User32.GetWindowRect(_eveHwnd, out var wr)
+            && wr.Right > wr.Left && wr.Bottom > wr.Top
+            && User32.GetClientRect(_eveHwnd, out var cr))
+        {
+            var origin = new User32.POINT();
+            User32.ClientToScreen(_eveHwnd, ref origin);
+            _snapshotClientBounds = new RectangleF(
+                (float)(origin.X - wr.Left) / (wr.Right - wr.Left),
+                (float)(origin.Y - wr.Top) / (wr.Bottom - wr.Top),
+                (float)cr.Right / (wr.Right - wr.Left),
+                (float)cr.Bottom / (wr.Bottom - wr.Top));
+            _snapshotClientSize = new Size(cr.Right, cr.Bottom);
+        }
     }
 
     // ── Overlay passthrough ──────────────────────────────────────
@@ -1295,7 +1335,17 @@ public class ThumbnailWindow : Form
             try
             {
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.DrawImage(_frozenFrame, dest);
+                if (_sourceCrop is DwmApi.RECT crop && _snapshotClientSize.Width > 0 && _snapshotClientSize.Height > 0)
+                {
+                    var client = _snapshotClientBounds;
+                    var source = new RectangleF(
+                        (client.X + client.Width * crop.Left / _snapshotClientSize.Width) * _frozenFrame.Width,
+                        (client.Y + client.Height * crop.Top / _snapshotClientSize.Height) * _frozenFrame.Height,
+                        client.Width * crop.Width / _snapshotClientSize.Width * _frozenFrame.Width,
+                        client.Height * crop.Height / _snapshotClientSize.Height * _frozenFrame.Height);
+                    g.DrawImage(_frozenFrame, dest, source, GraphicsUnit.Pixel);
+                }
+                else g.DrawImage(_frozenFrame, dest);
             }
             catch { /* bitmap may have been disposed mid-paint by service — ignore */ }
         }

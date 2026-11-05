@@ -1702,6 +1702,13 @@ public partial class SettingsWindow : Window
             "   region you want to capture\n" +
             "4. Adjust Name, Show Label, popup\n" +
             "   position/size as needed\n\n" +
+            "Replacing a Thumbnail\n" +
+            "────────────────────────────\n" +
+            "Check 'Replace thumbnail' to show the\n" +
+            "crop in the client's main thumbnail.\n" +
+            "Only one crop per client can be chosen.\n" +
+            "Clear it to choose another crop or\n" +
+            "restore the full client preview.\n\n" +
             "Manipulating Popups\n" +
             "────────────────────────────\n" +
             "• Right-click + drag — move the popup\n" +
@@ -2350,6 +2357,30 @@ public partial class SettingsWindow : Window
         header.Children.Add(btnDel);
         root.Children.Add(header);
 
+        var chkReplaceThumbnail = new System.Windows.Controls.CheckBox
+        {
+            Content = "Replace thumbnail",
+            IsChecked = def.ReplaceThumbnail,
+            IsEnabled = def.ReplaceThumbnail || !S.Crops[characterName].Any(c => c.ReplaceThumbnail),
+            Margin = new Thickness(0, 0, 0, 6),
+            ToolTip = "Use this crop in the client's main thumbnail instead of a separate popup. Only one crop per client can replace the thumbnail; clear it to choose another."
+        };
+        void SetReplaceThumbnail(bool replace)
+        {
+            if (_loading) return;
+            // Enforce exclusivity in the saved definitions as well as the UI.
+            if (replace)
+                foreach (var other in S.Crops[characterName])
+                    other.ReplaceThumbnail = false;
+            def.ReplaceThumbnail = replace;
+            _svc.Save();
+            _cropManager?.Refresh();
+            RebuildCropList();
+        }
+        chkReplaceThumbnail.Checked += (_, _) => SetReplaceThumbnail(true);
+        chkReplaceThumbnail.Unchecked += (_, _) => SetReplaceThumbnail(false);
+        root.Children.Add(chkReplaceThumbnail);
+
         // Source rect row
         root.Children.Add(BuildRectRow(
             "Source (on EVE client):", def.SourceX, def.SourceY, def.SourceWidth, def.SourceHeight,
@@ -2521,7 +2552,10 @@ public partial class SettingsWindow : Window
                 list = new List<CropDefinition>();
                 S.Crops[target] = list;
             }
-            list.Add(CloneCrop(source));
+            var clone = CloneCrop(source);
+            // Keep an existing replacement on the target character.
+            clone.ReplaceThumbnail = source.ReplaceThumbnail && !list.Any(c => c.ReplaceThumbnail);
+            list.Add(clone);
         }
 
         _svc.Save();

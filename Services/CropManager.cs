@@ -133,10 +133,13 @@ public sealed class CropManager : IDisposable
     /// would miss).</summary>
     private static bool CropsInSync(Dictionary<string, CropWindow>? existing, List<CropDefinition> defs)
     {
-        if ((existing?.Count ?? 0) != defs.Count) return false;
-        if (existing == null) return false; // unreachable when defs.Count > 0; satisfies null-flow
+        if ((existing?.Count ?? 0) != defs.Count(d => !d.ReplaceThumbnail)) return false;
+        if (existing == null) return defs.All(d => d.ReplaceThumbnail);
         foreach (var def in defs)
+        {
+            if (def.ReplaceThumbnail) continue;
             if (!existing.ContainsKey(def.Id)) return false;
+        }
         return true;
     }
 
@@ -355,6 +358,8 @@ public sealed class CropManager : IDisposable
         {
             var s = _settings.Settings;
 
+            _thumbnailManager?.RefreshThumbnailCrops();
+
             if (!s.CropEnabled)
             {
                 CloseAllInternal();
@@ -379,6 +384,7 @@ public sealed class CropManager : IDisposable
     {
         Application.Current?.Dispatcher.BeginInvoke(() =>
         {
+            _thumbnailManager?.RefreshThumbnailCrops();
             if (!_windows.TryGetValue(characterName, out var perChar)) return;
             if (!perChar.TryGetValue(cropId, out var win)) return;
 
@@ -507,6 +513,8 @@ public sealed class CropManager : IDisposable
         var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (var def in defs)
         {
+            // A replacement is rendered in the primary thumbnail, with no duplicate popup.
+            if (def.ReplaceThumbnail) continue;
             seen.Add(def.Id);
             if (perChar.TryGetValue(def.Id, out var existing))
             {

@@ -167,7 +167,7 @@ public static class DwmApi
     /// Update the thumbnail with an inset border. The DWM thumbnail is shrunk by
     /// the border amount on all sides, revealing the window background as a visible frame.
     /// </summary>
-    public static bool UpdateThumbnailInset(IntPtr thumbId, int destWidth, int destHeight, int border = 0, byte opacity = 255, bool clientAreaOnly = true)
+    public static bool UpdateThumbnailInset(IntPtr thumbId, int destWidth, int destHeight, int border = 0, byte opacity = 255, bool clientAreaOnly = true, RECT? sourceRect = null)
     {
         if (thumbId == IntPtr.Zero) return false;
 
@@ -179,6 +179,12 @@ public static class DwmApi
             fVisible = true,
             fSourceClientAreaOnly = clientAreaOnly
         };
+
+        if (sourceRect is RECT source)
+        {
+            props.dwFlags |= DWM_TNP.RECTSOURCE;
+            props.rcSource = source;
+        }
 
         int hr = DwmUpdateThumbnailProperties(thumbId, ref props);
         EveMultiPreview.Services.DiagnosticsService.LogDwm($"[UpdateThumbnailInset] ThumbID: {thumbId}, W:{destWidth} H:{destHeight}, Inset:{border}, Opacity:{opacity} -> HResult: 0x{hr:X8}");

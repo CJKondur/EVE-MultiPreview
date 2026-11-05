@@ -693,6 +693,11 @@ public class CropDefinition
     [JsonConverter(typeof(FlexibleBoolConverter))]
     public bool ShowLabel { get; set; } = true;
 
+    /// <summary>Display this region in the client's primary thumbnail instead of a popup.</summary>
+    [JsonPropertyName("replaceThumbnail")]
+    [JsonConverter(typeof(FlexibleBoolConverter))]
+    public bool ReplaceThumbnail { get; set; } = false;
+
     /// <summary>Crop popup opacity as a percent (10-100). 100 = fully opaque
     /// (previous behavior). Applied to the DWM preview content (issue #62).</summary>
     [JsonPropertyName("opacity")]
