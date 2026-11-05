@@ -123,6 +123,8 @@ public sealed partial class Previews
     /// <summary>On exit (ThumbnailManager.SaveStatWindowPositions): every window's place is kept and the window closed.</summary>
     private void CloseStatWindows()
     {
+        if (_statWindows.Count == 0) return;
         foreach (var character in _statWindows.Keys.ToList()) CloseStatWindow(character);
+        _settings.SaveDelayed();   // pending, so the exit's SettingsService.Dispose writes the places (a resize-all follower's too)
     }
 }
