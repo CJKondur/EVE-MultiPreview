@@ -588,13 +588,16 @@ public sealed class ThumbnailWindow : Window
         _mark.IsVisible = text != null;
     }
 
+    /// <summary>A picture of the client was drawn at least once (the GPU-saving modes skip the others).</summary>
+    public bool Drawn { get; private set; }
+
     /// <summary>Copies the client's current picture into the bitmap and shows it. False when the client is gone.</summary>
     public unsafe bool Update(EveClients clients)
     {
         bool ok;
         using (var fb = _bitmap.Lock())
             ok = clients.Grab(Client.Window, (byte*)fb.Address, fb.Size.Width, fb.Size.Height, fb.RowBytes, Area);
-        if (ok) _image.InvalidateVisual();
+        if (ok) { _image.InvalidateVisual(); Drawn = true; }
         return ok;
     }
 }

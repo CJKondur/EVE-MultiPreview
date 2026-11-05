@@ -1272,6 +1272,11 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         if (S.ShowAlertBadgeOnThumbnails)
             foreach (var unseen in _attention.Unseen())
                 if (SettingsUi.AlertFields.Badge(S, unseen.EventKey)) badges[unseen.Character] = badges.GetValueOrDefault(unseen.Character) + 1;
+        // ThumbnailManager's GPU-saving modes (Performance › GPU): "Still thumbnails" draws the main thumbnails once a second,
+        // "Freeze thumbnails in the background" keeps their last picture while neither EVE nor MultiPreview is in front. On Linux
+        // each picture is a copy from the X server, so both save CPU and X traffic.
+        bool eveFocused = _thumbs.ContainsKey(active) || _clients.IsOurs(active);
+        bool skipDraw = (S.StaticThumbnails && _ticks % 10 != 0) || (S.SuspendThumbnailsWhenBackground && !eveFocused);
         foreach (var thumb in _thumbs.Values)
         {
             bool isActive = thumb.Client.Window == active;
@@ -1291,7 +1296,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             thumb.SetMark(MarkOf(thumb.Client.Window) ?? LoginMark(thumb.Client.Character));
             thumb.SetCycleBadge(_excludedFromCycle.Contains(thumb.Client.Character), ThumbnailFields.Anchor(S.CycleExclusionBadgePosition));
             Extras(thumb, badges.GetValueOrDefault(thumb.Client.Character));
-            thumb.Update(_clients);
+            if (!skipDraw || !thumb.Drawn) thumb.Update(_clients);   // a new thumbnail gets its first picture all the same
         }
         // Second thumbnails: shown while the client runs, also while it is in front, unless all thumbnails or the second ones are hidden.
         foreach (var (character, pip) in _pips)

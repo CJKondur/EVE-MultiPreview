@@ -174,9 +174,12 @@ internal static class LinuxSupport
         ["alerts.custom.editor"] = S, ["alerts.custom.file"] = S,
 
         // ── Performance ──
-        ["perf.cpu.manage"] = N, ["perf.cpu.autoBalance"] = N, ["perf.cpu.coreTable"] = N,
-        ["perf.gpu.presetRow"] = N,           // sets two switches the Linux app does not read
-        ["perf.gpu.static"] = N, ["perf.gpu.suspend"] = N,
+        // Windows-only: an unprivileged Linux process may lower a client's priority (nice) but never raise it back
+        // (RLIMIT_NICE), so the client in front could not get its normal priority again; and an affinity set on a Wine
+        // process holds for its main thread only.
+        ["perf.cpu.manage"] = W, ["perf.cpu.autoBalance"] = W, ["perf.cpu.coreTable"] = W,
+        // S6: Previews.Tick draws the main thumbnails once a second / not while EVE and MultiPreview are behind.
+        ["perf.gpu.presetRow"] = S, ["perf.gpu.static"] = S, ["perf.gpu.suspend"] = S,
         ["perf.fps.rtssMissing"] = W, ["perf.fps.rtssFound"] = W, ["perf.fps.background"] = W, ["perf.fps.applyRow"] = W,
         ["perf.fps.show"] = W, ["perf.fps.insetX"] = W, ["perf.fps.insetY"] = W, ["perf.fps.size"] = W,
         ["perf.fps.target"] = W, ["perf.fps.manualRow"] = W,   // RivaTuner Statistics Server
@@ -239,7 +242,7 @@ internal static class LinuxSupport
         ["character.colorsOff"] = S, ["character.colorActive"] = S, ["character.colorInactive"] = S, ["character.colorText"] = S,
         ["character.colorsReset"] = S,
         ["character.neverMinimize"] = S,      // Previews.ActivateClient (S3b)
-        ["character.core"] = N, ["character.coreStale"] = N,   // no CPU affinity on Linux yet
+        ["character.core"] = W, ["character.coreStale"] = W,   // CPU priority and affinity: see perf.cpu
         ["character.volume"] = S,
         ["character.statsOff"] = N, ["character.statsNote"] = N, ["character.statsDamage"] = N, ["character.statsLogi"] = N,
         ["character.statsMining"] = N, ["character.statsRatting"] = N, ["character.statsPicker"] = N,
