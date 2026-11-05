@@ -91,4 +91,7 @@ public interface ISettingsHost
     bool ForgetPlaytime(string name);
     /// <summary>ThumbnailManager.ClearPlaytime: playtime.json deleted and what the app holds emptied.</summary>
     void ClearPlaytime();
+    /// <summary>S8: About › Install a specific version: the update dialog for <paramref name="service"/>, already aimed at the
+    /// chosen release (UpdateService.Select), in its specific-version wording. Nothing when an update dialog is open.</summary>
+    void InstallVersion(UpdateService service, Action? beforeApply, Action? undoBeforeApply);
 }

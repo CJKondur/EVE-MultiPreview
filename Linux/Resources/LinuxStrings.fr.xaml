@@ -67,5 +67,7 @@
     <sys:String x:Key="L.Linux.Help.Clicks">Un simple clic passe à ce client. **Ctrl+clic** (l'une ou l'autre touche Ctrl) et **Maj+clic** peuvent plutôt le réduire ou le sauter dans le cycle. Ctrl est aussi la touche de verrouillage de cible d'EVE : choisissez ce qui convient à votre façon de jouer.&#x0A;&#x0A;**Utiliser des couleurs par personnage** active les couleurs de bordure et de texte que vous définissez sur la page de chaque personnage.</sys:String>
     <!-- S7: the stats overlay -->
     <sys:String x:Key="L.Linux.Help.StatsLogging">Avec **Enregistrer les statistiques en fichiers CSV** activé, MultiPreview écrit un fichier par personnage et par jour dans le dossier des journaux, pour un tableur. Les fichiers plus anciens que la durée de conservation sont supprimés au démarrage de MultiPreview ; 0 jour conserve tous les fichiers. Activer ou désactiver la journalisation s'applique immédiatement, une nouvelle durée de conservation dès le prochain démarrage.</sys:String>
+    <!-- S8: the last Windows features -->
+    <sys:String x:Key="L.Linux.Help.Updates">MultiPreview cherche une nouvelle version sur GitHub au démarrage, sauf si vous le désactivez. **Rechercher des mises à jour** vérifie tout de suite.&#x0A;&#x0A;**Installer une version précise** liste toutes les versions. Installer une version plus ancienne désactive la recherche au démarrage, pour ne pas proposer aussitôt de remettre à jour.</sys:String>
 
 </ResourceDictionary>

@@ -425,6 +425,17 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         finally { _checkingUpdate = false; }
     }
 
+    /// <summary>S8: About › Install a specific version (VersionPickerEditor.Install): the Linux update dialog for the chosen
+    /// release. One update dialog at a time, as for the check.</summary>
+    public void InstallVersion(UpdateService service, Action? beforeApply, Action? undoBeforeApply)
+    {
+        if (_updateDialog != null) { _updateDialog.Activate(); return; }
+        var dialog = new UpdateDialog(service, Exit, specificVersion: true, beforeApply, undoBeforeApply);
+        dialog.Closed += (_, _) => _updateDialog = null;
+        _updateDialog = dialog;
+        dialog.Show();
+    }
+
     // ── Commands (App.RunCommand) and the command palette (IDEAS #14) ──
 
     private CommandPaletteWindow? _palette;

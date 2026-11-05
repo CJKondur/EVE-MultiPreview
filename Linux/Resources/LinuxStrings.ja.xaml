@@ -67,5 +67,7 @@
     <sys:String x:Key="L.Linux.Help.Clicks">普通のクリックでそのクライアントに切り替えます。**Ctrl+クリック**（左右どちらの Ctrl キーでも可）と **Shift+クリック** では、代わりに最小化したり、巡回で飛ばしたりできます。Ctrl は EVE のターゲットロックのキーでもあるので、遊び方に合うものを選んでください。&#x0A;&#x0A;**キャラクターごとの色を使う** をオンにすると、各キャラクターのページで設定した枠と文字の色が使われます。</sys:String>
     <!-- S7: the stats overlay -->
     <sys:String x:Key="L.Linux.Help.StatsLogging">**統計を CSV ファイルに保存** をオンにすると、MultiPreview はログフォルダーにキャラクターごと・1日ごとにファイルを書き込みます（表計算ソフト向け）。保存期間より古いファイルは MultiPreview の起動時に削除されます。0 日の場合はすべてのファイルを保持します。ログ記録のオン/オフはすぐに反映され、新しい保存期間は次回の起動から有効になります。</sys:String>
+    <!-- S8: the last Windows features -->
+    <sys:String x:Key="L.Linux.Help.Updates">オフにしない限り、MultiPreview は起動時に GitHub で新しいリリースを確認します。**アップデートを確認**はその場で確認します。&#x0A;&#x0A;**特定のバージョンをインストール**ではすべてのリリースが一覧表示されます。古いバージョンをインストールすると起動時の確認がオフになり、すぐに元へ更新を勧められることはありません。</sys:String>
 
 </ResourceDictionary>

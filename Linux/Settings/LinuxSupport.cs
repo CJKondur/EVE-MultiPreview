@@ -219,7 +219,7 @@ internal static class LinuxSupport
 
         // ── App › About ──
         ["app.about.versionText"] = S, ["app.about.links"] = S, ["app.about.checkOnStartup"] = S, ["app.about.preRelease"] = S,
-        ["app.about.installVersion"] = N,     // the version picker is not ported over the Linux updater (UpdateService.Linux.cs) yet
+        ["app.about.installVersion"] = S,     // S8: Linux/Settings/UpdateEditors.cs over the Linux updater (UpdateDialog, UpdateService.Linux.cs)
         ["app.about.useOldWindow"] = W,       // the old WPF settings window
         ["app.about.fonts"] = S,              // Linux/Settings/LookEditors.cs: the carried typefaces and their licences (S4)
         ["app.about.uninstallRow"] = W,       // registry, shortcuts, the Windows install
@@ -329,6 +329,8 @@ internal static class LinuxSupport
         ["L.Help.clients.characters.clicks.Body"] = "L.Linux.Help.Clicks",
         // S7: Linux has no session report window (the Windows StatReportWindow), so the logging help leaves it out.
         ["L.Help.tools.stats.logging.Body"] = "L.Linux.Help.StatsLogging",
+        // S8: the Linux updater has no failed-install marker (the Windows tray note within ten minutes), so that paragraph goes.
+        ["L.Help.app.about.updates.Body"] = "L.Linux.Help.Updates",
     };
 
     /// <summary>The key Linux shows for <paramref name="key"/>.</summary>

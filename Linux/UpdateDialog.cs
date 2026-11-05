@@ -22,14 +22,23 @@ public sealed class UpdateDialog : Window
     private readonly TextBlock _status = new() { TextWrapping = TextWrapping.Wrap, IsVisible = false };
     private string? _downloaded;
     private bool _busy, _installUnverified;
+    private readonly Action? _beforeApply, _undoBeforeApply;
+    private bool _beforeApplyRan, _applied;
 
     private static string T(string key, string english) => LocalizationService.Str(key, english);
 
     /// <param name="exit">Ends MultiPreview once the new program is in place (it starts when this one has gone).</param>
-    public UpdateDialog(UpdateService service, Action exit)
+    /// <param name="specificVersion">S8: opened from About › Install a specific version (an upgrade or a downgrade the player
+    /// picked) rather than by an update check: the Windows dialog's "Install v…" wording.</param>
+    /// <param name="beforeApply">Runs after the download, right before the program is replaced (a downgrade turns the startup
+    /// check off).</param>
+    /// <param name="undoBeforeApply">Puts back what <paramref name="beforeApply"/> changed when the dialog closes without installing.</param>
+    public UpdateDialog(UpdateService service, Action exit, bool specificVersion = false, Action? beforeApply = null, Action? undoBeforeApply = null)
     {
         _service = service;
         _exit = exit;
+        _beforeApply = beforeApply;
+        _undoBeforeApply = undoBeforeApply;
         Title = T("L.Upd.Title", "Update Available — EVE MultiPreview");
         Width = 560;
         Height = 480;
@@ -55,6 +64,21 @@ public sealed class UpdateDialog : Window
         };
 
         _now = new Button { Content = T("L.Upd.UpdateNow", "Update now"), IsDefault = true };
+        if (specificVersion)
+        {
+            // The Windows UpdateDialog's specific-version wording (keep in sync).
+            string cur = service.CurrentVersion, target = service.LatestVersion ?? "?";
+            bool older = Version.TryParse(target, out var t) && Version.TryParse(cur, out var c) && t < c;
+            Title = "EVE MultiPreview";
+            ((TextBlock)top.Children[0]).Text = string.Format(T("L.Upd.PickHeader", "Install v{0}"), target);
+            var info = (TextBlock)top.Children[1];
+            info.Text = string.Format(older
+                ? T("L.Upd.OlderInfo",
+                    "You have v{0}. This installs the OLDER v{1}. Your settings are backed up to the Backups folder first; options added after v{1} are lost if it saves them. \"Check for updates when the program starts\" is turned off so v{1} does not offer to update straight back.")
+                : T("L.Upd.PickInfo", "You have v{0}. This installs v{1}."), cur, target);
+            info.TextWrapping = TextWrapping.Wrap;
+            _now.Content = T("L.Upd.InstallBtn", "Install");
+        }
         _page = new Button { Content = T("L.Upd.ReleasePage", "Release page") };
         _later = new Button { Content = T("L.Upd.Later", "Later"), IsCancel = true };
         _now.Click += (_, _) => UpdateNow();
@@ -126,9 +150,12 @@ public sealed class UpdateDialog : Window
             }
 
             Say(T("L.Upd.Applying", "Download complete. Applying the update…"));
+            _beforeApply?.Invoke();
+            _beforeApplyRan = true;
             var result = await Task.Run(() => _service.InstallLinux(path, _installUnverified));
             if (result == UpdateService.LinuxInstall.Started)
             {
+                _applied = true;   // the exit below closes this dialog: that is no cancel, so nothing is undone
                 Say(T("L.Upd.Restarting", "Restarting with the new version…"));
                 await Task.Delay(600);
                 _exit();
@@ -149,6 +176,17 @@ public sealed class UpdateDialog : Window
         catch (Exception e)
         {
             Again(label, string.Format(T("L.Upd.FailedFmt", "The update failed: {0}"), e.Message));
+        }
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        // Closed without installing after beforeApply ran (the install failed, then Later): the player's startup check comes back.
+        if (_beforeApplyRan && !_applied)
+        {
+            try { _undoBeforeApply?.Invoke(); }
+            catch (Exception ex) when (ex is not OutOfMemoryException) { ErrorLog.Shared.Record(ex, "Update", DateTime.Now); }
         }
     }
 

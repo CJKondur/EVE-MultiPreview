@@ -67,5 +67,7 @@
     <sys:String x:Key="L.Linux.Help.Clicks">普通点击会切换到该客户端。**Ctrl+点击**（左右任一 Ctrl 键）和 **Shift+点击** 可以改为将其最小化，或在循环切换时跳过它。Ctrl 也是 EVE 的锁定目标键，请按你的玩法选择。&#x0A;&#x0A;**使用每个角色的专属颜色** 会启用你在每个角色页面上设置的边框和文字颜色。</sys:String>
     <!-- S7: the stats overlay -->
     <sys:String x:Key="L.Linux.Help.StatsLogging">开启 **将统计保存为 CSV 文件** 后，MultiPreview 会在日志文件夹中为每个角色每天写入一个文件，可用于电子表格。超过保留时间的文件会在 MultiPreview 启动时删除；0 天表示保留所有文件。开启或关闭日志会立即生效，新的保留时间从下次启动起生效。</sys:String>
+    <!-- S8: the last Windows features -->
+    <sys:String x:Key="L.Linux.Help.Updates">除非你关闭，MultiPreview 启动时会到 GitHub 检查是否有新版本。**检查更新**会立即检查。&#x0A;&#x0A;**安装指定版本**会列出所有版本。安装旧版本会关闭启动时的检查，以免它马上又提示更新回去。</sys:String>
 
 </ResourceDictionary>

@@ -67,5 +67,7 @@
     <sys:String x:Key="L.Linux.Help.Clicks">그냥 클릭하면 그 클라이언트로 전환해요. **Ctrl+클릭**(양쪽 Ctrl 키 모두)과 **Shift+클릭**으로는 대신 최소화하거나 순환할 때 건너뛸 수 있어요. Ctrl은 EVE의 대상 고정 키이기도 하니 플레이 방식에 맞는 것을 고르세요.&#x0A;&#x0A;**캐릭터별 색상 사용**은 각 캐릭터 페이지에서 정한 테두리와 글자 색을 켜요.</sys:String>
     <!-- S7: the stats overlay -->
     <sys:String x:Key="L.Linux.Help.StatsLogging">**통계를 CSV 파일로 저장**를 켜면 MultiPreview가 로그 폴더에 캐릭터별로 하루에 파일 하나를 기록해요(스프레드시트용). 보관 기간보다 오래된 파일은 MultiPreview를 시작할 때 삭제되며, 0일이면 모든 파일을 보관해요. 로그 기록을 켜고 끄는 것은 바로 적용되고, 새 보관 기간은 다음 시작부터 적용돼요.</sys:String>
+    <!-- S8: the last Windows features -->
+    <sys:String x:Key="L.Linux.Help.Updates">끄지 않으면 MultiPreview는 시작할 때 GitHub에서 새 릴리스를 확인해요. **업데이트 확인**은 바로 확인해요.&#x0A;&#x0A;**특정 버전 설치**는 모든 릴리스를 보여 줘요. 이전 버전을 설치하면 시작 시 확인이 꺼져서, 곧바로 다시 업데이트하라는 안내가 뜨지 않아요.</sys:String>
 
 </ResourceDictionary>
