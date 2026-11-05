@@ -9,18 +9,19 @@ namespace EveMultiPreview.Linux;
 /// or the client plays no sound yet. pactl runs off the UI thread, with its arguments as a list, never through a shell.</summary>
 public static class ClientVolume
 {
-    /// <summary>Sets the streams of this process to <paramref name="percent"/> (0–100) and unmutes them; -1 mutes them.</summary>
-    public static void Apply(uint pid, int percent)
+    /// <summary>Sets the streams of this process to <paramref name="percent"/> (0–100) and unmutes them; -1 mutes them.
+    /// <paramref name="keepMuted"/> (auto-solo, a client that is not the one in front) sets the volume and leaves them muted.</summary>
+    public static void Apply(uint pid, int percent, bool keepMuted = false)
     {
         if (pid == 0) return;
-        Task.Run(() =>
+        Enqueue(() =>
         {
             foreach (var stream in Streams(pid))
             {
                 if (percent < 0) Pactl("set-sink-input-mute", stream, "1");
                 else
                 {
-                    Pactl("set-sink-input-mute", stream, "0");
+                    Pactl("set-sink-input-mute", stream, keepMuted ? "1" : "0");
                     Pactl("set-sink-input-volume", stream, Math.Clamp(percent, 0, 100) + "%");
                 }
             }
@@ -31,10 +32,28 @@ public static class ClientVolume
     public static void SetMute(uint pid, bool mute)
     {
         if (pid == 0) return;
-        Task.Run(() =>
+        Enqueue(() =>
         {
             foreach (var stream in Streams(pid)) Pactl("set-sink-input-mute", stream, mute ? "1" : "0");
         });
+    }
+
+    // One worker runs the pactl jobs in the order they were asked, so a quick A→B→A switch cannot end in the wrong mute state.
+    private static readonly System.Threading.Channels.Channel<Action> Jobs = System.Threading.Channels.Channel.CreateUnbounded<Action>(
+        new System.Threading.Channels.UnboundedChannelOptions { SingleReader = true });
+    private static int _worker;
+
+    private static void Enqueue(Action job)
+    {
+        Jobs.Writer.TryWrite(job);
+        if (Interlocked.Exchange(ref _worker, 1) == 0)
+            _ = Task.Run(async () =>
+            {
+                await foreach (var next in Jobs.Reader.ReadAllAsync())
+                {
+                    try { next(); } catch (Exception) { }   // pactl trouble must not end the worker
+                }
+            });
     }
 
     /// <summary>The sink inputs (streams) of a process, by their index.</summary>

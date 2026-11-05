@@ -66,5 +66,6 @@
     <sys:String x:Key="L.Linux.Help.Startup">**All'avvio di MultiPreview** decide se si apre anche questa finestra. Scegli ridotta a icona per averla pronta senza coprire EVE.&#x0A;&#x0A;Per avviare MultiPreview all'accesso, aggiungilo ai programmi ad avvio automatico del tuo desktop.</sys:String>
     <sys:String x:Key="L.Linux.Help.Severity">Ogni evento è **critico**, **avviso** o **info**. Ogni gravità ha un colore, una velocità di lampeggio e la scelta se i suoi avvisi mostrano una notifica del desktop. Gli avvisi info non lampeggiano: restano fissi.</sys:String>
     <sys:String x:Key="L.Linux.Help.Clicks">Un clic semplice passa a quel client. **Ctrl+clic** (l'uno o l'altro tasto Ctrl) e **Maiusc+clic** possono invece minimizzarlo o saltarlo nel ciclo. Ctrl è anche il tasto di aggancio bersaglio di EVE, quindi scegli ciò che si adatta al tuo modo di giocare.&#x0A;&#x0A;**Usa colori per personaggio** attiva i colori del bordo e del testo che imposti nella pagina di ogni personaggio.</sys:String>
+    <sys:String x:Key="L.Linux.Help.Position">MultiPreview può spostare ogni client quando viene trovato e ogni volta che passi a esso:&#x0A;- **Centrate sul monitor**&#x0A;- **A X e Y fisse**&#x0A;&#x0A;**Ricorda dove si trovava ogni finestra client** rimette invece ogni client dove lo avevi lasciato.</sys:String>
 
 </ResourceDictionary>

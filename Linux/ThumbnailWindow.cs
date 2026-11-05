@@ -504,8 +504,9 @@ public sealed class ThumbnailWindow : Window
         Topmost = look.Topmost;
     }
 
-    /// <summary>When the thumbnail was made: its client's session began (the Windows thumbnail's SessionStartUtc).</summary>
-    public DateTime SessionStartUtc { get; } = DateTime.UtcNow;
+    /// <summary>When its client's session began (the Windows thumbnail's SessionStartUtc). Made now; the host sets it again from
+    /// the client's first sighting, so a profile switch (which makes every thumbnail again) does not restart the timer.</summary>
+    public DateTime SessionStartUtc { get; set; } = DateTime.UtcNow;
 
     /// <summary>The Windows TextOverlayWindow's other text: the text margins (SetTextMargins), the solar system and the session
     /// timer under the name (null hides each), the window's rounded corners (ThumbnailCornerRadius). Unchanged values do nothing.</summary>

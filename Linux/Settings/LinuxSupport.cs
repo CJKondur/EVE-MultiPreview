@@ -318,6 +318,7 @@ internal static class LinuxSupport
         ["L.Help.app.general.startup.Body"] = "L.Linux.Help.Startup",
         ["L.Help.alerts.look.severity.Body"] = "L.Linux.Help.Severity",
         ["L.Help.clients.characters.clicks.Body"] = "L.Linux.Help.Clicks",
+        ["L.Help.clients.windows.position.Body"] = "L.Linux.Help.Position",   // no "In fixed slots" on Linux
     };
 
     /// <summary>The key Linux shows for <paramref name="key"/>.</summary>
@@ -361,30 +362,45 @@ internal static class LinuxSupport
         ["app.diagnostics.openErrorLog"] = _ =>
         {
             var path = ErrorLog.Shared.FilePath;
-            if (File.Exists(path)) XdgOpen(path);
+            if (File.Exists(path)) OpenWithDesktop(path);
             else if (Path.GetDirectoryName(path) is { Length: > 0 } dir) OpenFolder(dir);
         },
     };
 
-    private static PageItem Linuxify(PageItem item) =>
-        item is ActionRow row && row.Actions.Any(a => Runs.ContainsKey(a.Id))
-            ? row with { Actions = row.Actions.Select(a => Runs.TryGetValue(a.Id, out var run) ? a with { Run = run } : a).ToList() }
-            : item;
+    private static PageItem Linuxify(PageItem item) => item switch
+    {
+        ActionRow row when row.Actions.Any(a => Runs.ContainsKey(a.Id))
+            => row with { Actions = row.Actions.Select(a => Runs.TryGetValue(a.Id, out var run) ? a with { Run = run } : a).ToList() },
+        // Fixed slots (mode 3) move nothing on Linux: the choice is not offered, a stored 3 reads as "Off", and the two cards the
+        // Windows page hides while slots are on stay shown.
+        SettingItem { Setting.Id: "clients.windows.positionMode" } mode => mode with
+        {
+            Setting = mode.Setting with
+            {
+                Options = mode.Setting.Options.Where(o => o.Value is not 3).ToList(),
+                Get = s => mode.Setting.Get(s) is 3 ? 0 : mode.Setting.Get(s),
+            },
+        },
+        SettingItem { Setting.Id: "clients.windows.alwaysMaximize" or "clients.windows.trackPositions" } card
+            => card with { Setting = card.Setting with { ShowIf = null } },
+        _ => item,
+    };
 
     private static void OpenFolder(string dir)
     {
         try { Directory.CreateDirectory(dir); }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return; }
-        XdgOpen(dir);
+        OpenWithDesktop(dir);
     }
 
-    /// <summary>The desktop's program for a file or folder, as the Linux update dialog opens its release page. The path is one argument.</summary>
-    private static void XdgOpen(string path)
+    /// <summary>The desktop's program for a file, folder or link, as the Linux update dialog opens its release page. The target is
+    /// one argument. Its output is not redirected: xdg-open and the program it runs would write to pipes nobody reads.</summary>
+    internal static void OpenWithDesktop(string target)
     {
         try
         {
-            var start = new ProcessStartInfo("xdg-open") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
-            start.ArgumentList.Add(path);
+            var start = new ProcessStartInfo("xdg-open") { UseShellExecute = false };
+            start.ArgumentList.Add(target);
             Process.Start(start)?.Dispose();
         }
         catch (System.ComponentModel.Win32Exception) { }   // no xdg-open

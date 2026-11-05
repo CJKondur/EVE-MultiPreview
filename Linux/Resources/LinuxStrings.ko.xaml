@@ -66,5 +66,6 @@
     <sys:String x:Key="L.Linux.Help.Startup">**MultiPreview 시작 시**는 이 창도 함께 열지 정해요. 최소화를 고르면 EVE를 가리지 않고 바로 쓸 수 있어요.&#x0A;&#x0A;로그인할 때 MultiPreview를 시작하려면 데스크톱의 자동 시작 프로그램에 추가하세요.</sys:String>
     <sys:String x:Key="L.Linux.Help.Severity">모든 이벤트는 **치명**, **경고**, **정보** 중 하나예요. 심각도마다 색, 깜빡임 속도, 그 알림이 데스크톱 알림을 표시할지 여부가 있어요. 정보 알림은 깜빡이지 않고 그대로 켜져 있어요.</sys:String>
     <sys:String x:Key="L.Linux.Help.Clicks">그냥 클릭하면 그 클라이언트로 전환해요. **Ctrl+클릭**(양쪽 Ctrl 키 모두)과 **Shift+클릭**으로는 대신 최소화하거나 순환할 때 건너뛸 수 있어요. Ctrl은 EVE의 대상 고정 키이기도 하니 플레이 방식에 맞는 것을 고르세요.&#x0A;&#x0A;**캐릭터별 색상 사용**은 각 캐릭터 페이지에서 정한 테두리와 글자 색을 켜요.</sys:String>
+    <sys:String x:Key="L.Linux.Help.Position">MultiPreview는 클라이언트를 찾았을 때와 전환할 때마다 각 클라이언트를 옮길 수 있어요:&#x0A;- **모니터 중앙**&#x0A;- **고정된 X와 Y**&#x0A;&#x0A;**각 클라이언트 창의 위치 기억**은 대신 각 클라이언트를 떠났던 자리로 되돌려요.</sys:String>
 
 </ResourceDictionary>

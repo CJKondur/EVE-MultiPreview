@@ -2,8 +2,6 @@
 // The About page's actions. The Windows CheckNow opens the WPF UpdateDialog; on Linux it asks the settings window, which runs
 // the Linux updater (Previews.CheckForUpdates: the check, then Linux/UpdateDialog.cs). VersionText is read while the page
 // renders, so it is the real value.
-using System.Diagnostics;
-
 namespace EveMultiPreview.SettingsUi;
 
 public static class AboutActions
@@ -15,13 +13,7 @@ public static class AboutActions
     /// <summary>The project's page in the browser (xdg-open, as the Linux update dialog opens its release page).</summary>
     public static void OpenGitHub()
     {
-        try
-        {
-            var start = new ProcessStartInfo("xdg-open") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
-            start.ArgumentList.Add(RepoUrl);
-            Process.Start(start)?.Dispose();
-        }
-        catch (System.ComponentModel.Win32Exception) { }   // no xdg-open
+        EveMultiPreview.Linux.LinuxSupport.OpenWithDesktop(RepoUrl);
     }
 
     /// <summary>Asks GitHub for a newer release through the Linux settings window; outside it (no Linux window) there is no updater.</summary>

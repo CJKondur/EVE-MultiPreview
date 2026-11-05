@@ -66,5 +66,6 @@
     <sys:String x:Key="L.Linux.Help.Startup">**MultiPreview 启动时** 决定是否同时打开此窗口。选择最小化可以让它随时可用又不遮挡 EVE。&#x0A;&#x0A;要在登录时启动 MultiPreview，请把它加入你桌面的自动启动程序。</sys:String>
     <sys:String x:Key="L.Linux.Help.Severity">每个事件都是 **严重**、**警告** 或 **信息**。每种严重程度都有颜色、闪烁速度，以及其警报是否显示桌面通知的选项。信息警报不闪烁：它们保持常亮。</sys:String>
     <sys:String x:Key="L.Linux.Help.Clicks">普通点击会切换到该客户端。**Ctrl+点击**（左右任一 Ctrl 键）和 **Shift+点击** 可以改为将其最小化，或在循环切换时跳过它。Ctrl 也是 EVE 的锁定目标键，请按你的玩法选择。&#x0A;&#x0A;**使用每个角色的专属颜色** 会启用你在每个角色页面上设置的边框和文字颜色。</sys:String>
+    <sys:String x:Key="L.Linux.Help.Position">MultiPreview 可在找到每个客户端时以及每次切换到它时移动它：&#x0A;- **在显示器上居中**&#x0A;- **固定的 X 和 Y**&#x0A;&#x0A;**记住每个客户端窗口的位置**则会把每个客户端放回你离开时的位置。</sys:String>
 
 </ResourceDictionary>

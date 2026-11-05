@@ -580,8 +580,9 @@ public sealed class Previews : ITrayActions, ISettingsHost
     {
         ResetThumbnails();
         BindHotkeys();
+        _alerts?.Reapply();   // App's ApplyAlertSwitches: the new profile's groups decide the group alert switches and sounds
         // App's ProfileSwitched: with "Remember client positions" on, every running client goes where the new profile keeps it.
-        if (S.ClientPositionMode != 3 && S.TrackClientPositions) RestoreClientPositions();
+        if (S.TrackClientPositions) RestoreClientPositions();
     }
 
     /// <summary>Closes every thumbnail and makes them again, each where the current profile keeps it.</summary>
@@ -737,10 +738,9 @@ public sealed class Previews : ITrayActions, ISettingsHost
     private readonly HashSet<uint> _placed = new();
 
     /// <summary>A client that was just found goes to its remembered place (Remember client positions), or to the fixed
-    /// place (centred, or the X and Y set). Fixed slots (mode 3) have no Linux editor yet and do nothing here.</summary>
+    /// place (centred, or the X and Y set). Fixed slots (mode 3, from a Windows config) have no Linux counterpart: they read as Off.</summary>
     private void PlaceNewClient(EveClient client)
     {
-        if (S.ClientPositionMode == 3) return;
         if (S.TrackClientPositions) RestoreClientPosition(client.Window, client.Character);
         else ApplyFixedClientPosition(client.Window);
     }
@@ -1538,6 +1538,10 @@ public sealed class Previews : ITrayActions, ISettingsHost
         return null;
     }
 
+    /// <summary>When each client window was first seen: its session start, kept across the thumbnails being made again (a
+    /// profile switch, an import, a reset) and dropped when the client is gone.</summary>
+    private readonly Dictionary<uint, DateTime> _sessionStarts = new();
+
     private void Sync()
     {
         var atLogin = new List<uint>();
@@ -1554,6 +1558,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
                 if (!_soloOn || thumb.Client.Window == _soloWindow) ApplyVolume(thumb.Client);
             if (_soloOn) foreach (var thumb in _thumbs.Values) ClientVolume.SetMute(_clients.Pid(thumb.Client.Window), thumb.Client.Window != _soloWindow);
         }
+        foreach (var window in _sessionStarts.Keys.Except(found.Select(f => f.Window)).ToList()) _sessionStarts.Remove(window);
         foreach (var gone in _thumbs.Keys.Except(found.Select(f => f.Window)).ToList())
         {
             _attention.Gone(_thumbs[gone].Client.Character);   // nothing there needs the player any more
@@ -1566,6 +1571,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
         foreach (var client in found.Where(f => !_thumbs.ContainsKey(f.Window)))
         {
             var thumb = new ThumbnailWindow(client, Place(client.Character));
+            if (_sessionStarts.TryGetValue(client.Window, out var started)) thumb.SessionStartUtc = started;
+            else _sessionStarts[client.Window] = thumb.SessionStartUtc;
             thumb.Clicked += c => ClickThumbnail(thumb, c);
             thumb.Moved += t =>
             {
@@ -1686,26 +1693,23 @@ public sealed class Previews : ITrayActions, ISettingsHost
         if (percent >= 100) S.PerClientAudioVolume.Remove(client.Character);
         else S.PerClientAudioVolume[client.Character] = percent;
         _settings.SaveDelayed();
-        ClientVolume.Apply(pid, percent);
+        ClientVolume.Apply(pid, percent, KeepMuted(client.Window));
     }
+
+    /// <summary>Auto-solo on: every client but the one in front stays muted when its volume is set.</summary>
+    private bool KeepMuted(uint window) => _soloOn && window != _soloWindow;
 
     /// <summary>Gives a client its saved volume (when it starts, and again now and then: its sound starts after its window).</summary>
     private void ApplyVolume(EveClient client)
     {
-        if (S.PerClientAudioVolume.TryGetValue(client.Character, out var v) && v < 100) ClientVolume.Apply(_clients.Pid(client.Window), v);
+        if (S.PerClientAudioVolume.TryGetValue(client.Character, out var v) && v < 100) ClientVolume.Apply(_clients.Pid(client.Window), v, KeepMuted(client.Window));
     }
 
     /// <summary>A lookup link, in the browser (xdg-open), only for the three hosts LookupLinks allows, in its canonical form.</summary>
     private static void OpenLink(string url)
     {
         if (LookupLinks.BrowserTarget(url) is not { } target) return;
-        try
-        {
-            var start = new ProcessStartInfo("xdg-open") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
-            start.ArgumentList.Add(target);
-            Process.Start(start)?.Dispose();
-        }
-        catch (System.ComponentModel.Win32Exception) { }   // no xdg-open
+        LinuxSupport.OpenWithDesktop(target);
     }
 
     /// <summary>Close client: the window manager is asked to close it, as its own close button would. If its window is still
