@@ -21,6 +21,8 @@ public sealed unsafe class GlobalHotkeys
     [DllImport(Lib)] private static extern IntPtr xcb_get_keyboard_mapping_keysyms(IntPtr reply);
     [DllImport(Lib)] private static extern int xcb_get_keyboard_mapping_keysyms_length(IntPtr reply);
     [DllImport(Lib)] private static extern IntPtr xcb_wait_for_event(IntPtr c);
+    [DllImport(Lib)] private static extern uint xcb_query_keymap(IntPtr c);
+    [DllImport(Lib)] private static extern IntPtr xcb_query_keymap_reply(IntPtr c, uint cookie, IntPtr e);
 
     private readonly IntPtr _c;
     private readonly uint _root;
@@ -67,6 +69,7 @@ public sealed unsafe class GlobalHotkeys
         }
         Xcb.xcb_flush(_c);
         lock (_gate) { _bound = bound; _wildcard = wildcard; }
+        Interlocked.Increment(ref _hold);   // a held key of the old bindings stops
         return refused;
     }
 
@@ -102,7 +105,44 @@ public sealed unsafe class GlobalHotkeys
 
     private readonly Dictionary<byte, uint> _down = new();   // key → the time of its last press, while not let go
     private readonly Dictionary<byte, uint> _releasedAt = new();
-    private readonly Dictionary<byte, long> _lastFire = new();
+
+    /// <summary>How long a cycle key must be held before it starts repeating: the Windows keyboard's default repeat delay,
+    /// which paces the Windows app's held key, and long enough that a slow tap never switches twice.</summary>
+    public const int HoldStartMs = 250;
+
+    /// <summary>The time between switches of a held cycle key: CycleDelayMs, in the settings card's range.</summary>
+    public static int HoldStepMs(int cycleDelayMs) => Math.Clamp(cycleDelayMs, 1, 2000);
+
+    /// <summary>Which hold runs: each new press (and each Bind) moves it on, and an older hold's thread sees that and stops.</summary>
+    private int _hold;
+
+    /// <summary>A held cycle key repeats on MultiPreview's own clock, not X's key repeat: X waits ~600 ms before the first
+    /// repeat (Windows 250 ms) and then repeats at the keyboard's rate, so a held key paused, then switched no faster than the
+    /// keyboard repeats. Each switch waits until the previous one has run on the UI thread, so a short delay never piles up
+    /// switches behind a busy UI. It stops when the key is up (the keyboard's real state, which X's repeat does not change).</summary>
+    private void StartHold(byte code, Action run)
+    {
+        int hold = Interlocked.Increment(ref _hold);
+        new Thread(() =>
+        {
+            Thread.Sleep(HoldStartMs);
+            while (Volatile.Read(ref _hold) == hold && CycleWhileHeld() && IsDown(code))
+            {
+                try { Dispatcher.UIThread.Invoke(run); }
+                catch (Exception) { return; }   // the app is ending
+                Thread.Sleep(HoldStepMs(CycleDelayMs()));
+            }
+        }) { IsBackground = true, Name = "Held cycle key" }.Start();
+    }
+
+    /// <summary>Whether the key is down on the keyboard now (QueryKeymap).</summary>
+    private bool IsDown(byte code)
+    {
+        var reply = xcb_query_keymap_reply(_c, xcb_query_keymap(_c), IntPtr.Zero);
+        if (reply == IntPtr.Zero) return false;
+        try { return (((byte*)reply)[8 + code / 8] & (1 << (code % 8))) != 0; }
+        finally { NativeMemory.Free((void*)reply); }
+    }
 
     private void Listen()
     {
@@ -131,15 +171,12 @@ public sealed unsafe class GlobalHotkeys
                 if (Environment.GetEnvironmentVariable("EVEMP_DEBUG_KEYS") == "1")
                     Console.WriteLine($"[keys] keycode {code} mods {mods}{(repeat ? " (repeat)" : "")}: {(hit != null ? "bound" : "not bound")}");
                 if (hit is not { } binding) continue;
-                long now = Environment.TickCount64;
-                if (repeat)
-                {
-                    // HotkeyService: MOD_NOREPEAT for every key but the cycle keys with CycleWhileHeld on, paced to CycleDelayMs.
-                    if (!binding.Repeatable || !CycleWhileHeld()) continue;
-                    if (_lastFire.TryGetValue(code, out long last) && now - last < Math.Clamp(CycleDelayMs(), 25, 2000)) continue;
-                }
-                _lastFire[code] = now;   // a fresh press always fires at once (#60)
-                Dispatcher.UIThread.Post(binding.Run);
+                // X's own repeats are never used: a held cycle key repeats by StartHold (CycleWhileHeld, CycleDelayMs), every
+                // other key runs once per press (HotkeyService's MOD_NOREPEAT).
+                if (repeat) continue;
+                Dispatcher.UIThread.Post(binding.Run);   // a fresh press always fires at once (#60)
+                if (binding.Repeatable && CycleWhileHeld()) StartHold(code, binding.Run);
+                else Interlocked.Increment(ref _hold);   // another key pressed: a held cycle key stops, as with the OS repeat
             }
             finally { NativeMemory.Free((void*)e); }
         }
