@@ -227,7 +227,7 @@ internal static class LinuxSupport
         // ── App › Diagnostics ──
         ["app.diagnostics.errorCount"] = S, ["app.diagnostics.errorLog"] = S,
         ["app.diagnostics.uncleanExit"] = S,  // Previews.Start writes the run marker (S3b)
-        ["app.diagnostics.bugReport"] = N,    // the report window (BugReportActions) is WPF; not ported yet
+        ["app.diagnostics.bugReport"] = S,    // S8: Linux/BugReportWindow.cs + LinuxBugReport.cs over the shared BugReport (a Linux body, LinuxSupport.Runs)
         ["app.diagnostics.trackPlaytime"] = S, ["app.diagnostics.playtimeHistory"] = S,   // S8: Linux/PreviewsText.cs (the template's {week}); Clear empties the app's ledger
         ["app.diagnostics.note"] = S, ["app.diagnostics.cycling"] = S, ["app.diagnostics.alerts"] = S, ["app.diagnostics.folder"] = S,   // GlobalSettings set (S3b)
         ["app.diagnostics.windowHooks"] = S,  // S6: client windows found, closed and placed (fixed slots) go to the window events log
@@ -331,6 +331,9 @@ internal static class LinuxSupport
         ["L.Help.tools.stats.logging.Body"] = "L.Linux.Help.StatsLogging",
         // S8: the Linux updater has no failed-install marker (the Windows tray note within ten minutes), so that paragraph goes.
         ["L.Help.app.about.updates.Body"] = "L.Linux.Help.Updates",
+        // S8: the bug report names the Linux kernel, distribution and desktop, and the user name is not a Windows one.
+        ["L.Help.app.diagnostics.report.Body"] = "L.Linux.Help.Report",
+        ["L.Report.Note"] = "L.Linux.Report.Note",
     };
 
     /// <summary>The key Linux shows for <paramref name="key"/>.</summary>
@@ -379,6 +382,8 @@ internal static class LinuxSupport
         },
         // S8: PlaytimeActions.Clear empties what the running app holds through ThumbnailManager, which Linux has not: the Linux
         // app's ledger instead (else its next save would write the history back).
+        // S8: the shared body opens the WPF report window; Linux's is Linux/BugReportWindow.cs over LinuxBugReport.Gather.
+        ["app.diagnostics.createReport"] = ctx => (ctx.Host as SharedSettingsWindow)?.OpenBugReport(),
         ["app.diagnostics.clearPlaytime"] = ctx =>
         {
             if (App(ctx) is { } app) app.ClearPlaytime();

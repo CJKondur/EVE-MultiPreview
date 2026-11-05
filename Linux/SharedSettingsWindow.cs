@@ -1162,6 +1162,29 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     /// <summary>The Linux app behind this window (LinuxSupport's Linux bodies for shared buttons ask it).</summary>
     internal ISettingsHost App => _app;
 
+    private BugReportWindow? _bugReport;
+
+    /// <summary>S8: Diagnostics › Create bug report… (BugReportActions.Open): the report window over this one, built from this
+    /// PC's files when it opens and again when the names switch changes. It reads only; the zip is written where the player
+    /// picks, when they click Save, and the folder then opens. One at a time.</summary>
+    internal void OpenBugReport()
+    {
+        if (_bugReport != null) { _bugReport.Activate(); return; }
+        var settings = S;
+        var running = _app.RunningCharacters().ToList();
+        var screens = (Screens?.All ?? Array.Empty<Avalonia.Platform.Screen>())
+            .Select(sc => new LinuxBugReport.Monitor(sc.IsPrimary,
+                new System.Drawing.Rectangle(sc.Bounds.X, sc.Bounds.Y, sc.Bounds.Width, sc.Bounds.Height),
+                new System.Drawing.Rectangle(sc.WorkingArea.X, sc.WorkingArea.Y, sc.WorkingArea.Width, sc.WorkingArea.Height), sc.Scaling))
+            .ToList();
+        var window = new BugReportWindow(mask => LinuxBugReport.Gather(settings, running, screens, mask),
+            path => { if (Path.GetDirectoryName(path) is { Length: > 0 } dir) LinuxSupport.OpenWithDesktop(dir); },
+            LinuxBugReport.Redactor(Environment.UserName, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), Environment.MachineName));
+        window.Closed += (_, _) => _bugReport = null;
+        _bugReport = window;
+        window.Show(this);
+    }
+
     /// <summary>Puts text on the clipboard (a look or profile code). False when this desktop has no clipboard to ask.</summary>
     internal bool CopyText(string text)
     {

@@ -69,5 +69,7 @@
     <sys:String x:Key="L.Linux.Help.StatsLogging">**統計を CSV ファイルに保存** をオンにすると、MultiPreview はログフォルダーにキャラクターごと・1日ごとにファイルを書き込みます（表計算ソフト向け）。保存期間より古いファイルは MultiPreview の起動時に削除されます。0 日の場合はすべてのファイルを保持します。ログ記録のオン/オフはすぐに反映され、新しい保存期間は次回の起動から有効になります。</sys:String>
     <!-- S8: the last Windows features -->
     <sys:String x:Key="L.Linux.Help.Updates">オフにしない限り、MultiPreview は起動時に GitHub で新しいリリースを確認します。**アップデートを確認**はその場で確認します。&#x0A;&#x0A;**特定のバージョンをインストール**ではすべてのリリースが一覧表示されます。古いバージョンをインストールすると起動時の確認がオフになり、すぐに元へ更新を勧められることはありません。</sys:String>
+    <sys:String x:Key="L.Linux.Report.Note">何も送信されません。zip は選んだ場所に保存され、誰に渡すかはあなたが決めます。ユーザー名、PC の名前、Discord の webhook は常に取り除かれます。</sys:String>
+    <sys:String x:Key="L.Linux.Help.Report">**バグ報告を作成…** は、バグ報告に添付できる zip を作ります。中身は次のとおりです：&#x0A;&#x0A;- MultiPreview のバージョン、Linux のカーネル、ディストリビューション、デスクトップ、言語、外観；&#x0A;- 各モニターのサイズ、位置、作業領域、拡大率；&#x0A;- 設定（Discord の webhook は除きます）；&#x0A;- MultiPreview の各ログの最後の 500 行。&#x0A;&#x0A;ユーザー名はすべてのフォルダーパスから取り除かれ、PC の名前も同様です。**キャラクター名を隠す**（オフにするまでオン）は、キャラクターの名前を Character 1、Character 2 などに置き換えます。MultiPreview が知らない名前（ログ内の他のプレイヤーなど）は残ります。保存する前にすべてのファイルを確認でき、MultiPreview が zip をどこかへ送ることはありません。</sys:String>
 
 </ResourceDictionary>

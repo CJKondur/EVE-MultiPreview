@@ -81,9 +81,10 @@ public static class BugReport
         return names.Where(n => !string.IsNullOrWhiteSpace(n)).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
     }
 
-    // The 8.3 short form Windows has for a folder, or null.
+    // The 8.3 short form Windows has for a folder, or null (always null off Windows: there is no kernel32 to ask).
     private static string? ShortPath(string path)
     {
+        if (!OperatingSystem.IsWindows()) return null;
         var buffer = new char[32768];
         uint length = GetShortPathNameW(path, buffer, (uint)buffer.Length);
         return length > 0 && length < buffer.Length ? new string(buffer, 0, (int)length) : null;
