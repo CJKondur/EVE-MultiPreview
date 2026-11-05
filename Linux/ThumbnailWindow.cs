@@ -27,7 +27,8 @@ public sealed class ThumbnailWindow : Window
     private readonly TextBlock _markText;
     private readonly Border _badge;
     private readonly StackPanel _text;
-    private readonly TextBlock _system, _timer, _alertText, _alertCountText;
+    private readonly TextBlock _system, _timer, _alertText, _alertCountText, _stats;
+    private readonly Viewbox _statsBox;
     private readonly Border _alertCount;
     private WriteableBitmap _bitmap;
     private ThumbnailLook? _look;
@@ -121,7 +122,10 @@ public sealed class ThumbnailWindow : Window
         _system = new TextBlock { IsVisible = false };
         _timer = new TextBlock { IsVisible = false };
         _name.Margin = default;
-        _text = new StackPanel { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(5, 5, 0, 0), Children = { _name, _system, _timer } };
+        // The process stats (TextOverlayWindow's ProcessStatsViewbox): light green monospace, shrunk to the width, never grown.
+        _stats = new TextBlock { Foreground = new SolidColorBrush(Color.FromRgb(0x90, 0xEE, 0x90)), FontFamily = new FontFamily("monospace"), FontSize = 12 };
+        _statsBox = new Viewbox { Stretch = Stretch.Uniform, StretchDirection = StretchDirection.DownOnly, HorizontalAlignment = HorizontalAlignment.Left, IsVisible = false, Child = _stats };
+        _text = new StackPanel { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(5, 5, 0, 0), Children = { _name, _system, _timer, _statsBox } };
         _alertText = new TextBlock { FontWeight = FontWeight.Bold, TextTrimming = TextTrimming.CharacterEllipsis, IsVisible = false, IsHitTestVisible = false };
         _alertCountText = new TextBlock { Foreground = Brushes.White, FontSize = 11, FontWeight = FontWeight.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         _alertCount = new Border
@@ -525,6 +529,18 @@ public sealed class ThumbnailWindow : Window
             if (line.IsVisible != on) line.IsVisible = on;
             if (on && line.Text != text) line.Text = text;
         }
+    }
+
+    /// <summary>TextOverlayWindow.UpdateProcessStats / SetProcessStatsTextSize: the client's CPU and memory under the text (null
+    /// hides it), at the size set in points.</summary>
+    public void SetStats(string? text, double points)
+    {
+        bool on = !string.IsNullOrEmpty(text);
+        if (_statsBox.IsVisible != on) _statsBox.IsVisible = on;
+        if (!on) return;
+        if (_stats.Text != text) _stats.Text = text;
+        double size = Math.Max(points * 96.0 / 72.0, 6);
+        if (_stats.FontSize != size) _stats.FontSize = size;
     }
 
     private string? _alertAt;

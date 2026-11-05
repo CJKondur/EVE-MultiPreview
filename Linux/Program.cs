@@ -105,6 +105,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         _settings.ProfileSwitched += OnProfileSwitched;
         _settings.ProfileSwitched += _ => { if (!_switchingProfileAutomatically) _autoProfile.ManualSwitch(DateTime.UtcNow); };
         _alerts = new Alerts(_settings, RunningCharacters, WindowOf, _clients.Active, Flash, _attention, SwitchToCharacter, SnoozeEvent);
+        _alerts.UnderFire += SignalUnderFire;
         var (chat, game) = _alerts.Start();
         Console.WriteLine($"Logs: chat {(chat.Length > 0 ? chat : "not found")}; game {(game.Length > 0 ? game : "not found")}");
         new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Background, (_, _) => Tick()).Start();
@@ -1290,7 +1291,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             thumb.LockResizeAspect = S.LockResizeAspect;
             thumb.ConfineDragsToMonitor = S.ConfineDragsToMonitor;
             thumb.HoverScale = S.ResizeThumbnailsOnHover ? S.HoverScale : 1.0;   // ThumbnailManager.HoverScaleFor
-            thumb.Apply(LoginLook(thumb.Client.Character, Look(thumb.Client.Character, isActive, thumb.Hovered)));
+            thumb.Apply(UnderFireLook(thumb.Client.Character, LoginLook(thumb.Client.Character, Look(thumb.Client.Character, isActive, thumb.Hovered))));
             thumb.MenuOpen = _menu != null;
             thumb.Follow();   // a drag that ended or a pointer that left lets a waiting enlargement happen
             thumb.SetMark(MarkOf(thumb.Client.Window) ?? LoginMark(thumb.Client.Character));
@@ -1387,6 +1388,78 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         thumb.SetAlertText(alerting ? EveMultiPreview.Views.AlertHub.EventDisplayName(alert!.AlertType) : null, alert?.Brush ?? Brushes.White,
             SettingsUi.AlertFields.TextPosition(S.AlertTextPosition));
         thumb.SetAlertCount(unseen);
+        thumb.SetStats(S.ShowProcessStats && _stats.TryGetValue(thumb.Client.Window, out var st) ? st.Text : null,
+            double.TryParse(S.ProcessStatsTextSize, out var points) ? points : 9);
+    }
+
+    // ── Process stats on the thumbnails (ProcessMonitorService on Windows) ──
+
+    /// <summary>Each client's CPU and memory line, by window, and the CPU time it had used at the last look.</summary>
+    private readonly Dictionary<uint, (string Text, double CpuSeconds, DateTime At)> _stats = new();
+
+    /// <summary>At each 3 s client look, with "Show CPU and memory" on: each client's CPU share since the last look (of every
+    /// core, as Windows counts it) and its resident memory, from /proc. Off: nothing is read.</summary>
+    private void FollowProcessStats()
+    {
+        if (!S.ShowProcessStats) { _stats.Clear(); return; }
+        var now = DateTime.UtcNow;
+        foreach (var gone in _stats.Keys.Where(w => !_thumbs.ContainsKey(w)).ToList()) _stats.Remove(gone);
+        foreach (var thumb in _thumbs.Values)
+        {
+            uint window = thumb.Client.Window, pid = _clients.Pid(window);
+            if (pid == 0 || CpuSeconds(pid) is not { } cpu) continue;
+            long ram = ResidentMb((int)pid) ?? 0;
+            double percent = _stats.TryGetValue(window, out var last) && now > last.At
+                ? Math.Min(100, (cpu - last.CpuSeconds) / (now - last.At).TotalSeconds / Environment.ProcessorCount * 100) : 0;
+            _stats[window] = (FormatStats(Math.Round(Math.Max(0, percent), 1), ram), cpu, now);
+        }
+    }
+
+    /// <summary>Copy of ProcessMonitorService.FormatStats (no VRAM on Linux) — keep in sync.</summary>
+    public static string FormatStats(double cpuPercent, long ramMb) =>
+        string.Format(System.Globalization.CultureInfo.CurrentCulture, "CPU: {0:F0}%\nRAM: {1}MB", cpuPercent, ramMb);
+
+    /// <summary>The CPU time the process has used (utime + stime of /proc/‹pid›/stat), in seconds, or null.</summary>
+    private static double? CpuSeconds(uint pid)
+    {
+        try
+        {
+            var line = File.ReadAllText($"/proc/{pid}/stat");
+            int close = line.LastIndexOf(')');   // the name in brackets may hold spaces
+            if (close < 0) return null;
+            var fields = line[(close + 2)..].Split(' ');
+            // after the name: state is field 3, utime 14 and stime 15 (1-based), so 11 and 12 here
+            if (fields.Length < 13 || !long.TryParse(fields[11], out long utime) || !long.TryParse(fields[12], out long stime)) return null;
+            return (utime + stime) / 100.0;   // USER_HZ is 100 on every Linux the app runs on
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return null; }
+    }
+
+    // ── Under fire (ThumbnailManager.SignalUnderFire / CheckUnderFireExpiry, ThumbnailWindow.SetUnderFire: keep in sync) ──
+
+    /// <summary>When each character last took damage, while its under-fire border shows.</summary>
+    private readonly Dictionary<string, DateTime> _underFire = new(StringComparer.OrdinalIgnoreCase);
+
+    private void SignalUnderFire(string character)
+    {
+        if (S.EnableUnderFireIndicator) _underFire[character] = DateTime.UtcNow;
+    }
+
+    /// <summary>The pulsing red border of a client taking damage (at least 3 px, alpha 168 ± 87 on a 50 ms × 0.15 rad step, as
+    /// the Windows thumbnail draws it) for UnderFireTimeoutSeconds after the last hit. An alert's own border wins while it shows.</summary>
+    private ThumbnailLook UnderFireLook(string character, ThumbnailLook look)
+    {
+        if (!_underFire.TryGetValue(character, out var last)) return look;
+        var now = DateTime.UtcNow;
+        if (!S.EnableUnderFireIndicator || now < last || (now - last).TotalSeconds >= S.UnderFireTimeoutSeconds)
+        {
+            _underFire.Remove(character);
+            return look;
+        }
+        if (_alertBorders.ContainsKey(character)) return look;
+        double phase = Environment.TickCount64 / 50 * 0.15;
+        byte alpha = (byte)Math.Clamp(168 + 87 * Math.Sin(phase), 0, 255);
+        return look with { Border = new SolidColorBrush(Color.FromArgb(alpha, 255, 40, 40)), BorderThickness = Math.Max(3, look.BorderThickness) };
     }
 
     /// <summary>ThumbnailWindow.SetNotLoggedIn's look for a login-screen thumbnail (no character): "border" (and the old
@@ -1681,6 +1754,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
     /// can't read the exit code of a client it did not start, so "Client closed unexpectedly" is not looked for.</summary>
     private void LookAtClients(IReadOnlyList<ClientSample> samples)
     {
+        FollowProcessStats();
         if (_alerts == null) return;
         var options = ClientWatchOptions.Of(S, _alerts.EventOn);
         _probeWants = (int)options.Wants(closedOn: false);

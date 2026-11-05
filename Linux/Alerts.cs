@@ -186,6 +186,9 @@ public sealed class Alerts : IDisposable
     }
 
     /// <summary>Starts reading the logs. Returns the folders read ("" for one that is off or not found).</summary>
+    /// <summary>A character's client took damage (from a player or an NPC), raised on the UI thread.</summary>
+    public event Action<string>? UnderFire;
+
     public (string Chat, string Game) Start()
     {
         _monitor.SetSettings(S);
@@ -212,7 +215,12 @@ public sealed class Alerts : IDisposable
             _stragglers.Moved(character, system, DateTime.UtcNow);
             _idleWatch.Moved(character, DateTime.UtcNow);
         };
-        _monitor.DamageReceived += d => _idleWatch.Active(d.CharacterName, DateTime.UtcNow);
+        _monitor.DamageReceived += d =>
+        {
+            _idleWatch.Active(d.CharacterName, DateTime.UtcNow);
+            // App's SignalUnderFire (S6): the under-fire border, on the UI thread.
+            if (UnderFire is { } fire && !string.IsNullOrEmpty(d.CharacterName)) Dispatcher.UIThread.Post(() => fire(d.CharacterName));
+        };
         _monitor.DamageDealt += d => _idleWatch.Active(d.CharacterName, DateTime.UtcNow);
         _monitor.MiningYield += m => _idleWatch.Active(m.CharacterName, DateTime.UtcNow);
         _monitor.RepairReceived += r => _idleWatch.Active(r.CharacterName, DateTime.UtcNow);

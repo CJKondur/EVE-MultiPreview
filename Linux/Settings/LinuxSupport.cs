@@ -99,7 +99,7 @@ internal static class LinuxSupport
         ["thumbs.text.template"] = N,         // no Linux editor; {jumps} and {week} have no Linux source
         ["thumbs.text.streamer"] = S, ["thumbs.text.color"] = S, ["thumbs.text.font"] = S, ["thumbs.text.size"] = S,
         ["thumbs.text.marginX"] = S, ["thumbs.text.marginY"] = S,   // Previews.Extras (S3b)
-        ["thumbs.text.showStats"] = N, ["thumbs.text.statsSize"] = N,   // no process stats on Linux
+        ["thumbs.text.showStats"] = S, ["thumbs.text.statsSize"] = S,   // S6: Previews.FollowProcessStats from /proc, ThumbnailWindow.SetStats
         ["thumbs.text.highlight"] = S,        // Previews.Look honours it (S3b), as ThumbnailManager.ApplyActiveBorders
         ["thumbs.text.highlightColor"] = S, ["thumbs.text.highlightWidth"] = S, ["thumbs.text.highlightInGroup"] = S,
         ["thumbs.text.inactiveColor"] = S, ["thumbs.text.inactiveWidth"] = S,
@@ -131,7 +131,7 @@ internal static class LinuxSupport
         // ── Alerts › Events ──
         ["alerts.events.chatLog"] = S, ["alerts.events.chatFolder"] = S, ["alerts.events.gameLog"] = S, ["alerts.events.gameFolder"] = S,
         ["alerts.events.pve"] = S,            // Linux/Alerts.cs ApplyMonitorOptions (S3)
-        ["alerts.events.underFire"] = N, ["alerts.events.underFireTime"] = N,
+        ["alerts.events.underFire"] = S, ["alerts.events.underFireTime"] = S,   // S6: Alerts.UnderFire, Previews.UnderFireLook
         ["alerts.events.repeatWait"] = S, ["alerts.events.repeatBySeverity"] = S,
         ["alerts.events.table"] = S, ["alerts.events.ewarNote"] = S, ["alerts.events.stragglerWait"] = S,
         ["alerts.events.dpsThreshold"] = S, ["alerts.events.dpsSeconds"] = S, ["alerts.events.repsSeconds"] = S, ["alerts.events.combatNote"] = S,
