@@ -74,11 +74,12 @@ internal static class LinuxSupport
         // ── Clients › Windows & positions: the Linux app minimizes the other clients (S3b) and places them (S5) ──
         ["clients.windows.minimizeInactive"] = S, ["clients.windows.minimizeDelay"] = S, ["clients.windows.neverMinimize"] = S,   // Previews.ActivateClient
         // S5: Previews.ApplyFixedClientPosition / RestoreClientPosition over EWMH (_NET_MOVERESIZE_WINDOW, _NET_WM_STATE); the
-        // tray has Save / Restore positions. Fixed slots (mode 3) have no Linux editor: choosing them leaves the clients alone.
+        // tray has Save / Restore positions. S6: fixed slots (mode 3), Previews.ApplyClientSlot (_NET_FRAME_EXTENTS for the
+        // visible frame), Linux/Settings/SlotEditors.cs, tray "Snap to slots".
         ["clients.windows.positionMode"] = S, ["clients.windows.positionX"] = S, ["clients.windows.positionY"] = S,
         ["clients.windows.alwaysMaximize"] = S, ["clients.windows.trackPositions"] = S,
         ["clients.windows.coverTaskbar"] = W, // the Windows taskbar
-        ["clients.windows.slotEditor"] = N, ["clients.windows.slotsResize"] = N,
+        ["clients.windows.slotEditor"] = S, ["clients.windows.slotsResize"] = S,
         ["clients.windows.charSelectCycle"] = N, ["clients.windows.charSelectNext"] = N, ["clients.windows.charSelectPrevious"] = N,
 
         // ── Clients › Audio ──
@@ -222,7 +223,8 @@ internal static class LinuxSupport
         ["app.diagnostics.bugReport"] = N,    // the report window is WPF
         ["app.diagnostics.trackPlaytime"] = N, ["app.diagnostics.playtimeHistory"] = N,
         ["app.diagnostics.note"] = S, ["app.diagnostics.cycling"] = S, ["app.diagnostics.alerts"] = S, ["app.diagnostics.folder"] = S,   // GlobalSettings set (S3b)
-        ["app.diagnostics.injection"] = W, ["app.diagnostics.windowHooks"] = W, ["app.diagnostics.dwm"] = W,   // the Linux app writes no debug logs
+        ["app.diagnostics.windowHooks"] = S,  // S6: client windows found, closed and placed (fixed slots) go to the window events log
+        ["app.diagnostics.injection"] = W, ["app.diagnostics.dwm"] = W,   // no key/click sending, no DWM on Linux
 
         // ── A character's page ──
         ["character.hotkey"] = S,
@@ -318,7 +320,6 @@ internal static class LinuxSupport
         ["L.Help.app.general.startup.Body"] = "L.Linux.Help.Startup",
         ["L.Help.alerts.look.severity.Body"] = "L.Linux.Help.Severity",
         ["L.Help.clients.characters.clicks.Body"] = "L.Linux.Help.Clicks",
-        ["L.Help.clients.windows.position.Body"] = "L.Linux.Help.Position",   // no "In fixed slots" on Linux
     };
 
     /// <summary>The key Linux shows for <paramref name="key"/>.</summary>
@@ -371,18 +372,6 @@ internal static class LinuxSupport
     {
         ActionRow row when row.Actions.Any(a => Runs.ContainsKey(a.Id))
             => row with { Actions = row.Actions.Select(a => Runs.TryGetValue(a.Id, out var run) ? a with { Run = run } : a).ToList() },
-        // Fixed slots (mode 3) move nothing on Linux: the choice is not offered, a stored 3 reads as "Off", and the two cards the
-        // Windows page hides while slots are on stay shown.
-        SettingItem { Setting.Id: "clients.windows.positionMode" } mode => mode with
-        {
-            Setting = mode.Setting with
-            {
-                Options = mode.Setting.Options.Where(o => o.Value is not 3).ToList(),
-                Get = s => mode.Setting.Get(s) is 3 ? 0 : mode.Setting.Get(s),
-            },
-        },
-        SettingItem { Setting.Id: "clients.windows.alwaysMaximize" or "clients.windows.trackPositions" } card
-            => card with { Setting = card.Setting with { ShowIf = null } },
         _ => item,
     };
 

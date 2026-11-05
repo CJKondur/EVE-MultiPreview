@@ -21,6 +21,9 @@ public interface ITrayActions
     void OpenAlertHistory();
     void SaveClientPositions();
     void RestoreClientPositions();
+    /// <summary>Fixed slots are on (ClientPositionMode 3): Snap to slots works and Restore positions does not, as on Windows.</summary>
+    bool SlotsOn { get; }
+    void ApplyAllClientSlots();
     void Exit();
 }
 
@@ -63,10 +66,15 @@ public sealed class Tray
             profiles.Add(Check(name, name == _app.Profile, _ => _app.Profile = name));
         menu.Add(new NativeMenuItem(string.Format(T("L.Tray.ProfileFmt", "Profile: {0}"), _app.Profile)) { Menu = profiles });
 
-        // The Windows tray's "Client windows": the places "Remember client positions" restores.
+        // The Windows tray's "Client windows": the places "Remember client positions" restores, and the fixed slots.
         var windows = new NativeMenu();
         windows.Add(Item(T("L.Tray.SavePositions", "Save positions"), _app.SaveClientPositions));
-        windows.Add(Item(T("L.Tray.RestorePositions", "Restore positions"), _app.RestoreClientPositions));
+        var restore = Item(T("L.Tray.RestorePositions", "Restore positions"), _app.RestoreClientPositions);
+        restore.IsEnabled = !_app.SlotsOn;
+        windows.Add(restore);
+        var snap = Item(T("L.Tray.SnapToSlots", "Snap to slots"), _app.ApplyAllClientSlots);
+        snap.IsEnabled = _app.SlotsOn;
+        windows.Add(snap);
         menu.Add(new NativeMenuItem(T("L.Tray.ClientPositions", "Client windows")) { Menu = windows });
 
         menu.Add(new NativeMenuItemSeparator());

@@ -45,6 +45,8 @@ internal static class LinuxEditors
         // S5 (Linux/Settings/GroupAlertEditors.cs): a group's own alert choices and sounds.
         { EditorIds.GroupAlertsEditor, (pages, ctx, _) => pages.GroupAlerts(ctx) },
         { EditorIds.GroupSoundsEditor, (pages, ctx, _) => pages.GroupSoundsCard(ctx) },
+        // S6 (Linux/Settings/SlotEditors.cs): fixed client slots.
+        { "clients.windows.slotEditor", (pages, ctx, _) => pages.SlotsCard(ctx) },
     };
 
     /// <summary>Every editor id Linux can build.</summary>

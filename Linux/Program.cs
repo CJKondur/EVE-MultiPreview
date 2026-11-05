@@ -582,7 +582,9 @@ public sealed class Previews : ITrayActions, ISettingsHost
         BindHotkeys();
         _alerts?.Reapply();   // App's ApplyAlertSwitches: the new profile's groups decide the group alert switches and sounds
         // App's ProfileSwitched: with "Remember client positions" on, every running client goes where the new profile keeps it.
-        if (S.TrackClientPositions) RestoreClientPositions();
+        // Fixed slots win (App's ProfileSwitched: ApplyAllClientSlots, else RestoreAllClientPositions).
+        if (S.ClientPositionMode == 3) ApplyAllClientSlots();
+        else if (S.TrackClientPositions) RestoreClientPositions();
     }
 
     /// <summary>Closes every thumbnail and makes them again, each where the current profile keeps it.</summary>
@@ -737,12 +739,97 @@ public sealed class Previews : ITrayActions, ISettingsHost
     /// thumbnails are made again (a profile switch, a reset).</summary>
     private readonly HashSet<uint> _placed = new();
 
-    /// <summary>A client that was just found goes to its remembered place (Remember client positions), or to the fixed
-    /// place (centred, or the X and Y set). Fixed slots (mode 3, from a Windows config) have no Linux counterpart: they read as Off.</summary>
+    /// <summary>A client that was just found goes to its fixed slot (mode 3 wins over Remember client positions, as on Windows:
+    /// EVE comes back at its own remembered size), to its remembered place (Remember client positions), or to the fixed place
+    /// (centred, or the X and Y set).</summary>
     private void PlaceNewClient(EveClient client)
     {
-        if (S.TrackClientPositions) RestoreClientPosition(client.Window, client.Character);
+        if (S.ClientPositionMode == 3) ApplyClientSlot(client.Window, client.Character);
+        else if (S.TrackClientPositions) RestoreClientPosition(client.Window, client.Character);
         else ApplyFixedClientPosition(client.Window);
+    }
+
+    // ── Fixed slots (ThumbnailManager.ApplyClientSlot / FindSlotScreen / ApplyAllClientSlots: copied, keep in sync) ──
+
+    /// <summary>The screens of any MultiPreview window (a thumbnail, the settings window, the name bar), or null while none is open.</summary>
+    private Avalonia.Controls.Screens? AnyScreens =>
+        _thumbs.Values.FirstOrDefault()?.Screens ?? _settingsWindow?.Screens ?? _nameBar?.Screens;
+
+    /// <summary>The clients at the login screen already sent to the default slot (ThumbnailManager applies the slot to a
+    /// character-select client too): each once, until it logs in or closes.</summary>
+    private readonly HashSet<uint> _loginPlaced = new();
+
+    /// <summary>Puts a client into its fixed slot: the character's own slot, else the profile's default one (ClientSlotRules; a
+    /// client at the login screen has no name and goes to the default slot). The slot is the VISIBLE window, frame included: a
+    /// borderless client fills it exactly, a framed one has its title bar and borders inside it (_NET_FRAME_EXTENTS, the
+    /// counterpart of the invisible borders Windows adds back). A slot that doesn't fit its monitor, or is smaller than
+    /// 640×360, is skipped; a client already there costs nothing. A maximized client is restored into the slot; a minimized
+    /// one is left until it is switched to (ActivateClient applies the slot again after bringing it back). False when nothing
+    /// could be decided yet (no screen to measure against).</summary>
+    private bool ApplyClientSlot(uint window, string? character)
+    {
+        if (S.ClientPositionMode != 3 || window == 0) return true;
+        var slot = ClientSlotRules.Resolve(_settings.CurrentProfile, character);
+        if (slot == null) return true;   // excluded, or no own/default slot: leave it alone
+        if (AnyScreens is not { } screens) return false;
+        var all = screens.All;
+        int index = FindSlotMonitor(slot, all.Select(s => (s.DisplayName ?? "", s.Bounds.Width, s.Bounds.Height)).ToList());
+        if (index < 0)
+        {
+            DiagnosticsService.LogWindowHook($"[ClientSlot] monitor {slot.MonitorDeviceName} ({slot.MonitorWidth}x{slot.MonitorHeight}) for a slot not found");
+            return true;
+        }
+        var b = all[index].Bounds;
+        if (SlotEditing.Problem(slot, (b.Width, b.Height)) != null) return true;   // never an absurd rect (ThumbnailManager's check)
+
+        var state = _clients.State(window);
+        if (state.Minimized) return true;
+        if (state.Maximized) _clients.Maximize(window, false);   // a maximized client can't sit in a slot
+        var target = SlotClientArea(b.X + slot.X, b.Y + slot.Y, slot.Width, slot.Height, _clients.FrameExtents(window));
+        if (!state.Maximized && _clients.Rectangle(window) is { } r && r.X == target.X && r.Y == target.Y
+            && (!S.ClientSlotsResize || (r.Width == target.Width && r.Height == target.Height))) return true;
+        if (S.ClientSlotsResize) _clients.MoveClient(window, target.X, target.Y, target.Width, target.Height);
+        else _clients.MoveClient(window, target.X, target.Y);
+        DiagnosticsService.LogWindowHook($"[ClientSlot] window {window} -> client area {target.X},{target.Y} {target.Width}x{target.Height}, resize={S.ClientSlotsResize}");
+        return true;
+    }
+
+    public bool SlotsOn => S.ClientPositionMode == 3;
+
+    (int X, int Y, int Width, int Height)? ISettingsHost.ClientFrame(string character)
+    {
+        uint window = WindowOf(character);
+        if (window == 0) return null;
+        var state = _clients.State(window);
+        if (state.Minimized || state.Maximized || _clients.Rectangle(window) is not { } r) return null;
+        var f = _clients.FrameExtents(window);
+        return (r.X - f.Left, r.Y - f.Top, r.Width + f.Left + f.Right, r.Height + f.Top + f.Bottom);
+    }
+
+    /// <summary>The client's own area for a visible frame at (x, y) of width × height, with the window manager's frame round it.</summary>
+    public static (int X, int Y, int Width, int Height) SlotClientArea(int x, int y, int width, int height, (int Left, int Right, int Top, int Bottom) frame) =>
+        (x + frame.Left, y + frame.Top, Math.Max(1, width - frame.Left - frame.Right), Math.Max(1, height - frame.Top - frame.Bottom));
+
+    /// <summary>ThumbnailManager.FindSlotScreen: the monitor of that name and resolution, else the first of that resolution (a
+    /// slot made on Windows names \\.\DISPLAYn; Linux names its outputs); never one of another size. -1 when there is none.</summary>
+    public static int FindSlotMonitor(ClientSlot slot, IReadOnlyList<(string Name, int Width, int Height)> monitors)
+    {
+        bool hasSize = slot.MonitorWidth > 0 && slot.MonitorHeight > 0;
+        bool SizeMatch((string Name, int Width, int Height) m) => !hasSize || (m.Width == slot.MonitorWidth && m.Height == slot.MonitorHeight);
+        for (int i = 0; i < monitors.Count; i++)
+            if (monitors[i].Name == slot.MonitorDeviceName && SizeMatch(monitors[i])) return i;
+        if (!hasSize) return -1;
+        for (int i = 0; i < monitors.Count; i++)
+            if (SizeMatch(monitors[i])) return i;
+        return -1;
+    }
+
+    /// <summary>"Snap clients now" and a profile switch: every running client into its slot. Nothing unless Fixed slots is on.</summary>
+    public void ApplyAllClientSlots()
+    {
+        if (S.ClientPositionMode != 3) return;
+        foreach (var thumb in _thumbs.Values) ApplyClientSlot(thumb.Client.Window, thumb.Client.Character);
+        foreach (var window in _atLogin) ApplyClientSlot(window, null);
     }
 
     /// <summary>Centred in the work area of the monitor the client is on (#96: not over the panel), or at the X and Y set.
@@ -918,7 +1005,16 @@ public sealed class Previews : ITrayActions, ISettingsHost
     {
         // #99: the fixed place is applied at every switch, not only when the client is found; remembered places win.
         if (S.ClientPositionMode is 1 or 2 && !S.TrackClientPositions) ApplyFixedClientPosition(window);
+        // Fixed slots own the client's rect (ThumbnailManager applies the slot at every switch). A minimized client is put in its
+        // slot once the window manager has brought it back (Windows sets its restore rect instead).
+        bool slotLater = false;
+        if (S.ClientPositionMode == 3)
+        {
+            slotLater = _clients.State(window).Minimized;
+            if (!slotLater) ApplyClientSlot(window, CharacterOf(window));
+        }
         _clients.Activate(window);
+        if (slotLater) DispatcherTimer.RunOnce(() => ApplyClientSlot(window, CharacterOf(window)), TimeSpan.FromMilliseconds(200));
         if (S.AlwaysMaximize && S.ClientPositionMode != 3 && !_clients.State(window).Maximized) _clients.Maximize(window);
         if (!S.MinimizeInactiveClients) return;
         DispatcherTimer.RunOnce(() =>
@@ -1055,6 +1151,9 @@ public sealed class Previews : ITrayActions, ISettingsHost
 
     private uint WindowOf(string character) =>
         _thumbs.Values.FirstOrDefault(t => string.Equals(t.Client.Character, character, StringComparison.OrdinalIgnoreCase))?.Client.Window ?? 0;
+
+    /// <summary>The character of a client window with a thumbnail; null for one at the login screen (or unknown).</summary>
+    private string? CharacterOf(uint window) => _thumbs.TryGetValue(window, out var thumb) ? thumb.Client.Character : null;
 
     private void Flash(string character, string severity, string alertType)
     {
@@ -1550,6 +1649,12 @@ public sealed class Previews : ITrayActions, ISettingsHost
         foreach (var client in found.Where(f => _atLogin.Contains(f.Window)))
             if (ClientReady.ShouldRaise("", client.Character, _syncs > 0)) _alerts?.Raise(DateTime.UtcNow, client.Character, ClientReady.EventKey, ClientReady.Severity);
         _atLogin = atLogin.ToHashSet();
+        // Fixed slots: a client at the login screen sits in the default slot (once; it moves to its character's own slot when it
+        // logs in and gets its thumbnail).
+        _loginPlaced.IntersectWith(_atLogin);
+        if (S.ClientPositionMode == 3)
+            foreach (var window in _atLogin)
+                if (!_loginPlaced.Contains(window) && ApplyClientSlot(window, null)) _loginPlaced.Add(window);
         _probeWindows = found.Select(f => (f.Window, f.Character)).ToArray();
         // A client's sound stream starts after its window (at login, after a loading screen): its saved volume is given again every 10 s.
         if (++_syncs % 5 == 0)
@@ -1567,6 +1672,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             _placed.Remove(gone);
             _clients.Forget(gone);
             Console.WriteLine($"Client closed: window {gone}");
+            DiagnosticsService.LogWindowHook($"[Client] closed: window {gone}");
         }
         foreach (var client in found.Where(f => !_thumbs.ContainsKey(f.Window)))
         {
@@ -1597,6 +1703,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             if (_placed.Add(client.Window)) PlaceNewClient(client);
             ApplyVolume(client);
             Console.WriteLine($"Client found: {client.Character} (window {client.Window})");
+            DiagnosticsService.LogWindowHook($"[Client] found: window {client.Window}");   // no character name in a debug log
         }
         SyncPips();
     }

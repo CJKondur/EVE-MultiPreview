@@ -67,4 +67,9 @@ public interface ISettingsHost
     CustomAlertStore? CustomAlerts { get; }
     /// <summary>Which custom rules the log monitor switched off for what they cost.</summary>
     IReadOnlyDictionary<string, string> CustomRulesSwitchedOff { get; }
+    /// <summary>Fixed slots' "Snap clients now" (ThumbnailManager.ApplyAllClientSlots): every running client into its slot.</summary>
+    void ApplyAllClientSlots();
+    /// <summary>The character's client window as it shows on the screen, its frame included (a slot's "Copy from a client"), or
+    /// null when it isn't running or is minimized or maximized.</summary>
+    (int X, int Y, int Width, int Height)? ClientFrame(string character);
 }

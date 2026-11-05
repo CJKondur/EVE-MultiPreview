@@ -124,6 +124,19 @@ public sealed unsafe class EveClients : IDisposable
         return (vert && horz, hidden);
     }
 
+    private uint _netFrameExtents;
+
+    /// <summary>The frame the window manager draws round the client (_NET_FRAME_EXTENTS: left, right, top, bottom), zero when it
+    /// draws none or doesn't say: the Linux counterpart of the visible frame DwmApi.TryGetVisibleFrame measures.</summary>
+    public (int Left, int Right, int Top, int Bottom) FrameExtents(uint window)
+    {
+        if (_netFrameExtents == 0) _netFrameExtents = Xcb.Atom(_c, "_NET_FRAME_EXTENTS");
+        var v = Xcb.Property(_c, window, _netFrameExtents);
+        if (v is not { Length: >= 16 }) return (0, 0, 0, 0);
+        static int At(byte[] b, int i) => (int)Math.Min(BitConverter.ToUInt32(b, i), 1000u);   // a frame is never this wide
+        return (At(v, 0), At(v, 4), At(v, 8), At(v, 12));
+    }
+
     /// <summary>Stacks one of MultiPreview's own windows above the others, without activating it.</summary>
     public void Raise(uint window) => Xcb.Raise(_c, window);
 
