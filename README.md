@@ -10,6 +10,8 @@ EVE MultiPreview is a free Windows app for players who run several EVE Online cl
 
 64-bit Windows 10 (2004 or later) or Windows 11. One exe, no installer.
 
+**Linux (preview):** a native Linux app for EVE under Proton, in the same release as `EVE.MultiPreview-linux-x64.tar.gz`. 64-bit Linux with X11, or XWayland on a Wayland desktop. It uses the same settings as the Windows app and can import a Windows settings file. Features that only make sense on Windows (DWM, RTSS, the Stream Deck plugin, Windows notifications) are hidden there.
+
 Like EVE-O Preview and EVE-X-Preview, MultiPreview shows and switches windows: one key press is one action in one client, and you cycle through your clients yourself. It does not broadcast input or read the game's memory. Three options that carry held keys into the next client are off unless you turn them on. CCP has not endorsed MultiPreview.
 
 ---
@@ -74,7 +76,14 @@ Read from EVE's own chat and game logs.
 
 ## Building from source
 
-Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (10.0.100 or later) on Windows.
+Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (10.0.100 or later). The Windows and Linux apps are two projects in this one repository; you pick one by the project file you build. Most of the code (settings, alerts, profiles, the settings pages) is shared, and each project compiles its own platform's part on top.
+
+| App | Project | Build on |
+|---|---|---|
+| Windows | `EveMultiPreview.csproj` | Windows |
+| Linux | `Linux/EveMultiPreview.Linux.csproj` | Linux or Windows (it always builds the Linux x64 app) |
+
+### Windows
 
 ```bash
 git clone https://github.com/CJKondur/EVE-MultiPreview.git
@@ -91,6 +100,22 @@ dotnet publish EveMultiPreview.csproj -c Release
 Output goes to `..\EVE-MultiPreview-Release\` (outside the repo); add `-o <folder>` to change it. A test build shares `%APPDATA%\EVE MultiPreview` with your normal copy unless you put an empty `portable.txt` beside the exe first.
 
 Written in C# on .NET 10 (WPF and WinForms); thumbnails use the Windows DWM Thumbnail API.
+
+### Linux
+
+```bash
+git clone https://github.com/CJKondur/EVE-MultiPreview.git
+cd EVE-MultiPreview
+dotnet publish Linux/EveMultiPreview.Linux.csproj -c Release -o publish-linux \
+  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+./publish-linux/eve-multipreview
+```
+
+The result is one self-contained file, `publish-linux/eve-multipreview` (it carries .NET, so the machine that runs it needs no SDK). Settings live in `~/.config/EVE MultiPreview`; an empty `portable.txt` beside the program keeps them there instead, as on Windows. `eve-multipreview --help` lists the commands other programs can send it.
+
+It runs on X11, or XWayland under a Wayland desktop (EVE under Proton runs there too). Optional programs it uses when present: `pactl` (per-client volume), `systemd-inhibit` (keep the screen awake), `notify-send` (desktop notifications) and `xdg-open` (opening links and folders).
+
+Written in C# on .NET 10 with [Avalonia](https://avaloniaui.net/); thumbnails are drawn from the X server (Composite and XRender).
 
 ---
 
