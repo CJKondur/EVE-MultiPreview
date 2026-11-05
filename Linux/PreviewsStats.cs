@@ -64,7 +64,7 @@ public sealed partial class Previews
         {
             bool shown = any && !FocusMode.Holds(_focusHeld, character);
             if (shown != window.IsVisible) { if (shown) window.Show(); else window.Hide(); }
-            if (window.Topmost != S.ShowThumbnailsAlwaysOnTop) window.Topmost = S.ShowThumbnailsAlwaysOnTop;
+            if (window.Topmost != ThumbnailsTopmost) window.Topmost = ThumbnailsTopmost;
             window.CanDrag = !S.LockPositions;
         }
     }
@@ -79,7 +79,7 @@ public sealed partial class Previews
         int h = known && saved!.Width > 0 && saved.Height > 0 ? (int)saved.Height : StatsWindow.DefaultHeight;
         var window = new StatsWindow(character, new PixelRect(x, y, w, h))
         {
-            Topmost = S.ShowThumbnailsAlwaysOnTop,
+            Topmost = ThumbnailsTopmost,
             CanDrag = !S.LockPositions,
             PointerSource = _clients.Pointer,
         };

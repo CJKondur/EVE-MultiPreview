@@ -92,7 +92,7 @@ public sealed class ThumbnailWindow : Window
         RequestedThemeVariant = Avalonia.Styling.ThemeVariant.Dark;   // its right-click menu is dark, as the settings window is
 
         _bitmap = new WriteableBitmap(new PixelSize(rect.Width, rect.Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Opaque);
-        _image = new Image { Source = _bitmap, Stretch = Stretch.Fill };
+        _image = new Image { Source = _bitmap, Stretch = Stretch.Fill, IsVisible = false };   // shown once drawn (Drawn)
         _name = new TextBlock
         {
             Margin = new Thickness(6, 4),
@@ -606,8 +606,21 @@ public sealed class ThumbnailWindow : Window
         _mark.IsVisible = text != null;
     }
 
-    /// <summary>A picture of the client was drawn at least once (the GPU-saving modes skip the others).</summary>
-    public bool Drawn { get; private set; }
+    /// <summary>A picture of the client is in the bitmap (the GPU-saving modes skip the others). Until then the picture is
+    /// left out and the background colour shows (S7: ThumbnailBackgroundColor, the Windows form's BackColor).</summary>
+    public bool Drawn
+    {
+        get => _drawn;
+        private set { _drawn = value; if (_image.IsVisible != value) _image.IsVisible = value; }
+    }
+
+    private bool _drawn;
+
+    /// <summary>The colour behind the picture, shown while there is none yet (Thumbnails › Appearance › Background colour).</summary>
+    public void SetBackground(IBrush brush)
+    {
+        if (!ReferenceEquals(_frame.Background, brush)) _frame.Background = brush;
+    }
 
     /// <summary>Copies the client's current picture into the bitmap and shows it. False when the client is gone.</summary>
     public unsafe bool Update(EveClients clients)

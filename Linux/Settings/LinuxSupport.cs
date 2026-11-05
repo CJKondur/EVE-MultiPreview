@@ -92,7 +92,7 @@ internal static class LinuxSupport
         ["thumbs.appearance.individualResize"] = S, ["thumbs.appearance.lockAspect"] = S, ["thumbs.appearance.minSizeOn"] = S,
         ["thumbs.appearance.minWidth"] = S, ["thumbs.appearance.minHeight"] = S, ["thumbs.appearance.opacity"] = S,
         ["thumbs.appearance.opacityOnHover"] = S, ["thumbs.appearance.hoverZoom"] = S, ["thumbs.appearance.hoverScale"] = S,
-        ["thumbs.appearance.background"] = N,
+        ["thumbs.appearance.background"] = S,   // S7: ThumbnailWindow.SetBackground, shown until the first picture
 
         // ── Thumbnails › Text & borders ──
         ["thumbs.text.showText"] = S, ["thumbs.text.showSystem"] = S, ["thumbs.text.showTimer"] = S,   // Previews.Extras (S3b)
@@ -119,7 +119,7 @@ internal static class LinuxSupport
         ["thumbs.layout.align"] = S, ["thumbs.layout.history"] = S,
 
         // ── Thumbnails › Visibility ──
-        ["thumbs.visibility.alwaysOnTop"] = S, ["thumbs.visibility.aboveClients"] = N,
+        ["thumbs.visibility.alwaysOnTop"] = S, ["thumbs.visibility.aboveClients"] = S,   // S7: Previews.ThumbnailsTopmost (topmost only while EVE or MultiPreview is in front)
         ["thumbs.visibility.hideOnLostFocus"] = S,   // Previews.Tick (S3b)
         ["thumbs.visibility.hideActive"] = S, ["thumbs.nameBar"] = S,
         ["thumbs.visibility.notLoggedIn"] = S, ["thumbs.visibility.notLoggedInColor"] = S,   // Previews.LoginLook / LoginMark (S6)

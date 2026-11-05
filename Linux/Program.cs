@@ -1285,6 +1285,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         // "Freeze thumbnails in the background" keeps their last picture while neither EVE nor MultiPreview is in front. On Linux
         // each picture is a copy from the X server, so both save CPU and X traffic.
         bool eveFocused = _thumbs.ContainsKey(active) || _clients.IsOurs(active);
+        _eveFocused = eveFocused;   // ThumbnailsTopmost (S7)
         bool skipDraw = (S.StaticThumbnails && _ticks % 10 != 0) || (S.SuspendThumbnailsWhenBackground && !eveFocused);
         foreach (var thumb in _thumbs.Values)
         {
@@ -1299,6 +1300,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             thumb.LockResizeAspect = S.LockResizeAspect;
             thumb.ConfineDragsToMonitor = S.ConfineDragsToMonitor;
             thumb.HoverScale = S.ResizeThumbnailsOnHover ? S.HoverScale : 1.0;   // ThumbnailManager.HoverScaleFor
+            thumb.SetBackground(Brush(S.ThumbnailBackgroundColor));   // S7: behind the picture until there is one
             thumb.Apply(UnderFireLook(thumb.Client.Character, LoginLook(thumb.Client.Character, Look(thumb.Client.Character, isActive, thumb.Hovered))));
             thumb.MenuOpen = _menu != null;
             thumb.Follow();   // a drag that ended or a pointer that left lets a waiting enlargement happen
@@ -1500,6 +1502,13 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         character.Length > 0 || (S.NotLoggedInIndicator ?? "").ToLowerInvariant() is "none" or "border" or "dim"
             ? null : LocalizationService.Str("L.Thumb.NotLoggedIn", "Not Logged In");
 
+    /// <summary>An EVE client or a MultiPreview window was in front at the last tick.</summary>
+    private bool _eveFocused;
+
+    /// <summary>ThumbnailManager's desiredTopmost (keep in sync): always with "Always on top", and with "Keep thumbnails above
+    /// the clients" while an EVE client or MultiPreview is in front, so they drop back the moment another program is (S7).</summary>
+    private bool ThumbnailsTopmost => S.ShowThumbnailsAlwaysOnTop || (S.KeepThumbnailsAboveClients && _eveFocused);
+
     private bool Hidden(string character) => S.ThumbnailVisibility.TryGetValue(character, out var v) && v != 0;
 
     private ThumbnailLook Look(string character, bool isActive, bool hovered = false)
@@ -1525,7 +1534,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         if (_alertBorders.ContainsKey(character))
             opacity = Math.Max(opacity, SettingsUi.AlertFields.PulsePercent(S.AlertOpacityPercent) / 100.0);
         return new ThumbnailLook(border, thickness, label, S.ShowThumbnailTextOverlay, Brush(textColour), size,
-            S.ThumbnailTextFont, opacity, S.ShowThumbnailsAlwaysOnTop);
+            S.ThumbnailTextFont, opacity, ThumbnailsTopmost);
     }
 
     /// <summary>A second thumbnail's look (ThumbnailManager.CreateSecondaryThumbnail): no border, the character's name, its own
@@ -1538,7 +1547,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         var textColour = style is { Color.Length: > 0 } ? style.Color : S.ThumbnailTextColor;
         double size = style is { Size: > 0 } ? style.Size : double.TryParse(S.ThumbnailTextSize, out var fs) ? fs : 12;
         return new ThumbnailLook(Brushes.Transparent, 0, StreamerMask.Name(StreamerKind.Character, character), true, Brush(textColour), size,
-            S.ThumbnailTextFont, opacity, S.ShowThumbnailsAlwaysOnTop);
+            S.ThumbnailTextFont, opacity, ThumbnailsTopmost);
     }
 
     /// <summary>ThumbnailManager's PiP sync: a second thumbnail for each running client whose character has one switched on
@@ -1571,7 +1580,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             pip.PointerSource = _clients.Pointer;
             pip.RaiseWhileEnlarged = t =>
             {
-                if (S.ShowThumbnailsAlwaysOnTop && t.TryGetPlatformHandle() is { } handle) _clients.Raise((uint)(long)handle.Handle);
+                if (ThumbnailsTopmost && t.TryGetPlatformHandle() is { } handle) _clients.Raise((uint)(long)handle.Handle);
             };
             _pips[character] = pip;
         }
@@ -1675,7 +1684,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         bool label = def.ShowLabel && !string.IsNullOrWhiteSpace(def.Name);
         return new ThumbnailLook(Brushes.Transparent, 0, def.Name, label, Brush(S.ThumbnailTextColor), size,
             S.ThumbnailTextFont, Math.Clamp(def.Opacity, SettingsUi.CropEdits.MinOpacity, SettingsUi.CropEdits.MaxOpacity) / 100.0,
-            S.ShowThumbnailsAlwaysOnTop);
+            ThumbnailsTopmost);
     }
 
     /// <summary>CropManager.ReconcileCharacter: a crop window for each crop of each running client's character while crop
@@ -1883,7 +1892,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             // An enlarged thumbnail is stacked above its neighbours, as Windows raises it (only while the thumbnails are "always on top").
             thumb.RaiseWhileEnlarged = t =>
             {
-                if (S.ShowThumbnailsAlwaysOnTop && t.TryGetPlatformHandle() is { } handle) _clients.Raise((uint)(long)handle.Handle);
+                if (ThumbnailsTopmost && t.TryGetPlatformHandle() is { } handle) _clients.Raise((uint)(long)handle.Handle);
             };
             thumb.PointerSource = _clients.Pointer;
             thumb.MenuRequested += ShowMenu;
