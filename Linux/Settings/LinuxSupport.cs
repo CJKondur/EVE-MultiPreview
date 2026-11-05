@@ -47,11 +47,11 @@ internal static class LinuxSupport
 
         // ── Clients › Hotkeys ──
         ["clients.hotkeys.scope"] = S,
-        ["clients.hotkeys.wildcard"] = N,     // the X11 grabs take the exact modifiers
+        ["clients.hotkeys.wildcard"] = S,     // S6: GlobalHotkeys grabs each key with every other modifier mix too
         ["clients.hotkeys.hideKeystrokes"] = W, ["clients.hotkeys.carryModifiers"] = W, ["clients.hotkeys.carryKeys"] = W,
         ["clients.hotkeys.hideHeld"] = W, ["clients.hotkeys.broadcastHud"] = W,          // low-level keyboard hook, SendInput
         ["clients.hotkeys.cycleNext"] = S, ["clients.hotkeys.cyclePrevious"] = S,
-        ["clients.hotkeys.cycleWhileHeld"] = N, ["clients.hotkeys.cycleDelay"] = N,       // X11 key repeat is not followed
+        ["clients.hotkeys.cycleWhileHeld"] = S, ["clients.hotkeys.cycleDelay"] = S,       // S6: GlobalHotkeys tells X key repeat from a press
         ["clients.hotkeys.wrapSound"] = S, ["clients.hotkeys.wrapSoundFile"] = S,         // Previews.PlayWrapSound (S3b)
         ["clients.hotkeys.includeLogins"] = S,   // S6: login-screen clients have thumbnails; Previews.Cycle walks them in window order
         ["clients.hotkeys.cycleSameSystem"] = S, ["clients.hotkeys.cycleAlerting"] = S, ["clients.hotkeys.cycleSkipMuted"] = S,   // CycleFilter (S3b)
@@ -60,12 +60,12 @@ internal static class LinuxSupport
         ["clients.hotkeys.quickSwitch"] = N,   // no quick-switch sheet
         ["clients.hotkeys.undo"] = S, ["clients.hotkeys.redo"] = S,   // Previews.UndoLayout / RedoLayout (S6)
         ["clients.hotkeys.profileNext"] = S, ["clients.hotkeys.profilePrevious"] = S, ["clients.hotkeys.closeAll"] = S,   // (S3b)
-        ["clients.hotkeys.sheet"] = N,        // no hotkey sheet window on Linux
+        ["clients.hotkeys.sheet"] = S,        // S6: Linux/HotkeySheetWindow.cs
         ["clients.hotkeys.openSettings"] = S, // (S3b)
         ["clients.hotkeys.hideAll"] = S, ["clients.hotkeys.hidePip"] = S, ["clients.hotkeys.hideCrops"] = S,
         ["clients.hotkeys.lockPositions"] = S, ["clients.hotkeys.commandPalette"] = S,
         ["clients.hotkeys.gamepad"] = W, ["clients.hotkeys.gamepadBindings"] = W,       // XInput
-        ["clients.hotkeys.conflicts"] = N,    // no Linux editor (Linux shows clashes on each key)
+        ["clients.hotkeys.conflicts"] = S,    // S6: Linux/Settings/HotkeyEditors.cs
         ["clients.hotkeys.refused"] = W,      // keys RegisterHotKey refused
 
         // ── Clients › Groups ──

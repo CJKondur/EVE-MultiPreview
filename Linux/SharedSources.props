@@ -115,6 +115,8 @@
     <Compile Include="..\SettingsUi\Help\HelpMarkup.cs" Link="Shared\SettingsUi\Help\HelpMarkup.cs" />
     <Compile Include="..\SettingsUi\Help\HelpTopics.cs" Link="Shared\SettingsUi\Help\HelpTopics.cs" />
     <Compile Include="..\SettingsUi\Hotkeys\HotkeyUses.cs" Link="Shared\SettingsUi\Hotkeys\HotkeyUses.cs" />
+    <Compile Include="..\SettingsUi\Hotkeys\HotkeyConflicts.cs" Link="Shared\SettingsUi\Hotkeys\HotkeyConflicts.cs" />
+    <Compile Include="..\SettingsUi\Hotkeys\HotkeySheet.cs" Link="Shared\SettingsUi\Hotkeys\HotkeySheet.cs" />
     <Compile Include="..\SettingsUi\Pages\Alerts\AlertEvents.cs" Link="Shared\SettingsUi\Pages\Alerts\AlertEvents.cs" />
     <Compile Include="..\SettingsUi\Pages\Alerts\CustomRulesModel.cs" Link="Shared\SettingsUi\Pages\Alerts\CustomRulesModel.cs" />
     <Compile Include="..\SettingsUi\Pages\Alerts\SnoozeAdd.cs" Link="Shared\SettingsUi\Pages\Alerts\SnoozeAdd.cs" />

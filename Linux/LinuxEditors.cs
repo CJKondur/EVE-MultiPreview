@@ -53,6 +53,8 @@ internal static class LinuxEditors
         { "thumbs.layout.presets", (pages, ctx, _) => pages.LayoutPresets(ctx) },
         { "thumbs.layout.align", (pages, ctx, _) => pages.AlignCard(ctx) },
         { "thumbs.layout.history", (pages, ctx, _) => pages.LayoutHistory(ctx) },
+        // S6 (Linux/Settings/HotkeyEditors.cs): keys used twice.
+        { "clients.hotkeys.conflicts", (pages, ctx, _) => pages.HotkeyConflictsCard(ctx) },
     };
 
     /// <summary>Every editor id Linux can build.</summary>

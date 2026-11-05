@@ -9,7 +9,7 @@ namespace EveMultiPreview.Linux;
 public sealed unsafe class GlobalHotkeys
 {
     private const string Lib = "libxcb.so.1";
-    private const byte KeyPress = 2, GrabModeAsync = 1;
+    private const byte KeyPress = 2, KeyRelease = 3, GrabModeAsync = 1;
     private const ushort Shift = 1, Lock = 2, Control = 4, Mod1 = 8, Mod2 = 16, Mod4 = 64, AnyModifier = 0x8000;
     private const ushort Wanted = Shift | Control | Mod1 | Mod4;
 
@@ -26,7 +26,7 @@ public sealed unsafe class GlobalHotkeys
     private readonly uint _root;
     private readonly Dictionary<uint, byte> _keycodeOf = new();
     private readonly object _gate = new();
-    private Dictionary<(byte Key, ushort Mods), Action> _bound = new();
+    private Dictionary<(byte Key, ushort Mods), (Action Run, bool Repeatable)> _bound = new();
 
     public GlobalHotkeys()
     {
@@ -39,22 +39,69 @@ public sealed unsafe class GlobalHotkeys
 
     /// <summary>Replaces every grab with <paramref name="keys"/>. Returns the keys that could not be bound: a name
     /// this keyboard has no key for, or one only Windows knows (mouse buttons, vkNN).</summary>
-    public IReadOnlyList<string> Bind(IEnumerable<(string Key, Action Run)> keys)
+    public IReadOnlyList<string> Bind(IEnumerable<(string Key, Action Run)> keys) => Bind(keys.Select(k => (k.Key, k.Run, false)));
+
+    /// <summary>Whether a held key keeps switching (CycleWhileHeld) and how often (CycleDelayMs), asked at each repeat; and
+    /// whether the keys fire while other modifiers are held too (HotkeyWildcardModifiers), asked at each Bind.</summary>
+    public Func<bool> CycleWhileHeld { get; set; } = () => true;
+    public Func<int> CycleDelayMs { get; set; } = () => 100;
+    public Func<bool> Wildcard { get; set; } = () => false;
+
+    /// <summary>The grabs, as <see cref="Bind(IEnumerable{ValueTuple{string, Action}})"/>; a <paramref name="keys"/> entry that is
+    /// repeatable (the cycle keys, as HotkeyService.StoreRepeatableAhkHotkey) runs again while the key is held when
+    /// CycleWhileHeld is on, at most every CycleDelayMs; every other key runs once per press (MOD_NOREPEAT). With the wildcard
+    /// switch on, each key is also grabbed with every other mix of Ctrl, Shift, Alt and Super held (AHK's "*").</summary>
+    public IReadOnlyList<string> Bind(IEnumerable<(string Key, Action Run, bool Repeatable)> keys)
     {
         var refused = new List<string>();
-        var bound = new Dictionary<(byte, ushort), Action>();
+        var bound = new Dictionary<(byte, ushort), (Action Run, bool Repeatable)>();
+        bool wildcard = Wildcard();
         xcb_ungrab_key(_c, 0, _root, AnyModifier);
-        foreach (var (key, run) in keys)
+        foreach (var (key, run, repeatable) in keys)
         {
             if (Parse(key) is not { } k) { refused.Add(key); continue; }
-            bound[k] = run;
-            foreach (ushort locks in new ushort[] { 0, Lock, Mod2, Lock | Mod2 })
-                xcb_grab_key(_c, 1, _root, (ushort)(k.Mods | locks), k.Key, GrabModeAsync, GrabModeAsync);
+            bound[k] = (run, repeatable);
+            foreach (ushort extra in wildcard ? ExtraModifiers(k.Mods) : new ushort[] { 0 })
+                foreach (ushort locks in new ushort[] { 0, Lock, Mod2, Lock | Mod2 })
+                    xcb_grab_key(_c, 1, _root, (ushort)(k.Mods | extra | locks), k.Key, GrabModeAsync, GrabModeAsync);
         }
         Xcb.xcb_flush(_c);
-        lock (_gate) _bound = bound;
+        lock (_gate) { _bound = bound; _wildcard = wildcard; }
         return refused;
     }
+
+    private bool _wildcard;
+
+    /// <summary>Every mix of the modifiers a key does not name itself (none included).</summary>
+    public static IEnumerable<ushort> ExtraModifiers(ushort own)
+    {
+        ushort free = (ushort)(Wanted & ~own);
+        for (int m = 0; m <= Wanted; m++)
+            if ((m & ~free) == 0) yield return (ushort)m;
+    }
+
+    /// <summary>The binding a press finds: its own combination; with the wildcard on, else the binding of that key whose
+    /// modifiers are the most of those held (all of them held).</summary>
+    public static (Action Run, bool Repeatable)? Find(IReadOnlyDictionary<(byte Key, ushort Mods), (Action Run, bool Repeatable)> bound, byte key, ushort mods, bool wildcard)
+    {
+        if (bound.TryGetValue((key, mods), out var exact)) return exact;
+        if (!wildcard) return null;
+        (Action, bool)? best = null;
+        int bestCount = -1;
+        foreach (var ((k, m), binding) in bound)
+            if (k == key && (m & ~mods) == 0 && System.Numerics.BitOperations.PopCount(m) > bestCount)
+                (best, bestCount) = (binding, System.Numerics.BitOperations.PopCount(m));
+        return best;
+    }
+
+    /// <summary>X sends a held key as KeyRelease and KeyPress pairs with one timestamp (or, with detectable repeat, presses
+    /// without a release): a press is a repeat when the key is still down, or was let go at that very moment.</summary>
+    public static bool IsRepeat(bool stillDown, uint pressTime, uint? releasedAt) =>
+        stillDown || releasedAt is { } r && pressTime - r <= 1;
+
+    private readonly HashSet<byte> _down = new();
+    private readonly Dictionary<byte, uint> _releasedAt = new();
+    private readonly Dictionary<byte, long> _lastFire = new();
 
     private void Listen()
     {
@@ -65,13 +112,33 @@ public sealed unsafe class GlobalHotkeys
             try
             {
                 byte* p = (byte*)e;
-                if ((p[0] & 0x7f) != KeyPress) continue;
-                var k = (p[1], (ushort)(*(ushort*)(p + 28) & Wanted));
-                Action? run;
-                lock (_gate) _bound.TryGetValue(k, out run);
+                int type = p[0] & 0x7f;
+                byte code = p[1];
+                uint time = *(uint*)(p + 4);
+                if (type == KeyRelease)
+                {
+                    _down.Remove(code);
+                    _releasedAt[code] = time;
+                    continue;
+                }
+                if (type != KeyPress) continue;
+                bool repeat = IsRepeat(_down.Contains(code), time, _releasedAt.TryGetValue(code, out var r) ? r : null);
+                _down.Add(code);
+                var mods = (ushort)(*(ushort*)(p + 28) & Wanted);
+                (Action Run, bool Repeatable)? hit;
+                lock (_gate) hit = Find(_bound, code, mods, _wildcard);
                 if (Environment.GetEnvironmentVariable("EVEMP_DEBUG_KEYS") == "1")
-                    Console.WriteLine($"[keys] keycode {k.Item1} mods {k.Item2}: {(run != null ? "bound" : "not bound")}");
-                if (run != null) Dispatcher.UIThread.Post(run);
+                    Console.WriteLine($"[keys] keycode {code} mods {mods}{(repeat ? " (repeat)" : "")}: {(hit != null ? "bound" : "not bound")}");
+                if (hit is not { } binding) continue;
+                long now = Environment.TickCount64;
+                if (repeat)
+                {
+                    // HotkeyService: MOD_NOREPEAT for every key but the cycle keys with CycleWhileHeld on, paced to CycleDelayMs.
+                    if (!binding.Repeatable || !CycleWhileHeld()) continue;
+                    if (_lastFire.TryGetValue(code, out long last) && now - last < Math.Clamp(CycleDelayMs(), 25, 2000)) continue;
+                }
+                _lastFire[code] = now;   // a fresh press always fires at once (#60)
+                Dispatcher.UIThread.Post(binding.Run);
             }
             finally { NativeMemory.Free((void*)e); }
         }

@@ -97,6 +97,10 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         AppDomain.CurrentDomain.ProcessExit += (_, _) => _runMarker?.End();   // a SIGTERM (logging out) is a clean end too
         Console.WriteLine($"EVE MultiPreview for Linux: settings {AppPaths.SettingsPath}; looking for windows titled \"{_clients.TitlePrefix}…\" "
             + $"(Composite: {(_clients.HasComposite ? "yes" : "no, covered clients will not show")}; scaling on the X server: {(_clients.ScalesOnServer ? "yes" : "no")})");
+        // S6: a held cycle key (CycleWhileHeld, CycleDelayMs) and the wildcard switch (HotkeyWildcardModifiers), as HotkeyService.
+        _hotkeys.CycleWhileHeld = () => S.CycleWhileHeld;
+        _hotkeys.CycleDelayMs = () => S.CycleDelayMs;
+        _hotkeys.Wildcard = () => S.HotkeyWildcardModifiers;
         BindHotkeys();
         _settings.ProfileSwitched += OnProfileSwitched;
         _settings.ProfileSwitched += _ => { if (!_switchingProfileAutomatically) _autoProfile.ManualSwitch(DateTime.UtcNow); };
@@ -902,15 +906,25 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         var pause = string.IsNullOrWhiteSpace(S.SuspendHotkey) ? new List<(string, Action)>() : new List<(string, Action)> { (S.SuspendHotkey, TogglePause) };
         if (_hotkeysPaused || !_keysInScope) { _hotkeys.Bind(pause); return; }
         var keys = new List<(string, Action)>(pause);
-        foreach (var (character, binding) in _settings.CurrentProfile.Hotkeys)
-            keys.Add((binding.Key, () => SwitchTo(character)));
+        // The keys a held press repeats (HotkeyService.StoreRepeatableAhkHotkey): the cycle keys, a key characters share, the
+        // character-select keys. Every other key runs once per press.
+        var repeatable = new HashSet<Action>(ReferenceEqualityComparer.Instance);
+        void Repeatable(string key, Action run) { keys.Add((key, run)); repeatable.Add(run); }
+        // A key one character has switches to it; a key several share switches between them, as HotkeyService's shared keys.
+        foreach (var shared in _settings.CurrentProfile.Hotkeys.Where(h => !string.IsNullOrWhiteSpace(h.Value.Key))
+                     .GroupBy(h => h.Value.Key, StringComparer.OrdinalIgnoreCase))
+        {
+            var members = shared.Select(h => h.Key).ToList();
+            if (members.Count == 1) keys.Add((shared.Key, () => SwitchTo(members[0])));
+            else Repeatable(shared.Key, () => Cycle(members, true));
+        }
         foreach (var group in S.HotkeyGroups.Values)
         {
-            keys.Add((group.ForwardsHotkey, () => Cycle(group.Characters, true)));
-            keys.Add((group.BackwardsHotkey, () => Cycle(group.Characters, false)));
+            Repeatable(group.ForwardsHotkey, () => Cycle(group.Characters, true));
+            Repeatable(group.BackwardsHotkey, () => Cycle(group.Characters, false));
         }
-        keys.Add((S.GlobalCycleForwardHotkey, () => Cycle(null, true)));
-        keys.Add((S.GlobalCycleBackwardHotkey, () => Cycle(null, false)));
+        Repeatable(S.GlobalCycleForwardHotkey, () => Cycle(null, true));
+        Repeatable(S.GlobalCycleBackwardHotkey, () => Cycle(null, false));
         keys.Add((S.PreviousClientHotkey, () => { if (_previousActive != 0) ActivateClient(_previousActive); }));
         keys.Add((S.HideShowThumbnailsHotkey, () => _allHidden = !_allHidden));
         keys.Add((S.HideSecondaryHotkey, () =>
@@ -940,19 +954,41 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         keys.Add((S.ProfileCycleBackwardHotkey, () => CycleProfile(false)));
         keys.Add((S.CloseAllClientsHotkey, CloseAllClients));
         keys.Add((S.OpenSettingsHotkey, OpenSettings));
+        keys.Add((S.HotkeySheetHotkey, ToggleHotkeySheet));   // S6: IDEAS #16
         // S6: the character-select keys, only while their switch is on (HotkeyService.RegisterFromSettings).
         if (S.CharSelectCyclingEnabled)
         {
-            keys.Add((S.CharSelectForwardHotkey, () => CycleCharSelect(true)));
-            keys.Add((S.CharSelectBackwardHotkey, () => CycleCharSelect(false)));
+            Repeatable(S.CharSelectForwardHotkey, () => CycleCharSelect(true));
+            Repeatable(S.CharSelectBackwardHotkey, () => CycleCharSelect(false));
         }
         // S6: the layout history (HotkeyService's UndoLayoutHotkey / RedoLayoutHotkey).
         keys.Add((S.UndoLayoutHotkey, () => UndoLayout()));
         keys.Add((S.RedoLayoutHotkey, () => RedoLayout()));
         var wanted = keys.Where(k => !string.IsNullOrWhiteSpace(k.Item1)).ToList();
-        var refused = _hotkeys.Bind(wanted);
+        var refused = _hotkeys.Bind(wanted.Select(k => (k.Item1, k.Item2, repeatable.Contains(k.Item2))));
         Console.WriteLine($"Hotkeys: {wanted.Count - refused.Count} bound");
         foreach (var key in refused) Console.WriteLine($"Hotkey not bound (no such key on Linux/X11): {key}");
+    }
+
+    private HotkeySheetWindow? _hotkeySheet;
+
+    /// <summary>App.ToggleHotkeySheet (IDEAS #16): the hotkey cheat sheet over the thumbnails, or closes the open one. The rows are
+    /// the shared HotkeySheet.Rows of the cards Linux shows, so the sheet and the conflict check never disagree.</summary>
+    private void ToggleHotkeySheet()
+    {
+        if (_hotkeySheet != null)
+        {
+            var open = _hotkeySheet;
+            _hotkeySheet = null;
+            open.Dismiss();
+            return;
+        }
+        var pointer = _clients.Pointer() is { } p ? new PixelPoint(p.X, p.Y) : (PixelPoint?)null;
+        var sheet = new HotkeySheetWindow(HotkeySheet.Rows(S, LinuxSupport.Settings), pointer);
+        sheet.Opened += (_, _) => { if (sheet.TryGetPlatformHandle() is { } handle) _clients.NoFocus((uint)(long)handle.Handle); };
+        sheet.Closed += (_, _) => { if (ReferenceEquals(_hotkeySheet, sheet)) _hotkeySheet = null; };
+        _hotkeySheet = sheet;
+        sheet.Show();
     }
 
     private void SwitchTo(string character)
