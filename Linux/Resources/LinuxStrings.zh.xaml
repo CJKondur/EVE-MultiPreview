@@ -71,5 +71,6 @@
     <sys:String x:Key="L.Linux.Help.Updates">除非你关闭，MultiPreview 启动时会到 GitHub 检查是否有新版本。**检查更新**会立即检查。&#x0A;&#x0A;**安装指定版本**会列出所有版本。安装旧版本会关闭启动时的检查，以免它马上又提示更新回去。</sys:String>
     <sys:String x:Key="L.Linux.Report.Note">不会发送任何东西。zip 保存在你选择的位置，由你决定交给谁。你的用户名、电脑名和 Discord webhook 始终会被去掉。</sys:String>
     <sys:String x:Key="L.Linux.Help.Report">**创建错误报告…** 会生成一个可附在错误报告中的 zip。其中包含：&#x0A;&#x0A;- MultiPreview 的版本、Linux 内核、发行版和桌面环境、语言和外观；&#x0A;- 每台显示器的尺寸、位置、工作区和缩放；&#x0A;- 你的设置，不含你的 Discord webhook；&#x0A;- MultiPreview 每个日志的最后 500 行。&#x0A;&#x0A;你的用户名会从每个文件夹路径中去掉，电脑名也是。**隐藏角色名**（在你关闭之前一直开启）会把你的角色名替换为 Character 1、Character 2 等；MultiPreview 不认识的名字（例如日志中的其他玩家）会保留。保存之前你能看到每个文件，MultiPreview 从不把 zip 发送到任何地方。</sys:String>
+    <sys:String x:Key="L.Linux.Eve.NotFound">未找到 EVE 的设置文件夹。请先启动一次 EVE，或选择该文件夹（通常在 steamapps/compatdata/8500/pfx/drive_c/users/steamuser/AppData/Local/CCP/EVE，以 _tranquility 结尾）。</sys:String>
 
 </ResourceDictionary>

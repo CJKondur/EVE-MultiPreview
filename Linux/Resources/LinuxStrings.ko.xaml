@@ -71,5 +71,6 @@
     <sys:String x:Key="L.Linux.Help.Updates">끄지 않으면 MultiPreview는 시작할 때 GitHub에서 새 릴리스를 확인해요. **업데이트 확인**은 바로 확인해요.&#x0A;&#x0A;**특정 버전 설치**는 모든 릴리스를 보여 줘요. 이전 버전을 설치하면 시작 시 확인이 꺼져서, 곧바로 다시 업데이트하라는 안내가 뜨지 않아요.</sys:String>
     <sys:String x:Key="L.Linux.Report.Note">아무것도 보내지 않아요. zip은 내가 고른 곳에 저장되고, 누구에게 줄지는 내가 정해요. 사용자 이름, PC 이름, Discord 웹후크는 항상 빠져요.</sys:String>
     <sys:String x:Key="L.Linux.Help.Report">**버그 보고 만들기…**는 버그 보고에 첨부할 수 있는 zip을 만들어요. 들어 있는 것:&#x0A;&#x0A;- MultiPreview 버전, Linux 커널, 배포판, 데스크톱, 언어와 모양;&#x0A;- 각 모니터의 크기, 위치, 작업 영역, 배율;&#x0A;- 설정(Discord 웹후크는 빠져요);&#x0A;- MultiPreview 각 로그의 마지막 500줄.&#x0A;&#x0A;사용자 이름은 모든 폴더 경로에서 빠지고, PC 이름도 마찬가지예요. **캐릭터 이름 숨기기**(끌 때까지 켜져 있어요)는 캐릭터 이름을 Character 1, Character 2 등으로 바꿔요. MultiPreview가 모르는 이름(로그 속 다른 플레이어 등)은 그대로 남아요. 저장하기 전에 모든 파일을 볼 수 있고, MultiPreview는 zip을 어디에도 보내지 않아요.</sys:String>
+    <sys:String x:Key="L.Linux.Eve.NotFound">EVE 설정 폴더를 찾지 못했어요. EVE를 한 번 실행하거나 폴더를 직접 선택하세요(보통 steamapps/compatdata/8500/pfx/drive_c/users/steamuser/AppData/Local/CCP/EVE 안, _tranquility로 끝남).</sys:String>
 
 </ResourceDictionary>

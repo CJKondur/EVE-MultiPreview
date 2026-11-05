@@ -191,7 +191,7 @@ internal static class LinuxSupport
         ["tools.stats.textColor"] = S, ["tools.stats.csv"] = S, ["tools.stats.logFolder"] = S, ["tools.stats.noFolder"] = S,
         ["tools.stats.keepDays"] = S, ["tools.stats.keepZero"] = S,
         // ── Tools › EVE settings ──
-        ["tools.eve.editor"] = N,   // the EVE settings tool needs the client settings folders inside each Proton prefix; not ported yet
+        ["tools.eve.editor"] = S,   // S8: Linux/Settings/EveEditors.cs over the shared EveSettingsModel; EVE's settings found in the Proton prefix (EveLogs.FindEveDir)
 
         // ── App › General ──
         ["app.general.language"] = S,
@@ -334,6 +334,8 @@ internal static class LinuxSupport
         // S8: the bug report names the Linux kernel, distribution and desktop, and the user name is not a Windows one.
         ["L.Help.app.diagnostics.report.Body"] = "L.Linux.Help.Report",
         ["L.Report.Note"] = "L.Linux.Report.Note",
+        // S8: EVE's settings live in the Proton prefix on Linux, not in %LOCALAPPDATA% (Tools › EVE settings).
+        ["L.S.Eve.NotFound"] = "L.Linux.Eve.NotFound",
     };
 
     /// <summary>The key Linux shows for <paramref name="key"/>.</summary>

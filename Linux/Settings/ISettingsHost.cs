@@ -94,4 +94,7 @@ public interface ISettingsHost
     /// <summary>S8: About › Install a specific version: the update dialog for <paramref name="service"/>, already aimed at the
     /// chosen release (UpdateService.Select), in its specific-version wording. Nothing when an update dialog is open.</summary>
     void InstallVersion(UpdateService service, Action? beforeApply, Action? undoBeforeApply);
+    /// <summary>S8: an EVE client runs (logged in or at the login screen): Tools › EVE settings asks before a copy that EVE
+    /// could undo on logout (EveManagerService.IsEveRunning looks for exefile, which Wine names exefile.exe).</summary>
+    bool EveRunning { get; }
 }

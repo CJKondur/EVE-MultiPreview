@@ -63,6 +63,8 @@ internal static class LinuxEditors
         { EditorIds.TextTemplateEditor, (pages, ctx, _) => pages.TextTemplateCard(ctx) },
         // S8 (Linux/Settings/UpdateEditors.cs): install a specific version over the Linux updater.
         { "app.about.installVersion", (pages, ctx, _) => pages.VersionPickerCard(ctx) },
+        // S8 (Linux/Settings/EveEditors.cs): Tools › EVE settings over the shared EveSettingsModel.
+        { "tools.eve.editor", (pages, ctx, _) => pages.EveSettingsCard(ctx) },
     };
 
     /// <summary>Every editor id Linux can build.</summary>

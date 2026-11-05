@@ -425,6 +425,9 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         finally { _checkingUpdate = false; }
     }
 
+    /// <summary>S8: an EVE client has a thumbnail (a login screen's too).</summary>
+    public bool EveRunning => _thumbs.Count > 0;
+
     /// <summary>S8: About › Install a specific version (VersionPickerEditor.Install): the Linux update dialog for the chosen
     /// release. One update dialog at a time, as for the check.</summary>
     public void InstallVersion(UpdateService service, Action? beforeApply, Action? undoBeforeApply)

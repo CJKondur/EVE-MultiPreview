@@ -29,19 +29,23 @@ public sealed class EveSettingsModel
     private readonly Func<bool> _eveRunning;
     private readonly Func<AppSettings, Dictionary<string, string>> _loadNames;
     private readonly Func<Dictionary<string, string>, IEnumerable<string>, Task> _fetchNames;
+    private readonly Func<string, string> _findEveDir;
     private Dictionary<string, string>? _names;
 
     /// <param name="eveRunning">Whether an EVE client runs (default: EveManagerService.IsEveRunning).</param>
     /// <param name="loadNames">Character number → name (default: LoadNames, which reads EVE's chat logs).</param>
     /// <param name="fetchNames">Adds names for character numbers to the map (default: EveManagerService.EnrichWithESI, the
     /// public ESI lookup). Tests give their own: they never reach the network.</param>
+    /// <param name="findEveDir">The folder holding the settings_* profiles for a chosen folder ("" = find it), default
+    /// EveManagerService.FindEveDir (%LOCALAPPDATA%\CCP\EVE). The Linux app gives its own, which looks in the Proton prefix.</param>
     public EveSettingsModel(SettingsContext ctx, Func<bool>? eveRunning = null, Func<AppSettings, Dictionary<string, string>>? loadNames = null,
-        Func<Dictionary<string, string>, IEnumerable<string>, Task>? fetchNames = null)
+        Func<Dictionary<string, string>, IEnumerable<string>, Task>? fetchNames = null, Func<string, string>? findEveDir = null)
     {
         _ctx = ctx;
         _eveRunning = eveRunning ?? EveManagerService.IsEveRunning;
         _loadNames = loadNames ?? LoadNames;
         _fetchNames = fetchNames ?? EveManagerService.EnrichWithESI;
+        _findEveDir = findEveDir ?? (path => EveManagerService.FindEveDir(path));
     }
 
     private AppSettings S => _ctx.S;
@@ -56,7 +60,7 @@ public sealed class EveSettingsModel
     public string BackupRoot => string.IsNullOrEmpty(S.EveBackupDir) ? DefaultBackupRoot : S.EveBackupDir;
 
     /// <summary>The folder holding the settings_* profiles: the chosen one (or its parent), else the auto-detected one.</summary>
-    public string EveDir => EveManagerService.FindEveDir(S.EveSettingsDir);
+    public string EveDir => _findEveDir(S.EveSettingsDir);
 
     public bool EveRunning => _eveRunning();
 
@@ -94,7 +98,7 @@ public sealed class EveSettingsModel
     /// It scans the real folder: never call it in a test.</summary>
     public bool FindSettingsFolder()
     {
-        var dir = EveManagerService.FindEveDir();
+        var dir = _findEveDir("");
         if (dir.Length == 0) return false;
         SetSettingsFolder(dir);
         return true;

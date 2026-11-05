@@ -132,6 +132,7 @@
     <Compile Include="..\SettingsUi\Pages\Thumbnails\CropEdits.cs" Link="Shared\SettingsUi\Pages\Thumbnails\CropEdits.cs" />
     <Compile Include="..\SettingsUi\Pages\Thumbnails\ThumbnailFields.cs" Link="Shared\SettingsUi\Pages\Thumbnails\ThumbnailFields.cs" />
     <Compile Include="..\SettingsUi\Pages\Tools\StatsFields.cs" Link="Shared\SettingsUi\Pages\Tools\StatsFields.cs" />
+    <Compile Include="..\SettingsUi\Pages\Tools\EveSettingsModel.cs" Link="Shared\SettingsUi\Pages\Tools\EveSettingsModel.cs" />
     <Compile Include="..\SettingsUi\SettingsBackup.cs" Link="Shared\SettingsUi\SettingsBackup.cs" />
     <Compile Include="..\SettingsUi\Search\SearchIndex.cs" Link="Shared\SettingsUi\Search\SearchIndex.cs" />
     <Compile Include="..\SettingsUi\ViewModels\ObservableObject.cs" Link="Shared\SettingsUi\ViewModels\ObservableObject.cs" />
