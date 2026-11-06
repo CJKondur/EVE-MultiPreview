@@ -1510,6 +1510,8 @@
     <sys:String x:Key="L.S.Crops.Window">画面上のウィンドウ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.Opacity">不透明度</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.ClickThrough">クリックを通過</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail">サムネイルを置き換え</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail.Desc">この切り抜きを専用ウィンドウではなくクライアントのサムネイルに表示します。クライアントごとに1つまでです。オフにすると別の切り抜きを選べ、クライアント全体の表示に戻ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.Tip">切り抜きウィンドウは右クリックでドラッグして移動し、左ボタンも押しながらでサイズを変更します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.CopyAll">他のすべてのキャラクター（{0}）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.CopyNone">他のキャラクターなし</sys:String> <!-- draft -->
@@ -1524,7 +1526,7 @@
     <sys:String x:Key="L.Help.thumbs.crops.crops.Title">切り抜きウィンドウを作る</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.crops.Body">- キャラクターを選び、**切り抜きウィンドウを追加**を押します。&#x0A;- そのクライアントを起動した状態で**範囲を編集**を押し、使いたい部分をドラッグします。ウィンドウも同じサイズになります。&#x0A;- 切り抜きウィンドウは右クリックでドラッグして移動し、左ボタンも押しながらでサイズを変更します。&#x0A;&#x0A;**コピー先**を使うと、他のキャラクターにも同じ切り抜きウィンドウを同じ画面位置で渡せます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.options.Title">不透明度、クリック、オフにする</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**不透明度**で背後が透けて見えます。**クリックを通過**がオンのとき、クリックは背後のウィンドウに届き、切り抜きウィンドウはドラッグできません。&#x0A;&#x0A;**切り抜きウィンドウを表示**をオフにするとすべて隠れ、次回のために保持されます。ホットキーでも隠せます（クライアント › ホットキーと切り替え）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**不透明度**で背後が透けて見えます。**クリックを通過**がオンのとき、クリックは背後のウィンドウに届き、切り抜きウィンドウはドラッグできません。&#x0A;&#x0A;**切り抜きウィンドウを表示**をオフにするとすべて隠れ、次回のために保持されます。ホットキーでも隠せます（クライアント › ホットキーと切り替え）。&#x0A;&#x0A;**サムネイルを置き換え**は、切り抜きを専用ウィンドウではなくクライアントのサムネイルに表示します。クライアントごとに1つまでで、オフにするまで他の切り抜きはグレー表示になります。オフにするとクライアント全体の表示に戻ります。</sys:String> <!-- draft -->
     <!-- Alerts › Events (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.events">イベント</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.events.Desc">MultiPreview が EVE のログで何を監視し、各アラートをどう表示するか。</sys:String> <!-- draft -->

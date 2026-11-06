@@ -104,6 +104,17 @@ internal sealed partial class SettingsEditors
         body.Children.Add(Ui.Row(T("L.S.Crops.Opacity", "Opacity"),
             Ui.Slider(CropEdits.MinOpacity, CropEdits.MaxOpacity, def.Opacity, v => { def.Opacity = v; Changed(); }, v => v + " %")));
         body.Children.Add(Ui.Row(T("L.S.Crops.ClickThrough", "Clicks pass through"), Ui.Check("", def.ClickThrough, v => { def.ClickThrough = v; Changed(); })));
+        // PR #117: shown in the client's thumbnail instead of its own window; one per client, so greyed while another has it.
+        var replace = Ui.Check("", def.ReplaceThumbnail, v =>
+        {
+            if (v == def.ReplaceThumbnail) return;
+            CropEdits.SetReplaceThumbnail(S, character, def, v);
+            Save();
+            _refresh();   // the other crops' boxes grey or come back
+        });
+        replace.IsEnabled = CropEdits.CanReplaceThumbnail(S, character, def);
+        body.Children.Add(Ui.Row(T("L.S.Crops.ReplaceThumbnail", "Replace thumbnail"), replace,
+            T("L.S.Crops.ReplaceThumbnail.Desc", "Show this crop in the client's thumbnail instead of its own window. One crop per client; turn it off to pick another or to see the whole client again.")));
         return Ui.Card(body);
     }
 

@@ -1389,7 +1389,13 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             thumb.SetMark(MarkOf(thumb.Client.Window) ?? LoginMark(thumb.Client.Character));
             thumb.SetCycleBadge(_excludedFromCycle.Contains(thumb.Client.Character), ThumbnailFields.Anchor(S.CycleExclusionBadgePosition));
             Extras(thumb, badges.GetValueOrDefault(thumb.Client.Character));
-            if (!skipDraw || !thumb.Drawn) thumb.Update(_clients);   // a new thumbnail gets its first picture all the same
+            // PR #117: the character's "Replace thumbnail" crop is what the thumbnail shows; none = the whole client.
+            var replaced = SettingsUi.CropEdits.ThumbnailCrop(S, thumb.Client.Character);
+            var area = replaced == null ? (EveClients.Area?)null
+                : new EveClients.Area(Math.Max(0, replaced.SourceX), Math.Max(0, replaced.SourceY), Math.Max(1, replaced.SourceWidth), Math.Max(1, replaced.SourceHeight));
+            bool redraw = thumb.Area != area;
+            thumb.Area = area;
+            if (!skipDraw || !thumb.Drawn || redraw) thumb.Update(_clients);   // a new thumbnail gets its first picture all the same
         }
         // Second thumbnails: shown while the client runs, also while it is in front, unless all thumbnails or the second ones are hidden.
         foreach (var (character, pip) in _pips)
@@ -1788,7 +1794,8 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         if (S.CropEnabled)
             foreach (var thumb in _thumbs.Values)
                 foreach (var def in SettingsUi.CropEdits.Of(S, thumb.Client.Character))
-                    wanted.TryAdd((thumb.Client.Window, def.Id), (thumb.Client, def));
+                    if (!def.ReplaceThumbnail)   // shown in the thumbnail itself, with no window of its own (PR #117)
+                        wanted.TryAdd((thumb.Client.Window, def.Id), (thumb.Client, def));
         foreach (var gone in _crops.Keys.Where(k => !wanted.ContainsKey(k)).ToList())
         {
             _crops[gone].Window.Close();

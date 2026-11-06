@@ -1510,6 +1510,8 @@
     <sys:String x:Key="L.S.Crops.Window">화면의 창</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.Opacity">불투명도</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.ClickThrough">클릭 통과</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail">미리보기 대체</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail.Desc">이 크롭을 별도 창 대신 클라이언트 미리보기에 표시해요. 클라이언트마다 하나만 가능하며, 끄면 다른 크롭을 고르거나 클라이언트 전체를 다시 볼 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.Tip">크롭 창을 마우스 오른쪽 버튼으로 끌어 이동하고, 왼쪽 버튼도 함께 눌러 크기를 바꿔요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.CopyAll">다른 모든 캐릭터({0})</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.CopyNone">다른 캐릭터 없음</sys:String> <!-- draft -->
@@ -1524,7 +1526,7 @@
     <sys:String x:Key="L.Help.thumbs.crops.crops.Title">크롭 창 만들기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.crops.Body">- 캐릭터를 고르고 **크롭 창 추가**를 눌러요.&#x0A;- 해당 클라이언트를 실행한 상태에서 **영역 편집**을 누르고 원하는 부분을 끌어 선택해요. 창도 같은 크기가 돼요.&#x0A;- 크롭 창을 마우스 오른쪽 버튼으로 끌어 이동하고, 왼쪽 버튼도 함께 눌러 크기를 바꿔요.&#x0A;&#x0A;**복사 대상**은 다른 캐릭터에게 같은 크롭 창을 화면의 같은 위치에 줘요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.options.Title">불투명도, 클릭, 끄기</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**불투명도**는 뒤에 있는 것이 비쳐 보이게 해요. **클릭 통과**를 켜면 클릭이 뒤의 창에 전달되고 크롭 창은 끌 수 없어요.&#x0A;&#x0A;**크롭 창 표시**를 끄면 모두 숨기고 다음을 위해 보관해요. 단축키로도 숨길 수 있어요(클라이언트 › 단축키 및 전환).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**불투명도**는 뒤에 있는 것이 비쳐 보이게 해요. **클릭 통과**를 켜면 클릭이 뒤의 창에 전달되고 크롭 창은 끌 수 없어요.&#x0A;&#x0A;**크롭 창 표시**를 끄면 모두 숨기고 다음을 위해 보관해요. 단축키로도 숨길 수 있어요(클라이언트 › 단축키 및 전환).&#x0A;&#x0A;**미리보기 대체**는 크롭을 별도 창 대신 클라이언트 미리보기에 표시해요. 클라이언트마다 하나만 가능해서 끌 때까지 다른 크롭은 회색으로 표시되고, 끄면 클라이언트 전체가 다시 보여요.</sys:String> <!-- draft -->
     <!-- Alerts › Events (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.events">이벤트</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.events.Desc">MultiPreview가 EVE 로그에서 무엇을 감시하는지, 그리고 각 알림이 어떻게 표시되는지.</sys:String> <!-- draft -->

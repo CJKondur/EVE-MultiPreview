@@ -1512,6 +1512,8 @@
     <sys:String x:Key="L.S.Crops.Window">Fenêtre à l'écran</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.Opacity">Opacité</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.ClickThrough">Les clics traversent</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail">Remplacer la miniature</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail.Desc">Affiche ce recadrage dans la miniature du client au lieu de sa propre fenêtre. Un recadrage par client ; désactivez-le pour en choisir un autre ou revoir le client entier.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.Tip">Faites glisser une fenêtre de recadrage avec le bouton droit pour la déplacer ; appuyez aussi sur le bouton gauche pour la redimensionner.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.CopyAll">Tous les autres personnages ({0})</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.CopyNone">Aucun autre personnage</sys:String> <!-- draft -->
@@ -1526,7 +1528,7 @@
     <sys:String x:Key="L.Help.thumbs.crops.crops.Title">Créer une fenêtre de recadrage</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.crops.Body">- Choisissez un personnage et cliquez sur **Ajouter une fenêtre de recadrage**.&#x0A;- Client lancé, cliquez sur **Modifier la zone** et faites glisser sur la partie voulue. La fenêtre prend la même taille.&#x0A;- Faites glisser une fenêtre de recadrage avec le bouton droit pour la déplacer ; appuyez aussi sur le bouton gauche pour la redimensionner.&#x0A;&#x0A;**Copier vers** donne la même fenêtre de recadrage aux autres personnages, au même endroit de l'écran.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.options.Title">Opacité, clics et désactivation</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**Opacité** laisse transparaître ce qui est derrière. Avec **Les clics traversent** activé, vos clics atteignent la fenêtre derrière, et la fenêtre de recadrage ne peut plus être déplacée.&#x0A;&#x0A;**Afficher les fenêtres de recadrage** désactivé les masque toutes et les conserve pour la prochaine fois. Un raccourci peut aussi les masquer (Clients › Raccourcis et changement de client).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**Opacité** laisse transparaître ce qui est derrière. Avec **Les clics traversent** activé, vos clics atteignent la fenêtre derrière, et la fenêtre de recadrage ne peut plus être déplacée.&#x0A;&#x0A;**Afficher les fenêtres de recadrage** désactivé les masque toutes et les conserve pour la prochaine fois. Un raccourci peut aussi les masquer (Clients › Raccourcis et changement de client).&#x0A;&#x0A;**Remplacer la miniature** affiche un recadrage dans la miniature du client au lieu de sa propre fenêtre. Chaque client peut en avoir un : les autres sont grisés tant qu'il est activé, et le désactiver rétablit le client entier.</sys:String> <!-- draft -->
     <!-- Alerts › Events (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.events">Événements</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.events.Desc">Ce que MultiPreview surveille dans les journaux d'EVE, et comment chaque alerte s'affiche.</sys:String> <!-- draft -->

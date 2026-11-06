@@ -1531,6 +1531,8 @@
     <sys:String x:Key="L.S.Crops.Window">Ventana en pantalla</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.Opacity">Opacidad</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.ClickThrough">Los clics la atraviesan</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail">Reemplazar miniatura</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail.Desc">Muestra este recorte en la miniatura del cliente en lugar de en su propia ventana. Un recorte por cliente; desactívalo para elegir otro o para volver a ver el cliente entero.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.Tip">Arrastra una ventana de recorte con el botón derecho para moverla; pulsa también el izquierdo para cambiar su tamaño.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.CopyAll">Todos los demás personajes ({0})</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.CopyNone">No hay otros personajes</sys:String> <!-- draft -->
@@ -1545,7 +1547,7 @@
     <sys:String x:Key="L.Help.thumbs.crops.crops.Title">Crear una ventana de recorte</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.crops.Body">- Elige un personaje y pulsa **Añadir una ventana de recorte**.&#x0A;- Con ese cliente en ejecución, pulsa **Editar área** y arrastra sobre la parte que quieras. La ventana toma el mismo tamaño.&#x0A;- Arrastra una ventana de recorte con el botón derecho para moverla; pulsa también el izquierdo para cambiar su tamaño.&#x0A;&#x0A;**Copiar a** da a otros personajes la misma ventana de recorte, en el mismo lugar de la pantalla.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.options.Title">Opacidad, clics y desactivarlas</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**Opacidad** deja ver lo que hay detrás. Con **Los clics la atraviesan** activado, tus clics llegan a la ventana de detrás y la ventana de recorte no se puede arrastrar.&#x0A;&#x0A;**Mostrar ventanas de recorte** desactivado las oculta todas y las conserva para la próxima vez. Un atajo también puede ocultarlas (Clientes › Atajos y cambio de cliente).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**Opacidad** deja ver lo que hay detrás. Con **Los clics la atraviesan** activado, tus clics llegan a la ventana de detrás y la ventana de recorte no se puede arrastrar.&#x0A;&#x0A;**Mostrar ventanas de recorte** desactivado las oculta todas y las conserva para la próxima vez. Un atajo también puede ocultarlas (Clientes › Atajos y cambio de cliente).&#x0A;&#x0A;**Reemplazar miniatura** muestra un recorte en la miniatura del cliente en lugar de en su propia ventana. Cada cliente puede tener uno: los demás quedan en gris hasta que lo desactives, y al desactivarlo vuelve el cliente entero.</sys:String> <!-- draft -->
     <!-- Alerts › Events (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.events">Eventos</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.events.Desc">Qué vigila MultiPreview en los registros de EVE y cómo se muestra cada alerta.</sys:String> <!-- draft -->

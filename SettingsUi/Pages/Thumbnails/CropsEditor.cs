@@ -172,6 +172,13 @@ public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefresha
         var line4 = new WrapPanel();
         line4.Children.Add(EditorCard.Field("L.S.Crops.Opacity", EditorCard.Row(slider, readout)));
         line4.Children.Add(EditorCard.Field("L.S.Crops.ClickThrough", clickThrough));
+        // PR #117: this crop is shown in the client's thumbnail instead of its own window; one per client,
+        // so it is greyed while another crop of the character has it.
+        var replace = EditorCard.Toggle(def.ReplaceThumbnail, on => SetReplaceThumbnail(character, def, on));
+        replace.IsEnabled = CropEdits.CanReplaceThumbnail(_ctx.S, character, def);
+        Loc.SetNameKey(replace, "L.S.Crops.ReplaceThumbnail");
+        replace.SetResourceReference(ToolTipProperty, "L.S.Crops.ReplaceThumbnail.Desc");
+        line4.Children.Add(EditorCard.Field("L.S.Crops.ReplaceThumbnail", replace));
         stack.Children.Add(line4);
 
         stack.Children.Add(error);
@@ -234,6 +241,16 @@ public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefresha
         _ctx.Applier.Request(ApplyScope.Save);
         _ctx.Services.Crops?.ApplyDefinitionEdits(CropEdits.KeyOf(_ctx.S, character), def.Id);
         _signature = Signature();
+    }
+
+    /// <summary>"Replace thumbnail": save, open or close the crop's own window and redraw the thumbnail
+    /// (CropManager.Refresh), and rebuild the cards so the other crops' switches grey or come back.</summary>
+    public void SetReplaceThumbnail(string character, CropDefinition def, bool on)
+    {
+        if (def.ReplaceThumbnail == on) return;
+        CropEdits.SetReplaceThumbnail(_ctx.S, character, def, on);
+        _ctx.Applier.Request(ApplyScope.Save | ApplyScope.Crops);
+        BuildCards();
     }
 
     public void AddCrop()

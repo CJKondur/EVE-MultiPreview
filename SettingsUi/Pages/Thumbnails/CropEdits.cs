@@ -67,7 +67,8 @@ public static partial class CropEdits
         ShowLabel = c.ShowLabel, Opacity = c.Opacity, ClickThrough = c.ClickThrough,
     };
 
-    /// <summary>Old CopyCropToTargets: one fresh copy per target. Returns how many were made.</summary>
+    /// <summary>Old CopyCropToTargets: one fresh copy per target. Returns how many were made. A copy replaces the
+    /// target's thumbnail only when the source does and the target has no replacement yet (PR #117).</summary>
     public static int CopyTo(AppSettings s, CropDefinition source, IEnumerable<string> targets)
     {
         int made = 0;
@@ -75,10 +76,32 @@ public static partial class CropEdits
         {
             var key = KeyOf(s, target);
             if (!s.Crops.TryGetValue(key, out var list)) s.Crops[key] = list = new List<CropDefinition>();
-            list.Add(Clone(source));
+            var copy = Clone(source);
+            copy.ReplaceThumbnail = source.ReplaceThumbnail && !list.Any(c => c.ReplaceThumbnail);
+            list.Add(copy);
             made++;
         }
         return made;
+    }
+
+    /// <summary>The crop shown in the character's thumbnail instead of the whole client (PR #117): its first crop
+    /// with "Replace thumbnail" on, while crop windows are on; null = the whole client.</summary>
+    public static CropDefinition? ThumbnailCrop(AppSettings s, string character) =>
+        s.CropEnabled && !string.IsNullOrEmpty(character) ? Of(s, character).FirstOrDefault(c => c.ReplaceThumbnail) : null;
+
+    /// <summary>"Replace thumbnail" can be turned on for this crop: it is on already, or no other crop of the
+    /// character has it (one per client).</summary>
+    public static bool CanReplaceThumbnail(AppSettings s, string character, CropDefinition def) =>
+        def.ReplaceThumbnail || !Of(s, character).Any(c => c.ReplaceThumbnail);
+
+    /// <summary>Turns "Replace thumbnail" on or off. On turns it off for the character's other crops, so the
+    /// saved file holds one per client however it is set.</summary>
+    public static void SetReplaceThumbnail(AppSettings s, string character, CropDefinition def, bool on)
+    {
+        if (on)
+            foreach (var other in Of(s, character))
+                other.ReplaceThumbnail = false;
+        def.ReplaceThumbnail = on;
     }
 
     public static void SetSource(CropDefinition d, (int X, int Y, int W, int H) r)
@@ -114,7 +137,7 @@ public static partial class CropEdits
     public static string Signature(AppSettings s, string? character) =>
         character == null ? "" : string.Join("\n", Of(s, character).Select(d => string.Join(",",
             d.Id, d.Name, d.ShowLabel, d.SourceX, d.SourceY, d.SourceWidth, d.SourceHeight,
-            d.PopupX, d.PopupY, d.PopupWidth, d.PopupHeight, d.Opacity, d.ClickThrough)));
+            d.PopupX, d.PopupY, d.PopupWidth, d.PopupHeight, d.Opacity, d.ClickThrough, d.ReplaceThumbnail)));
 }
 
 /// <summary>One "Edit area" (Plan 2 "After this plan"): the settings window hides when the pick starts

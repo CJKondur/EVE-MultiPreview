@@ -1527,6 +1527,8 @@
     <sys:String x:Key="L.S.Crops.Window">Finestra sullo schermo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.Opacity">Opacità</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.ClickThrough">I clic passano attraverso</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail">Sostituisci miniatura</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail.Desc">Mostra questo ritaglio nella miniatura del client invece che nella sua finestra. Un ritaglio per client; disattivalo per sceglierne un altro o per rivedere il client intero.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.Tip">Trascina una finestra di ritaglio con il tasto destro per spostarla; premi anche il sinistro per ridimensionarla.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.CopyAll">Tutti gli altri personaggi ({0})</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.CopyNone">Nessun altro personaggio</sys:String> <!-- draft -->
@@ -1541,7 +1543,7 @@
     <sys:String x:Key="L.Help.thumbs.crops.crops.Title">Creare una finestra di ritaglio</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.crops.Body">- Scegli un personaggio e premi **Aggiungi una finestra di ritaglio**.&#x0A;- Con quel client in esecuzione, premi **Modifica area** e trascina sulla parte che vuoi. La finestra prende la stessa dimensione.&#x0A;- Trascina una finestra di ritaglio con il tasto destro per spostarla; premi anche il sinistro per ridimensionarla.&#x0A;&#x0A;**Copia in** dà agli altri personaggi la stessa finestra di ritaglio, nello stesso punto dello schermo.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.options.Title">Opacità, clic e disattivazione</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**Opacità** lascia intravedere ciò che sta dietro. Con **I clic passano attraverso** attivo, i tuoi clic raggiungono la finestra dietro e la finestra di ritaglio non si può trascinare.&#x0A;&#x0A;**Mostra le finestre di ritaglio** disattivato le nasconde tutte e le conserva per la prossima volta. Anche una scorciatoia può nasconderle (Client › Scorciatoie e cambio client).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**Opacità** lascia intravedere ciò che sta dietro. Con **I clic passano attraverso** attivo, i tuoi clic raggiungono la finestra dietro e la finestra di ritaglio non si può trascinare.&#x0A;&#x0A;**Mostra le finestre di ritaglio** disattivato le nasconde tutte e le conserva per la prossima volta. Anche una scorciatoia può nasconderle (Client › Scorciatoie e cambio client).&#x0A;&#x0A;**Sostituisci miniatura** mostra un ritaglio nella miniatura del client invece che nella sua finestra. Ogni client può averne uno: gli altri restano in grigio finché non lo disattivi, e disattivandolo torna il client intero.</sys:String> <!-- draft -->
     <!-- Alerts › Events (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.events">Eventi</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.events.Desc">Cosa controlla MultiPreview nei log di EVE e come viene mostrato ogni avviso.</sys:String> <!-- draft -->

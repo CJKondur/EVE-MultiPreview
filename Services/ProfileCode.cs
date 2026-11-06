@@ -109,6 +109,8 @@ public sealed class ProfileCode
         [JsonPropertyName("l")] public required bool ShowLabel { get; init; }
         [JsonPropertyName("o")] public required int Opacity { get; init; }
         [JsonPropertyName("t")] public required bool ClickThrough { get; init; }
+        /// <summary>"Replace thumbnail" (PR #117). Left out when off, so codes made before it read the same.</summary>
+        [JsonPropertyName("rt"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool ReplaceThumbnail { get; init; }
     }
 
     public sealed class ClientCode
@@ -317,7 +319,7 @@ public sealed class ProfileCode
             SourceW = Math.Clamp(c.SourceWidth, 0, 32767), SourceH = Math.Clamp(c.SourceHeight, 0, 32767),
             PopupX = Math.Clamp(c.PopupX, -32768, 32767), PopupY = Math.Clamp(c.PopupY, -32768, 32767),
             PopupW = Math.Clamp(c.PopupWidth, 0, 32767), PopupH = Math.Clamp(c.PopupHeight, 0, 32767),
-            ShowLabel = c.ShowLabel, Opacity = Math.Clamp(c.Opacity, 0, 100), ClickThrough = c.ClickThrough,
+            ShowLabel = c.ShowLabel, Opacity = Math.Clamp(c.Opacity, 0, 100), ClickThrough = c.ClickThrough, ReplaceThumbnail = c.ReplaceThumbnail,
         };
     }
 
@@ -394,7 +396,7 @@ public sealed class ProfileCode
             {
                 Id = c.Id, Name = c.Name, SourceX = c.SourceX, SourceY = c.SourceY, SourceWidth = c.SourceW, SourceHeight = c.SourceH,
                 PopupX = c.PopupX, PopupY = c.PopupY, PopupWidth = c.PopupW, PopupHeight = c.PopupH,
-                ShowLabel = c.ShowLabel, Opacity = c.Opacity, ClickThrough = c.ClickThrough,
+                ShowLabel = c.ShowLabel, Opacity = c.Opacity, ClickThrough = c.ClickThrough, ReplaceThumbnail = c.ReplaceThumbnail,
             });
         }
         foreach (var c in ClientPositions) if (Target(c.Role) is { } t)

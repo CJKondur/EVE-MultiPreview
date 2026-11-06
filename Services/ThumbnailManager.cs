@@ -1084,6 +1084,9 @@ public sealed class ThumbnailManager : IDisposable
                 // "Client ready" (batch 13, P12): "EVE" became "EVE - Name" after discovery's first pass.
                 if (ClientReady.ShouldRaise(oldChar, window.CharacterName, _discovery.FirstPassDone)) CharacterReady?.Invoke(window.CharacterName);
 
+                // The new character's own "Replace thumbnail" crop, or none (PR #117).
+                ApplyThumbnailCrop(thumbWindow);
+
                 // UpdateCharacterName force-shows the name overlay; re-assert the
                 // user's "show character name" preference so a disabled overlay
                 // doesn't reappear when the character resolves at login (issue #63).
@@ -1242,9 +1245,21 @@ public sealed class ThumbnailManager : IDisposable
         return (startX + index / maxPerCol * (width + gap), startY + index % maxPerCol * (height + gap));
     }
 
+    /// <summary>Shows the character's "Replace thumbnail" crop in its thumbnail, or the whole client when it has none (PR #117).</summary>
+    private void ApplyThumbnailCrop(ThumbnailWindow thumb) =>
+        thumb.SetSourceCrop(SettingsUi.CropEdits.ThumbnailCrop(_settings.Settings, thumb.CharacterName));
+
+    /// <summary>Crop definitions changed: every thumbnail takes its character's replacement again.</summary>
+    public void RefreshThumbnailCrops()
+    {
+        foreach (var thumb in _thumbnails.Values)
+            ApplyThumbnailCrop(thumb);
+    }
+
     private void ApplySettings(ThumbnailWindow thumb, EveWindow window)
     {
         var s = _settings.Settings;
+        ApplyThumbnailCrop(thumb);
 
         // Lock positions
         thumb.IsLocked = s.LockPositions;

@@ -1527,6 +1527,8 @@
     <sys:String x:Key="L.S.Crops.Window">屏幕上的窗口</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.Opacity">不透明度</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.ClickThrough">点击穿透</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail">替换缩略图</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail.Desc">在客户端的缩略图中显示此裁剪，而不是在单独的窗口中。每个客户端只能有一个；关闭它即可选择另一个，或重新显示整个客户端。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.Tip">用鼠标右键拖动裁剪窗口来移动；同时按住左键可调整大小。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.CopyAll">所有其他角色（{0}）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.CopyNone">没有其他角色</sys:String> <!-- draft -->
@@ -1541,7 +1543,7 @@
     <sys:String x:Key="L.Help.thumbs.crops.crops.Title">创建裁剪窗口</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.crops.Body">- 选择一个角色，点击**添加裁剪窗口**。&#x0A;- 客户端运行时，点击**编辑区域**并拖选所需部分。窗口会采用相同大小。&#x0A;- 用鼠标右键拖动裁剪窗口来移动；同时按住左键可调整大小。&#x0A;&#x0A;**复制到**会把相同的裁剪窗口给其他角色，位置也相同。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.options.Title">不透明度、点击与关闭</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**不透明度**可让后面的内容透出来。开启**点击穿透**后，点击会传到后面的窗口，裁剪窗口也无法拖动。&#x0A;&#x0A;关闭**显示裁剪窗口**会隐藏全部并为下次保留。热键也可以隐藏它们（客户端 › 热键与切换）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**不透明度**可让后面的内容透出来。开启**点击穿透**后，点击会传到后面的窗口，裁剪窗口也无法拖动。&#x0A;&#x0A;关闭**显示裁剪窗口**会隐藏全部并为下次保留。热键也可以隐藏它们（客户端 › 热键与切换）。&#x0A;&#x0A;**替换缩略图**会在客户端的缩略图中显示裁剪，而不是在单独的窗口中。每个客户端只能有一个：关闭之前其他裁剪会变灰，关闭后缩略图会重新显示整个客户端。</sys:String> <!-- draft -->
     <!-- Alerts › Events (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.events">事件</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.events.Desc">MultiPreview 在 EVE 日志中监视什么，以及每种警报如何显示。</sys:String> <!-- draft -->

@@ -1509,6 +1509,8 @@
     <sys:String x:Key="L.S.Crops.Window">Window on screen</sys:String>
     <sys:String x:Key="L.S.Crops.Opacity">Opacity</sys:String>
     <sys:String x:Key="L.S.Crops.ClickThrough">Clicks pass through</sys:String>
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail">Replace thumbnail</sys:String>
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail.Desc">Show this crop in the client's thumbnail instead of its own window. One crop per client; turn it off to pick another or to see the whole client again.</sys:String>
     <sys:String x:Key="L.S.Crops.Tip">Drag a crop window with the right mouse button to move it; press the left button too to resize it.</sys:String>
     <sys:String x:Key="L.S.Crops.CopyAll">All other characters ({0})</sys:String>
     <sys:String x:Key="L.S.Crops.CopyNone">No other characters</sys:String>
@@ -1523,7 +1525,7 @@
     <sys:String x:Key="L.Help.thumbs.crops.crops.Title">Making a crop window</sys:String>
     <sys:String x:Key="L.Help.thumbs.crops.crops.Body">- Pick a character and press **Add a crop window**.&#x0A;- With that client running, press **Edit area** and drag over the part you want. The window takes the same size.&#x0A;- Drag a crop window with the right mouse button to move it; press the left button too to resize it.&#x0A;&#x0A;**Copy to** gives other characters the same crop window, at the same place on screen.</sys:String>
     <sys:String x:Key="L.Help.thumbs.crops.options.Title">Opacity, clicks and turning them off</sys:String>
-    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**Opacity** lets what's behind show through. With **Clicks pass through** on, your clicks reach the window behind, and the crop window can't be dragged.&#x0A;&#x0A;**Show crop windows** off hides them all and keeps them for next time. A hotkey can hide them too (Clients › Hotkeys &amp; switching).</sys:String>
+    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**Opacity** lets what's behind show through. With **Clicks pass through** on, your clicks reach the window behind, and the crop window can't be dragged.&#x0A;&#x0A;**Show crop windows** off hides them all and keeps them for next time. A hotkey can hide them too (Clients › Hotkeys &amp; switching).&#x0A;&#x0A;**Replace thumbnail** shows a crop in the client's thumbnail instead of its own window. Each client can have one: the others are greyed until you turn it off, and turning it off brings back the whole client.</sys:String>
     <!-- Alerts › Events (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.events">Events</sys:String>
     <sys:String x:Key="L.S.Page.alerts.events.Desc">What MultiPreview watches for in EVE's logs, and how each alert shows.</sys:String>

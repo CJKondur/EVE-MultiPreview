@@ -1509,6 +1509,8 @@
     <sys:String x:Key="L.S.Crops.Window">Fenster auf dem Bildschirm</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.Opacity">Deckkraft</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.ClickThrough">Klicks gehen hindurch</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail">Vorschaubild ersetzen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Crops.ReplaceThumbnail.Desc">Diesen Ausschnitt im Vorschaubild des Clients zeigen statt in einem eigenen Fenster. Ein Ausschnitt pro Client; ausschalten, um einen anderen zu wählen oder wieder den ganzen Client zu sehen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.Tip">Ziehe ein Ausschnittfenster mit der rechten Maustaste, um es zu verschieben; halte zusätzlich die linke Taste gedrückt, um die Größe zu ändern.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.CopyAll">Alle anderen Charaktere ({0})</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Crops.CopyNone">Keine anderen Charaktere</sys:String> <!-- draft -->
@@ -1523,7 +1525,7 @@
     <sys:String x:Key="L.Help.thumbs.crops.crops.Title">Ein Ausschnittfenster erstellen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.crops.Body">- Wähle einen Charakter und klicke auf **Ausschnittfenster hinzufügen**.&#x0A;- Klicke bei laufendem Client auf **Bereich bearbeiten** und ziehe über den gewünschten Teil. Das Fenster übernimmt dieselbe Größe.&#x0A;- Ziehe ein Ausschnittfenster mit der rechten Maustaste, um es zu verschieben; halte zusätzlich die linke Taste gedrückt, um die Größe zu ändern.&#x0A;&#x0A;**Kopieren nach** gibt anderen Charakteren dasselbe Ausschnittfenster an derselben Stelle auf dem Bildschirm.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.options.Title">Deckkraft, Klicks und Ausschalten</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**Deckkraft** lässt durchscheinen, was dahinter liegt. Ist **Klicks gehen hindurch** an, erreichen deine Klicks das Fenster dahinter, und das Ausschnittfenster lässt sich nicht ziehen.&#x0A;&#x0A;**Ausschnittfenster anzeigen** aus blendet alle aus und behält sie für das nächste Mal. Auch ein Hotkey kann sie ausblenden (Clients › Hotkeys &amp; Wechseln).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**Deckkraft** lässt durchscheinen, was dahinter liegt. Ist **Klicks gehen hindurch** an, erreichen deine Klicks das Fenster dahinter, und das Ausschnittfenster lässt sich nicht ziehen.&#x0A;&#x0A;**Ausschnittfenster anzeigen** aus blendet alle aus und behält sie für das nächste Mal. Auch ein Hotkey kann sie ausblenden (Clients › Hotkeys &amp; Wechseln).&#x0A;&#x0A;**Vorschaubild ersetzen** zeigt einen Ausschnitt im Vorschaubild des Clients statt in einem eigenen Fenster. Jeder Client kann einen haben: Die anderen sind ausgegraut, bis du ihn ausschaltest, und dann zeigt das Vorschaubild wieder den ganzen Client.</sys:String> <!-- draft -->
     <!-- Alerts › Events (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.events">Ereignisse</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.events.Desc">Worauf MultiPreview in EVEs Logs achtet und wie jeder Alarm angezeigt wird.</sys:String> <!-- draft -->
