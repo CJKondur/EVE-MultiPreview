@@ -987,7 +987,9 @@ public class CropDefinition
     public bool ShowLabel { get; set; } = true;
 
     /// <summary>Display this region in the client's primary thumbnail instead of a popup.</summary>
+    // Written only when on: files stay as the released app saves them, and older versions never see it unused.
     [JsonPropertyName("replaceThumbnail")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonConverter(typeof(FlexibleBoolConverter))]
     public bool ReplaceThumbnail { get; set; } = false;
 
