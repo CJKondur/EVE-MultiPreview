@@ -1852,8 +1852,8 @@
     <sys:String x:Key="L.S.Eve.ModeCharacter">Ein Charakter</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ModeAccount">Ein Account</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ModeProfileDesc">Alle Charakter- und Account-Dateien eines EVE-Profils auf andere Profile.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">Die Einstellungen eines Charakters (Fenster, Übersicht, Chat) auf andere Charaktere.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.ModeAccountDesc">Die Einstellungen eines Accounts (Grafik, Audio, Tasten) auf andere Accounts.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">Die Einstellungen eines Charakters (Chat-Kanäle, Infobereiche, einige Fenstergrößen) auf andere Charaktere. Übersicht und Fensteranordnung gehören zum Account: Lass „Auch die Account-Einstellungen kopieren“ an, damit sie mitkommen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.ModeAccountDesc">Die Einstellungen eines Accounts (Übersicht, Fensteranordnung, Grafik, Audio, Tasten) auf andere Accounts. Alle Charaktere eines Accounts teilen sie.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Source">Kopieren von</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Targets">Kopieren nach</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Profile">Profil</sys:String> <!-- draft -->
@@ -1863,6 +1863,12 @@
     <sys:String x:Key="L.S.Eve.BackUp">_Markierte Profile sichern</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyProfile">In die markierten _Profile kopieren</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ToAllCharacters">In jeden Charakter dieses Profils kopieren</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.WithAccount">Auch die Account-Einstellungen kopieren (Übersicht, Fensteranordnung)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.NeedAccountLink">{0} ist noch keinem Account zugeordnet, daher können Übersicht und Fenster nicht mitkommen. Nutze Accounts erkennen… unter Ein Account oder schalte „Auch die Account-Einstellungen kopieren“ aus.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AlsoAccountsConfirm">Dazu die Account-Einstellungen von {0} (Übersicht, Fensteranordnung, Grafik, Audio und Tasten) auf {1} Accounts. Jeder Charakter dieser Accounts bekommt sie:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsUnlinked">{0} der Ziel-Charaktere sind keinem Account zugeordnet (Accounts erkennen… ordnet sie zu): Ihre Übersicht und Fenster bleiben, wie sie sind.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsCopied">Account-Einstellungen auf {0} Accounts kopiert.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsCopiedWithFailures">Account-Einstellungen auf {0} Accounts kopiert; {1} fehlgeschlagen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ToAllAccounts">In jeden Account dieses Profils kopieren</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyCharacter">_Charaktereinstellungen kopieren</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyAccount">_Accounteinstellungen kopieren</sys:String> <!-- draft -->
@@ -1913,7 +1919,7 @@
     <sys:String x:Key="L.S.Eve.FetchFailed">EVE-Server nicht erreichbar. Versuche es später erneut.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.Intro">EVE speichert seine Einstellungen, etwa Fensterpositionen, Übersicht, Tasten und Grafik, in Dateien pro Charakter und pro Account. Diese Seite kopiert sie, damit ein neuer Alt wie dein Main aussieht. Jede ersetzte Datei wird vorher gesichert.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.copy.Title">Einstellungen kopieren</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **Ganzes Profil** kopiert alle Dateien eines EVE-Profils (eines settings_-Ordners) auf andere.&#x0A;- **Ein Charakter** kopiert Fenster, Übersicht und Chat-Aufbau eines Charakters auf andere Charaktere.&#x0A;- **Ein Account** kopiert Grafik, Audio und Tasten zwischen Accounts.&#x0A;&#x0A;Schließe zuerst alle EVE-Clients: EVE schreibt seine Einstellungen beim Schließen eines Clients und kann die Kopie rückgängig machen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **Ganzes Profil** kopiert alle Dateien eines EVE-Profils (eines settings_-Ordners) auf andere.&#x0A;- **Ein Charakter** kopiert Chat-Kanäle und Infobereiche eines Charakters auf andere Charaktere und mit **Auch die Account-Einstellungen kopieren** auch Übersicht und Fensteranordnung seines Accounts. EVE speichert diese pro Account; **Accounts erkennen…** sagt MultiPreview, auf welchem Account jeder Charakter ist.&#x0A;- **Ein Account** kopiert Übersicht, Fensteranordnung, Grafik, Audio und Tasten zwischen Accounts. Alle Charaktere eines Accounts teilen sie.&#x0A;&#x0A;Schließe zuerst alle EVE-Clients: EVE schreibt seine Einstellungen beim Schließen eines Clients und kann die Kopie rückgängig machen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Title">Account-Namen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE benennt Account-Dateien nur mit Nummern. **Accounts erkennen…** führt dich durch das Einloggen jeweils eines Charakters, um zu erfahren, auf welchem Account er liegt, und **Name setzen** gibt einem Account einen eigenen Namen. **Fehlende Namen abrufen** fragt Charakternamen bei den öffentlichen EVE-Servern (ESI) ab und sendet dabei nur die Charakternummern.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.AndMore">…und {0} weitere</sys:String> <!-- draft -->

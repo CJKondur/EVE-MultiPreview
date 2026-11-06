@@ -1872,8 +1872,8 @@
     <sys:String x:Key="L.S.Eve.ModeCharacter">Один персонаж</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ModeAccount">Один аккаунт</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ModeProfileDesc">Все файлы персонажей и аккаунтов одного профиля EVE в другие профили.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">Настройки одного персонажа (окна, обзор, чат) в других персонажей.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.ModeAccountDesc">Настройки одного аккаунта (графика, звук, клавиши) в другие аккаунты.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">Настройки одного персонажа (каналы чата, инфопанели, некоторые размеры окон) в других персонажей. Обзор и расположение окон принадлежат аккаунту: оставьте «Копировать и настройки аккаунта» включённым, чтобы перенести их.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.ModeAccountDesc">Настройки одного аккаунта (обзор, расположение окон, графика, звук, клавиши) в другие аккаунты. Их делят все персонажи аккаунта.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Source">Копировать из</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Targets">Копировать в</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Profile">Профиль</sys:String> <!-- draft -->
@@ -1883,6 +1883,12 @@
     <sys:String x:Key="L.S.Eve.BackUp">_Сделать резервную копию отмеченных профилей</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyProfile">Коп_ировать в отмеченные профили</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ToAllCharacters">Копировать во всех персонажей этого профиля</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.WithAccount">Копировать и настройки аккаунта (обзор, расположение окон)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.NeedAccountLink">{0} ещё не привязан к аккаунту, поэтому обзор и окна не могут быть скопированы вместе с ним. Используйте «Определить аккаунты…» в режиме «Один аккаунт» или снимите «Копировать и настройки аккаунта».</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AlsoAccountsConfirm">Также настройки аккаунта {0} (обзор, расположение окон, графика, звук и клавиши) в {1} аккаунтов. Их получат все персонажи этих аккаунтов:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsUnlinked">{0} целевых персонажей не привязаны к аккаунту («Определить аккаунты…» привяжет их): их обзор и окна останутся прежними.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsCopied">Настройки аккаунта скопированы в {0} аккаунтов.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsCopiedWithFailures">Настройки аккаунта скопированы в {0} аккаунтов; ошибок: {1}.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ToAllAccounts">Копировать во все аккаунты этого профиля</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyCharacter">Копировать _настройки персонажа</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyAccount">_Копировать настройки аккаунта</sys:String> <!-- draft -->
@@ -1933,7 +1939,7 @@
     <sys:String x:Key="L.S.Eve.FetchFailed">Не удалось связаться с серверами EVE. Повторите позже.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.Intro">EVE хранит свои настройки, такие как положение окон, обзор, клавиши и графику, в файлах для каждого персонажа и аккаунта. Эта страница копирует их, чтобы новый альт выглядел как ваш main. Каждый заменяемый файл сначала сохраняется в резервную копию.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.copy.Title">Копирование настроек</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **Весь профиль** копирует все файлы одного профиля EVE (папки settings_) в другие.&#x0A;- **Один персонаж** копирует окна, обзор и настройки чата персонажа в других персонажей.&#x0A;- **Один аккаунт** копирует графику, звук и клавиши между аккаунтами.&#x0A;&#x0A;Сначала закройте все клиенты EVE: EVE записывает настройки при закрытии клиента и может отменить копирование.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **Весь профиль** копирует все файлы одного профиля EVE (папки settings_) в другие.&#x0A;- **Один персонаж** копирует каналы чата и инфопанели персонажа в других персонажей, а с **Копировать и настройки аккаунта** — ещё обзор и расположение окон его аккаунта. EVE хранит их по аккаунтам; **Определить аккаунты…** сообщает MultiPreview, на каком аккаунте каждый персонаж.&#x0A;- **Один аккаунт** копирует обзор, расположение окон, графику, звук и клавиши между аккаунтами. Их делят все персонажи аккаунта.&#x0A;&#x0A;Сначала закройте все клиенты EVE: EVE записывает настройки при закрытии клиента и может отменить копирование.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Title">Имена аккаунтов</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE называет файлы аккаунтов только номерами. **Определить аккаунты…** проведёт вас через вход одним персонажем за раз, чтобы узнать, на каком аккаунте каждый, а **Задать имя** даёт аккаунту ваше имя. **Получить недостающие имена** запрашивает имена персонажей на публичных серверах EVE (ESI), отправляя только номера персонажей.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.AndMore">…и ещё {0}</sys:String> <!-- draft -->

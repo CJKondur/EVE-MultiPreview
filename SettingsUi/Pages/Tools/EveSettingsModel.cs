@@ -268,14 +268,37 @@ public sealed class EveSettingsModel
         Refresh();
     }
 
-    public void CopyCharacterInteractive(EveProfile? source, string? sourceId, EveProfile? target, IReadOnlyList<string> targetIds, bool toAll) =>
-        CopyEntriesInteractive(false, source, sourceId, target, targetIds, toAll);
+    /// <param name="withAccount">Also copy the source character's account file onto each target character's account: EVE
+    /// keeps the overview and most of the window layout per account (core_user), not per character (measured 2026-11-05).</param>
+    public void CopyCharacterInteractive(EveProfile? source, string? sourceId, EveProfile? target, IReadOnlyList<string> targetIds, bool toAll,
+        bool withAccount = false) =>
+        CopyEntriesInteractive(false, source, sourceId, target, targetIds, toAll, withAccount);
+
+    /// <summary>The account a character is on, as Detect accounts… linked it; null when it isn't linked.</summary>
+    public string? AccountOf(string charId) =>
+        S.AccountCharacterMap.FirstOrDefault(kv => kv.Value.Contains(charId)).Key;
+
+    /// <summary>The accounts of the target characters, each once, without the source's own account in the same profile
+    /// (copying it onto itself does nothing), and the target characters that aren't linked to an account.</summary>
+    public (IReadOnlyList<string> Accounts, IReadOnlyList<string> Unlinked) TargetAccounts(EveProfile source, string sourceAccount,
+        EveProfile target, IEnumerable<string> charIds)
+    {
+        var accounts = new List<string>();
+        var unlinked = new List<string>();
+        foreach (var id in charIds)
+        {
+            if (AccountOf(id) is not { } account) { unlinked.Add(id); continue; }
+            if (SamePath(source.Path, target.Path) && account == sourceAccount) continue;
+            if (!accounts.Contains(account)) accounts.Add(account);
+        }
+        return (accounts, unlinked);
+    }
 
     public void CopyAccountInteractive(EveProfile? source, string? sourceId, EveProfile? target, IReadOnlyList<string> targetIds, bool toAll) =>
         CopyEntriesInteractive(true, source, sourceId, target, targetIds, toAll);
 
     private void CopyEntriesInteractive(bool accounts, EveProfile? source, string? sourceId, EveProfile? target,
-        IReadOnlyList<string> targetIds, bool toAll)
+        IReadOnlyList<string> targetIds, bool toAll, bool withAccount = false)
     {
         if (source == null || target == null) { Toast("L.S.Eve.NeedProfiles"); return; }
         if (sourceId == null) { Toast(accounts ? "L.S.Eve.NeedSourceAccount" : "L.S.Eve.NeedSourceCharacter"); return; }
@@ -287,14 +310,43 @@ public sealed class EveSettingsModel
             Toast(toAll ? "L.S.Eve.TargetEmpty" : accounts ? "L.S.Eve.NeedTargetAccount" : "L.S.Eve.NeedTargetCharacter");
             return;
         }
+        // The character's account goes with it: its account must be known (Detect accounts…), or nothing is copied.
+        string? sourceAccount = null;
+        IReadOnlyList<string> targetAccounts = Array.Empty<string>(), unlinked = Array.Empty<string>();
+        if (withAccount && !accounts)
+        {
+            sourceAccount = AccountOf(sourceId);
+            if (sourceAccount == null)
+            {
+                _ctx.Host.Toast(string.Format(Str("L.S.Eve.NeedAccountLink"), CharacterLabel(sourceId)));
+                return;
+            }
+            (targetAccounts, unlinked) = TargetAccounts(source, sourceAccount, target, ids);
+        }
         if (!ConfirmIfEveRunning()) return;
         // Ticks survive a search redraw, so targets the search hides are copied onto too: the question names them all.
         var body = string.Format(Str(accounts ? "L.S.Eve.CopyAccountsConfirm" : "L.S.Eve.CopyCharactersConfirm"),
                 accounts ? AccountLabel(sourceId) : CharacterLabel(sourceId), ids.Count, target.Name)
             + "\n\n" + TargetList(ids.Select(id => accounts ? AccountLabel(id) : CharacterLabel(id)).ToList());
+        if (sourceAccount != null)
+        {
+            if (targetAccounts.Count > 0)
+                body += "\n\n" + string.Format(Str("L.S.Eve.AlsoAccountsConfirm"), AccountLabel(sourceAccount), targetAccounts.Count)
+                    + "\n\n" + TargetList(targetAccounts.Select(AccountLabel).ToList());
+            if (unlinked.Count > 0)
+                body += "\n\n" + string.Format(Str("L.S.Eve.AccountsUnlinked"), unlinked.Count);
+        }
         if (!_ctx.Host.Confirm(Str("L.S.Eve.CopyTitle"), body)) return;
         var result = accounts ? CopyAccount(source, sourceId, target, ids) : CopyCharacter(source, sourceId, target, ids);
-        _ctx.Host.Toast(Report(result));
+        var report = Report(result);
+        if (sourceAccount != null && targetAccounts.Count > 0)
+        {
+            var acct = CopyAccount(source, sourceAccount, target, targetAccounts);
+            report += " " + (acct.Failed > 0
+                ? string.Format(Str("L.S.Eve.AccountsCopiedWithFailures"), acct.Targets, acct.Failed)
+                : string.Format(Str("L.S.Eve.AccountsCopied"), acct.Targets));
+        }
+        _ctx.Host.Toast(report);
     }
 
     // ── Accounts ──

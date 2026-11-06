@@ -104,8 +104,12 @@ internal sealed partial class SettingsEditors
         charPanel.Children.Add(Wrapped("L.S.Eve.ModeCharacterDesc"));
         charPanel.Children.Add(Columns(charFrom.View, charTo.View));
         charPanel.Children.Add(charToAll);
+        // EVE keeps the overview and window layout per account: copied with the character unless this is cleared.
+        var charWithAccount = new CheckBox { Content = new TextBlock { Text = Ui.NoAccess(S3("L.S.Eve.WithAccount")) }, IsChecked = true, Margin = new Thickness(0, 0, 0, 8) };
+        charPanel.Children.Add(charWithAccount);
         charPanel.Children.Add(Buttons(Action("L.S.Eve.CopyCharacter", () =>
-            model.CopyCharacterInteractive(charFrom.Profile, charFrom.Chosen, charTo.Profile, charTo.Ticked.ToList(), charToAll.IsChecked == true))));
+            model.CopyCharacterInteractive(charFrom.Profile, charFrom.Chosen, charTo.Profile, charTo.Ticked.ToList(), charToAll.IsChecked == true,
+                charWithAccount.IsChecked == true))));
         panels[EveCopyMode.Character] = charPanel;
         root.Children.Add(charPanel);
 

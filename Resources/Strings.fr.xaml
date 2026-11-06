@@ -1855,8 +1855,8 @@
     <sys:String x:Key="L.S.Eve.ModeCharacter">Un personnage</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ModeAccount">Un compte</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ModeProfileDesc">Tous les fichiers de personnages et de comptes d'un profil EVE, vers d'autres profils.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">Les paramètres d'un personnage (fenêtres, aperçu, chat) vers d'autres personnages.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.ModeAccountDesc">Les paramètres d'un compte (graphismes, audio, touches) vers d'autres comptes.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">Les paramètres d'un personnage (canaux de chat, panneaux d'info, certaines tailles de fenêtres) vers d'autres personnages. L'aperçu et la disposition des fenêtres appartiennent au compte : laissez « Copier aussi les paramètres du compte » coché pour les emporter.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.ModeAccountDesc">Les paramètres d'un compte (aperçu, disposition des fenêtres, graphismes, audio, touches) vers d'autres comptes. Tous les personnages d'un compte les partagent.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Source">Copier depuis</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Targets">Copier vers</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Profile">Profil</sys:String> <!-- draft -->
@@ -1866,6 +1866,12 @@
     <sys:String x:Key="L.S.Eve.BackUp">_Sauvegarder les profils cochés</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyProfile">Copier _vers les profils cochés</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ToAllCharacters">Copier vers chaque personnage de ce profil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.WithAccount">Copier aussi les paramètres du compte (aperçu, disposition des fenêtres)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.NeedAccountLink">{0} n'est encore lié à aucun compte : son aperçu et ses fenêtres ne peuvent pas suivre. Utilisez Détecter les comptes… dans Un compte, ou décochez « Copier aussi les paramètres du compte ».</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AlsoAccountsConfirm">Ainsi que les paramètres du compte de {0} (aperçu, disposition des fenêtres, graphismes, audio et touches) vers {1} comptes. Tous les personnages de ces comptes les reçoivent :</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsUnlinked">{0} des personnages cibles ne sont liés à aucun compte (Détecter les comptes… les lie) : leur aperçu et leurs fenêtres restent tels quels.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsCopied">Paramètres du compte copiés vers {0} comptes.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsCopiedWithFailures">Paramètres du compte copiés vers {0} comptes ; {1} en échec.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ToAllAccounts">Copier vers chaque compte de ce profil</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyCharacter">Copier les _paramètres du personnage</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyAccount">C_opier les paramètres du compte</sys:String> <!-- draft -->
@@ -1916,7 +1922,7 @@
     <sys:String x:Key="L.S.Eve.FetchFailed">Impossible de joindre les serveurs d'EVE. Réessayez plus tard.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.Intro">EVE conserve ses paramètres, comme la position des fenêtres, l'aperçu, les touches et les graphismes, dans des fichiers par personnage et par compte. Cette page les copie, pour qu'un nouvel alt ressemble à votre main. Chaque fichier remplacé est d'abord sauvegardé.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.copy.Title">Copie des paramètres</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **Profil entier** copie tous les fichiers d'un profil EVE (un dossier settings_) vers d'autres.&#x0A;- **Un personnage** copie les fenêtres, l'aperçu et le chat d'un personnage vers d'autres personnages.&#x0A;- **Un compte** copie graphismes, audio et touches entre comptes.&#x0A;&#x0A;Fermez d'abord tous les clients EVE : EVE écrit ses paramètres à la fermeture d'un client et peut annuler la copie.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **Profil entier** copie tous les fichiers d'un profil EVE (un dossier settings_) vers d'autres.&#x0A;- **Un personnage** copie les canaux de chat et panneaux d'info d'un personnage vers d'autres personnages et, avec **Copier aussi les paramètres du compte**, l'aperçu et la disposition des fenêtres de son compte. EVE les garde par compte ; **Détecter les comptes…** indique à MultiPreview sur quel compte est chaque personnage.&#x0A;- **Un compte** copie l'aperçu, la disposition des fenêtres, les graphismes, l'audio et les touches entre comptes. Tous les personnages d'un compte les partagent.&#x0A;&#x0A;Fermez d'abord tous les clients EVE : EVE écrit ses paramètres à la fermeture d'un client et peut annuler la copie.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Title">Noms de comptes</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE nomme les fichiers de compte uniquement par numéro. **Détecter les comptes…** vous guide pour connecter un personnage à la fois afin de savoir sur quel compte il se trouve, et **Définir le nom** donne à un compte votre propre nom. **Récupérer les noms manquants** recherche les noms de personnages sur les serveurs publics d'EVE (ESI), en n'envoyant que les numéros.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.AndMore">…et {0} de plus</sys:String> <!-- draft -->

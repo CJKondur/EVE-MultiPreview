@@ -1853,8 +1853,8 @@
     <sys:String x:Key="L.S.Eve.ModeCharacter">캐릭터 하나</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ModeAccount">계정 하나</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ModeProfileDesc">한 EVE 프로필의 모든 캐릭터·계정 파일을 다른 프로필로 복사해요.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">캐릭터 하나의 설정(창, 오버뷰, 채팅)을 다른 캐릭터로 복사해요.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.ModeAccountDesc">계정 하나의 설정(그래픽, 오디오, 키)을 다른 계정으로 복사해요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">캐릭터 하나의 설정(채팅 채널, 정보 패널, 일부 창 크기)을 다른 캐릭터로 복사해요. 오버뷰와 창 배치는 계정 설정이라, 함께 옮기려면 "계정 설정도 복사"를 켜 두세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.ModeAccountDesc">계정 하나의 설정(오버뷰, 창 배치, 그래픽, 오디오, 키)을 다른 계정으로 복사해요. 계정의 모든 캐릭터가 함께 써요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Source">복사 원본</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Targets">복사 대상</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Profile">프로필</sys:String> <!-- draft -->
@@ -1864,6 +1864,12 @@
     <sys:String x:Key="L.S.Eve.BackUp">선택한 프로필 백업(_B)</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyProfile">선택한 프로필로 복사(_T)</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ToAllCharacters">해당 프로필의 모든 캐릭터로 복사</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.WithAccount">계정 설정도 복사(오버뷰, 창 배치)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.NeedAccountLink">{0}은(는) 아직 계정에 연결되지 않아 오버뷰와 창을 함께 복사할 수 없어요. 계정 하나에서 계정 감지…를 사용하거나 "계정 설정도 복사"를 끄세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AlsoAccountsConfirm">{0}의 계정 설정(오버뷰, 창 배치, 그래픽, 오디오, 키)도 {1}개 계정으로 복사해요. 그 계정의 모든 캐릭터가 받게 돼요:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsUnlinked">대상 캐릭터 중 {0}명은 계정에 연결되지 않았어요(계정 감지…로 연결). 이 캐릭터들의 오버뷰와 창은 그대로예요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsCopied">계정 설정을 {0}개 계정에 복사했어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsCopiedWithFailures">계정 설정을 {0}개 계정에 복사했어요. {1}개는 실패했어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ToAllAccounts">해당 프로필의 모든 계정으로 복사</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyCharacter">캐릭터 설정 복사(_C)</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyAccount">계정 설정 복사(_A)</sys:String> <!-- draft -->
@@ -1914,7 +1920,7 @@
     <sys:String x:Key="L.S.Eve.FetchFailed">EVE 서버에 연결할 수 없어요. 나중에 다시 시도하세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.Intro">EVE는 창 위치, 오버뷰, 키, 그래픽 같은 자체 설정을 캐릭터별, 계정별 파일에 저장해요. 이 페이지는 그 파일을 복사해서 새 부캐가 본캐처럼 보이게 해요. 교체되는 모든 파일은 먼저 백업돼요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.copy.Title">설정 복사</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **전체 프로필**은 한 EVE 프로필(settings_ 폴더)의 모든 파일을 다른 프로필로 복사해요.&#x0A;- **캐릭터 하나**는 캐릭터의 창, 오버뷰, 채팅 설정을 다른 캐릭터로 복사해요.&#x0A;- **계정 하나**는 계정 사이에서 그래픽, 오디오, 키를 복사해요.&#x0A;&#x0A;먼저 모든 EVE 클라이언트를 닫으세요. EVE는 클라이언트를 닫을 때 설정을 기록하므로 복사가 되돌려질 수 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **전체 프로필**은 한 EVE 프로필(settings_ 폴더)의 모든 파일을 다른 프로필로 복사해요.&#x0A;- **캐릭터 하나**는 캐릭터의 채팅 채널과 정보 패널을 다른 캐릭터로 복사하고, **계정 설정도 복사**를 켜면 그 계정의 오버뷰와 창 배치도 복사해요. EVE는 이것들을 계정마다 저장해요. **계정 감지…**로 각 캐릭터가 어느 계정인지 MultiPreview에 알려 줄 수 있어요.&#x0A;- **계정 하나**는 계정 사이에서 오버뷰, 창 배치, 그래픽, 오디오, 키를 복사해요. 계정의 모든 캐릭터가 함께 써요.&#x0A;&#x0A;먼저 모든 EVE 클라이언트를 닫으세요. EVE는 클라이언트를 닫을 때 설정을 기록하므로 복사가 되돌려질 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Title">계정 이름</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE는 계정 파일을 번호로만 불러요. **계정 감지…**는 캐릭터를 한 번에 하나씩 로그인하도록 안내해 각 캐릭터가 어느 계정인지 알아내고, **이름 지정**은 계정에 원하는 이름을 붙여요. **누락된 이름 가져오기**는 EVE 공개 서버(ESI)에서 캐릭터 이름을 조회하며 캐릭터 번호만 전송해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.AndMore">…외 {0}개</sys:String> <!-- draft -->

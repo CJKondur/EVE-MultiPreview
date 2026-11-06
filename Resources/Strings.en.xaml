@@ -1852,8 +1852,8 @@
     <sys:String x:Key="L.S.Eve.ModeCharacter">One character</sys:String>
     <sys:String x:Key="L.S.Eve.ModeAccount">One account</sys:String>
     <sys:String x:Key="L.S.Eve.ModeProfileDesc">Every character and account file of one EVE profile, onto other profiles.</sys:String>
-    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">One character's settings (windows, overview, chat) onto other characters.</sys:String>
-    <sys:String x:Key="L.S.Eve.ModeAccountDesc">One account's settings (graphics, audio, keys) onto other accounts.</sys:String>
+    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">One character's settings (chat channels, info panels, some window sizes) onto other characters. The overview and window layout belong to the account: keep "Also copy the account settings" on to bring them.</sys:String>
+    <sys:String x:Key="L.S.Eve.ModeAccountDesc">One account's settings (overview, window layout, graphics, audio, keys) onto other accounts. Every character on an account shares them.</sys:String>
     <sys:String x:Key="L.S.Eve.Source">Copy from</sys:String>
     <sys:String x:Key="L.S.Eve.Targets">Copy to</sys:String>
     <sys:String x:Key="L.S.Eve.Profile">Profile</sys:String>
@@ -1863,6 +1863,12 @@
     <sys:String x:Key="L.S.Eve.BackUp">_Back up the ticked profiles</sys:String>
     <sys:String x:Key="L.S.Eve.CopyProfile">Copy to the _ticked profiles</sys:String>
     <sys:String x:Key="L.S.Eve.ToAllCharacters">Copy to every character in that profile</sys:String>
+    <sys:String x:Key="L.S.Eve.WithAccount">Also copy the account settings (overview, window layout)</sys:String>
+    <sys:String x:Key="L.S.Eve.NeedAccountLink">{0} isn't linked to an account yet, so its overview and windows can't go with it. Use Detect accounts… under One account, or clear "Also copy the account settings".</sys:String>
+    <sys:String x:Key="L.S.Eve.AlsoAccountsConfirm">Also the account settings of {0} (overview, window layout, graphics, audio and keys) onto {1} accounts. Every character on those accounts gets them:</sys:String>
+    <sys:String x:Key="L.S.Eve.AccountsUnlinked">{0} of the target characters aren't linked to an account (Detect accounts… links them): their overview and windows stay as they are.</sys:String>
+    <sys:String x:Key="L.S.Eve.AccountsCopied">Account settings copied to {0} accounts.</sys:String>
+    <sys:String x:Key="L.S.Eve.AccountsCopiedWithFailures">Account settings copied to {0} accounts; {1} failed.</sys:String>
     <sys:String x:Key="L.S.Eve.ToAllAccounts">Copy to every account in that profile</sys:String>
     <sys:String x:Key="L.S.Eve.CopyCharacter">_Copy character settings</sys:String>
     <sys:String x:Key="L.S.Eve.CopyAccount">Copy _account settings</sys:String>
@@ -1913,7 +1919,7 @@
     <sys:String x:Key="L.S.Eve.FetchFailed">Couldn't reach EVE's servers. Try again later.</sys:String>
     <sys:String x:Key="L.Help.tools.eve.Intro">EVE keeps its own settings, such as window positions, the overview, keys and graphics, in files per character and per account. This page copies them, so a new alt can look like your main. Every file it replaces is backed up first.</sys:String>
     <sys:String x:Key="L.Help.tools.eve.copy.Title">Copying settings</sys:String>
-    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **Whole profile** copies every file of one EVE profile (a settings_ folder) onto others.&#x0A;- **One character** copies a character's windows, overview and chat setup onto other characters.&#x0A;- **One account** copies graphics, audio and keys between accounts.&#x0A;&#x0A;Close every EVE client first: EVE writes its settings when a client closes and can undo the copy.</sys:String>
+    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **Whole profile** copies every file of one EVE profile (a settings_ folder) onto others.&#x0A;- **One character** copies a character's chat channels and info panels onto other characters, and with **Also copy the account settings** its account's overview and window layout too. EVE keeps those per account; **Detect accounts…** tells MultiPreview which account each character is on.&#x0A;- **One account** copies the overview, window layout, graphics, audio and keys between accounts. Every character on an account shares them.&#x0A;&#x0A;Close every EVE client first: EVE writes its settings when a client closes and can undo the copy.</sys:String>
     <sys:String x:Key="L.Help.tools.eve.accounts.Title">Account names</sys:String>
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE names account files only by number. **Detect accounts…** walks you through logging in one character at a time to learn which account each one is on, and **Set name** gives an account your own name. **Fetch missing names** looks up character names on EVE's public servers (ESI), sending only the character numbers.</sys:String>
     <sys:String x:Key="L.S.Eve.AndMore">…and {0} more</sys:String>

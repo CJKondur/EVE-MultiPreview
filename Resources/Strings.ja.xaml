@@ -1853,8 +1853,8 @@
     <sys:String x:Key="L.S.Eve.ModeCharacter">1 キャラクター</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ModeAccount">1 アカウント</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ModeProfileDesc">1 つの EVE プロファイルのキャラクターとアカウントのファイルをすべて、他のプロファイルへ。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">1 キャラクターの設定（ウィンドウ、オーバービュー、チャット）を他のキャラクターへ。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.ModeAccountDesc">1 アカウントの設定（グラフィック、オーディオ、キー）を他のアカウントへ。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">1 キャラクターの設定（チャットチャンネル、情報パネル、一部のウィンドウサイズ）を他のキャラクターへ。オーバービューとウィンドウ配置はアカウント側の設定です。一緒にコピーするには「アカウント設定もコピー」をオンのままにしてください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.ModeAccountDesc">1 アカウントの設定（オーバービュー、ウィンドウ配置、グラフィック、オーディオ、キー）を他のアカウントへ。アカウントのすべてのキャラクターが共有します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Source">コピー元</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Targets">コピー先</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Profile">プロファイル</sys:String> <!-- draft -->
@@ -1864,6 +1864,12 @@
     <sys:String x:Key="L.S.Eve.BackUp">チェックしたプロファイルをバックアップ（_B）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyProfile">チェックしたプロファイルへコピー（_T）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ToAllCharacters">そのプロファイルのすべてのキャラクターへコピー</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.WithAccount">アカウント設定もコピー（オーバービュー、ウィンドウ配置）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.NeedAccountLink">{0} はまだアカウントに関連付けられていないため、オーバービューとウィンドウを一緒にコピーできません。「1 アカウント」の「アカウントを検出…」を使うか、「アカウント設定もコピー」をオフにしてください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AlsoAccountsConfirm">さらに {0} のアカウント設定（オーバービュー、ウィンドウ配置、グラフィック、オーディオ、キー）を {1} 個のアカウントへコピーします。これらのアカウントのすべてのキャラクターに反映されます：</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsUnlinked">コピー先のキャラクターのうち {0} 人はアカウントに関連付けられていません（「アカウントを検出…」で関連付けられます）。そのオーバービューとウィンドウは変わりません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsCopied">アカウント設定を {0} 個のアカウントにコピーしました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsCopiedWithFailures">アカウント設定を {0} 個のアカウントにコピーしました。{1} 個は失敗しました。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ToAllAccounts">そのプロファイルのすべてのアカウントへコピー</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyCharacter">キャラクター設定をコピー（_C）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyAccount">アカウント設定をコピー（_A）</sys:String> <!-- draft -->
@@ -1914,7 +1920,7 @@
     <sys:String x:Key="L.S.Eve.FetchFailed">EVE のサーバーに接続できません。後でもう一度お試しください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.Intro">EVE はウィンドウ位置、オーバービュー、キー、グラフィックなどの設定を、キャラクターごと・アカウントごとのファイルに保存しています。このページはそれらをコピーして、新しいサブ垢をメインと同じ見た目にします。置き換えるファイルは先にすべてバックアップされます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.copy.Title">設定のコピー</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **プロファイル全体**：1 つの EVE プロファイル（settings_ フォルダー）のすべてのファイルを他へコピーします。&#x0A;- **1 キャラクター**：キャラクターのウィンドウ、オーバービュー、チャット設定を他のキャラクターへコピーします。&#x0A;- **1 アカウント**：アカウント間でグラフィック、オーディオ、キーをコピーします。&#x0A;&#x0A;先にすべての EVE クライアントを閉じてください。EVE はクライアントを閉じるときに設定を書き込むため、コピーが取り消されることがあります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **プロファイル全体**：1 つの EVE プロファイル（settings_ フォルダー）のすべてのファイルを他へコピーします。&#x0A;- **1 キャラクター**：キャラクターのチャットチャンネルと情報パネルを他のキャラクターへコピーし、**アカウント設定もコピー**がオンならそのアカウントのオーバービューとウィンドウ配置もコピーします。EVE はこれらをアカウントごとに保存します。**アカウントを検出…**で各キャラクターのアカウントを MultiPreview に教えられます。&#x0A;- **1 アカウント**：アカウント間でオーバービュー、ウィンドウ配置、グラフィック、オーディオ、キーをコピーします。アカウントのすべてのキャラクターが共有します。&#x0A;&#x0A;先にすべての EVE クライアントを閉じてください。EVE はクライアントを閉じるときに設定を書き込むため、コピーが取り消されることがあります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Title">アカウント名</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE はアカウントのファイルを番号だけで呼びます。**アカウントを検出…** は 1 キャラクターずつログインして、それぞれがどのアカウントかを調べる手順を案内し、**名前を設定** はアカウントに自分の名前を付けます。**不足している名前を取得** は EVE の公開サーバー（ESI）でキャラクター名を調べ、キャラクター番号だけを送信します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.AndMore">…ほか {0} 件</sys:String> <!-- draft -->

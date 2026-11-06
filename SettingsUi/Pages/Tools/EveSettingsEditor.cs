@@ -44,6 +44,8 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
     private string? _sourceProfilePath;
     private readonly EntryPicker _charFrom, _charTo, _accountFrom, _accountTo;
     private readonly CheckBox _charToAll = new() { Margin = new Thickness(0, 8, 0, 8) };
+    /// <summary>Also copy the character's account settings: EVE keeps the overview and window layout per account.</summary>
+    private readonly CheckBox _charWithAccount = new() { IsChecked = true, Margin = new Thickness(0, 0, 0, 8) };
     private readonly CheckBox _accountToAll = new() { Margin = new Thickness(0, 8, 0, 8) };
     private readonly TextBox _accountName = new() { MinWidth = 220, VerticalContentAlignment = VerticalAlignment.Center };
     private readonly Button _fetch;
@@ -66,6 +68,7 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
         _accountFrom = new EntryPicker("L.S.Eve.Source", true, p => Model.Accounts(p));
         _accountTo = new EntryPicker("L.S.Eve.Targets", false, p => Model.Accounts(p));
         Loc.SetKey(_charToAll, "L.S.Eve.ToAllCharacters");
+        Loc.SetKey(_charWithAccount, "L.S.Eve.WithAccount");
         Loc.SetKey(_accountToAll, "L.S.Eve.ToAllAccounts");
         Loc.SetNameKey(_accountName, "L.S.Eve.Label");
         _fetch = EditorCard.Button("L.S.Eve.FetchNames", FetchNames);
@@ -309,8 +312,10 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
         stack.Children.Add(Wrapped(EditorCard.Note("L.S.Eve.ModeCharacterDesc")));
         stack.Children.Add(lists);
         stack.Children.Add(_charToAll);
+        stack.Children.Add(_charWithAccount);
         stack.Children.Add(EditorCard.Row(EditorCard.Button("L.S.Eve.CopyCharacter", () =>
-            Model.CopyCharacterInteractive(_charFrom.Profile, _charFrom.Chosen, _charTo.Profile, _charTo.Ticked.ToList(), _charToAll.IsChecked == true))));
+            Model.CopyCharacterInteractive(_charFrom.Profile, _charFrom.Chosen, _charTo.Profile, _charTo.Ticked.ToList(), _charToAll.IsChecked == true,
+                _charWithAccount.IsChecked == true))));
         return stack;
     }
 

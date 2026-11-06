@@ -1870,8 +1870,8 @@
     <sys:String x:Key="L.S.Eve.ModeCharacter">单个角色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ModeAccount">单个账号</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ModeProfileDesc">把一个 EVE 配置文件的所有角色和账号文件复制到其他配置文件。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">把一个角色的设置（窗口、总览、聊天）复制到其他角色。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.ModeAccountDesc">把一个账号的设置（画面、音频、按键）复制到其他账号。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">把一个角色的设置（聊天频道、信息面板、部分窗口大小）复制到其他角色。总览和窗口布局属于账号：保持“同时复制账号设置”开启即可一并带上。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.ModeAccountDesc">把一个账号的设置（总览、窗口布局、画面、音频、按键）复制到其他账号。同一账号的所有角色共用这些设置。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Source">复制自</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Targets">复制到</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Profile">配置文件</sys:String> <!-- draft -->
@@ -1881,6 +1881,12 @@
     <sys:String x:Key="L.S.Eve.BackUp">备份已勾选的配置文件（_B）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyProfile">复制到已勾选的配置文件（_T）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ToAllCharacters">复制到该配置文件中的每个角色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.WithAccount">同时复制账号设置（总览、窗口布局）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.NeedAccountLink">{0} 尚未关联到账号，因此它的总览和窗口无法一起复制。请在“单个账号”中使用“检测账号…”，或取消“同时复制账号设置”。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AlsoAccountsConfirm">同时把 {0} 的账号设置（总览、窗口布局、画面、音频和按键）复制到 {1} 个账号。这些账号上的所有角色都会得到：</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsUnlinked">有 {0} 个目标角色未关联到账号（“检测账号…”可关联）：它们的总览和窗口保持不变。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsCopied">账号设置已复制到 {0} 个账号。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsCopiedWithFailures">账号设置已复制到 {0} 个账号；{1} 个失败。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ToAllAccounts">复制到该配置文件中的每个账号</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyCharacter">复制角色设置（_C）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyAccount">复制账号设置（_A）</sys:String> <!-- draft -->
@@ -1931,7 +1937,7 @@
     <sys:String x:Key="L.S.Eve.FetchFailed">无法连接 EVE 服务器。请稍后再试。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.Intro">EVE 把自己的设置（如窗口位置、总览、按键和画面）按角色和账号保存在文件中。此页面复制它们，让新的小号看起来和主号一样。被替换的每个文件都会先备份。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.copy.Title">复制设置</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **整个配置文件** 把一个 EVE 配置文件（settings_ 文件夹）的所有文件复制到其他配置文件。&#x0A;- **单个角色** 把一个角色的窗口、总览和聊天设置复制到其他角色。&#x0A;- **单个账号** 在账号之间复制画面、音频和按键。&#x0A;&#x0A;请先关闭所有 EVE 客户端：EVE 会在客户端关闭时写入设置，可能撤销复制结果。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **整个配置文件** 把一个 EVE 配置文件（settings_ 文件夹）的所有文件复制到其他配置文件。&#x0A;- **单个角色** 把一个角色的聊天频道和信息面板复制到其他角色；开启 **同时复制账号设置** 时，还会复制其账号的总览和窗口布局。EVE 按账号保存这些设置；**检测账号…** 可让 MultiPreview 知道每个角色属于哪个账号。&#x0A;- **单个账号** 在账号之间复制总览、窗口布局、画面、音频和按键。同一账号的所有角色共用这些设置。&#x0A;&#x0A;请先关闭所有 EVE 客户端：EVE 会在客户端关闭时写入设置，可能撤销复制结果。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Title">账号名称</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE 只用编号命名账号文件。**检测账号…** 引导你每次登录一个角色，以了解它属于哪个账号；**设置名称** 为账号设置你自己的名称。**获取缺失的名称** 在 EVE 公共服务器 (ESI) 上查询角色名称，只发送角色编号。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.AndMore">…以及另外 {0} 个</sys:String> <!-- draft -->

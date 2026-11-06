@@ -1874,8 +1874,8 @@
     <sys:String x:Key="L.S.Eve.ModeCharacter">Un personaje</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ModeAccount">Una cuenta</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ModeProfileDesc">Todos los archivos de personajes y cuentas de un perfil de EVE, a otros perfiles.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">Los ajustes de un personaje (ventanas, vista general, chat) a otros personajes.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.ModeAccountDesc">Los ajustes de una cuenta (gráficos, audio, teclas) a otras cuentas.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.ModeCharacterDesc">Los ajustes de un personaje (canales de chat, paneles de información, algunos tamaños de ventana) a otros personajes. La vista general y la disposición de ventanas son de la cuenta: deja activado «Copiar también los ajustes de la cuenta» para llevarlas.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.ModeAccountDesc">Los ajustes de una cuenta (vista general, disposición de ventanas, gráficos, audio, teclas) a otras cuentas. Todos los personajes de una cuenta los comparten.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Source">Copiar desde</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Targets">Copiar a</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.Profile">Perfil</sys:String> <!-- draft -->
@@ -1885,6 +1885,12 @@
     <sys:String x:Key="L.S.Eve.BackUp">_Hacer copia de los perfiles marcados</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyProfile">Copiar a los _perfiles marcados</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ToAllCharacters">Copiar a todos los personajes de ese perfil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.WithAccount">Copiar también los ajustes de la cuenta (vista general, disposición de ventanas)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.NeedAccountLink">{0} aún no está vinculado a una cuenta, así que su vista general y sus ventanas no pueden ir con él. Usa Detectar cuentas… en Una cuenta, o desactiva «Copiar también los ajustes de la cuenta».</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AlsoAccountsConfirm">También los ajustes de cuenta de {0} (vista general, disposición de ventanas, gráficos, audio y teclas) a {1} cuentas. Todos los personajes de esas cuentas los recibirán:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsUnlinked">{0} de los personajes de destino no están vinculados a una cuenta (Detectar cuentas… los vincula): su vista general y sus ventanas se quedan como están.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsCopied">Ajustes de cuenta copiados a {0} cuentas.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AccountsCopiedWithFailures">Ajustes de cuenta copiados a {0} cuentas; {1} fallaron.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.ToAllAccounts">Copiar a todas las cuentas de ese perfil</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyCharacter">_Copiar ajustes del personaje</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.CopyAccount">Copiar _ajustes de la cuenta</sys:String> <!-- draft -->
@@ -1935,7 +1941,7 @@
     <sys:String x:Key="L.S.Eve.FetchFailed">No se pudo conectar con los servidores de EVE. Inténtalo más tarde.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.Intro">EVE guarda sus propios ajustes, como la posición de las ventanas, la vista general, las teclas y los gráficos, en archivos por personaje y por cuenta. Esta página los copia para que un alt nuevo se parezca a tu main. Cada archivo que sustituye se guarda antes.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.copy.Title">Copiar ajustes</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **Perfil completo** copia todos los archivos de un perfil de EVE (una carpeta settings_) a otros.&#x0A;- **Un personaje** copia las ventanas, la vista general y el chat de un personaje a otros personajes.&#x0A;- **Una cuenta** copia gráficos, audio y teclas entre cuentas.&#x0A;&#x0A;Cierra antes todos los clientes de EVE: EVE escribe sus ajustes al cerrar un cliente y puede deshacer la copia.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.eve.copy.Body">- **Perfil completo** copia todos los archivos de un perfil de EVE (una carpeta settings_) a otros.&#x0A;- **Un personaje** copia los canales de chat y los paneles de información de un personaje a otros personajes y, con **Copiar también los ajustes de la cuenta**, también la vista general y la disposición de ventanas de su cuenta. EVE las guarda por cuenta; **Detectar cuentas…** le dice a MultiPreview en qué cuenta está cada personaje.&#x0A;- **Una cuenta** copia la vista general, la disposición de ventanas, gráficos, audio y teclas entre cuentas. Todos los personajes de una cuenta los comparten.&#x0A;&#x0A;Cierra antes todos los clientes de EVE: EVE escribe sus ajustes al cerrar un cliente y puede deshacer la copia.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Title">Nombres de cuentas</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE nombra los archivos de cuenta solo con números. **Detectar cuentas…** te guía para iniciar sesión con un personaje cada vez y saber en qué cuenta está, y **Poner nombre** da a una cuenta tu propio nombre. **Obtener nombres que faltan** busca nombres de personajes en los servidores públicos de EVE (ESI), enviando solo los números de personaje.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.AndMore">…y {0} más</sys:String> <!-- draft -->
