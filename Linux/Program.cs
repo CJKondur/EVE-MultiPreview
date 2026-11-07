@@ -300,6 +300,20 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         catch (Exception ex) when (ex is not OutOfMemoryException) { ErrorLog.Shared.Record(ex, "App", DateTime.Now); }
     }
 
+    /// <summary>Links characters to their EVE accounts from when EVE saves their files (EveAccountLearner looks every 30 s),
+    /// so Tools › EVE settings › One character can bring the account's overview and windows without Detect accounts….</summary>
+    private EveAccountLearner? _accountLinks;
+
+    private void FollowAccountLinks()
+    {
+        try
+        {
+            _accountLinks ??= new EveAccountLearner(() => EveLogs.FindEveDir(S.EveSettingsDir ?? ""));
+            if (_accountLinks.Tick(S, DateTime.UtcNow)) _settings.SaveDelayed();
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException) { ErrorLog.Shared.Record(ex, "App", DateTime.Now); }
+    }
+
     /// <summary>App.FollowDowntime: nothing while the switch is off or nobody is logged in (so a warning is not used up
     /// unseen); then, when one is due (15 and 5 minutes before 11:00 UTC), a notification naming every logged-in character.</summary>
     private void FollowDowntime()
@@ -1321,6 +1335,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             // The debug logs (App › Diagnostics) ask DiagnosticsService for the settings; an import replaces the object.
             DiagnosticsService.GlobalSettings = S;
             FollowKeepAwake();
+            FollowAccountLinks();
             FollowDowntime();
             FollowTranquility();
         }

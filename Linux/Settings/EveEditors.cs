@@ -109,7 +109,8 @@ internal sealed partial class SettingsEditors
         charPanel.Children.Add(charWithAccount);
         charPanel.Children.Add(Buttons(Action("L.S.Eve.CopyCharacter", () =>
             model.CopyCharacterInteractive(charFrom.Profile, charFrom.Chosen, charTo.Profile, charTo.Ticked.ToList(), charToAll.IsChecked == true,
-                charWithAccount.IsChecked == true))));
+                charWithAccount.IsChecked == true)),
+            Action("L.S.Eve.Detect", () => { model.DetectInteractive(); ReloadPickers(); })));
         panels[EveCopyMode.Character] = charPanel;
         root.Children.Add(charPanel);
 

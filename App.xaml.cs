@@ -815,6 +815,7 @@ public partial class App : Application
                 _hotkeyService?.EvaluateRegistration();
                 FollowDoNotDisturb();
                 FollowKeepAwake();
+                FollowAccountLinks();
                 FollowDowntime();
                 FollowTranquility();
                 FollowIdle();
@@ -1415,6 +1416,21 @@ public partial class App : Application
     private void FollowDoNotDisturb()
     {
         if (_doNotDisturb.ChangedSinceShown(_settings?.Settings, DateTime.Now)) QueueTrayText();
+    }
+
+    /// <summary>Links characters to their EVE accounts from when EVE saves their files (EveAccountLearner looks every 30 s),
+    /// so Tools › EVE settings › One character can bring the account's overview and windows without Detect accounts….</summary>
+    private EveAccountLearner? _accountLinks;
+
+    private void FollowAccountLinks()
+    {
+        try
+        {
+            if (_settings?.Settings is not { } s) return;
+            _accountLinks ??= new EveAccountLearner(() => EveManagerService.FindEveDir(_settings?.Settings.EveSettingsDir ?? ""));
+            if (_accountLinks.Tick(s, DateTime.UtcNow)) _settings.SaveDelayed();
+        }
+        catch (Exception ex) { LogError(ex); }
     }
 
     /// <summary>IDEAS #46: asked twice a second with do-not-disturb; KeepAwake asks Windows only when the answer changes.

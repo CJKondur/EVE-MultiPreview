@@ -315,7 +315,8 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
         stack.Children.Add(_charWithAccount);
         stack.Children.Add(EditorCard.Row(EditorCard.Button("L.S.Eve.CopyCharacter", () =>
             Model.CopyCharacterInteractive(_charFrom.Profile, _charFrom.Chosen, _charTo.Profile, _charTo.Ticked.ToList(), _charToAll.IsChecked == true,
-                _charWithAccount.IsChecked == true))));
+                _charWithAccount.IsChecked == true)),
+            EditorCard.Button("L.S.Eve.Detect", () => { Model.DetectInteractive(); ReloadPickers(); })));
         return stack;
     }
 

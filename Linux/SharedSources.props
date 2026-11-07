@@ -46,6 +46,7 @@
     <Compile Include="..\Services\DoNotDisturb.cs" Link="Shared\Services\DoNotDisturb.cs" />
     <Compile Include="..\Services\Downtime.cs" Link="Shared\Services\Downtime.cs" />
     <Compile Include="..\Services\ErrorLog.cs" Link="Shared\Services\ErrorLog.cs" />
+    <Compile Include="..\Services\EveAccountMatch.cs" Link="Shared\Services\EveAccountMatch.cs" />
     <Compile Include="..\Services\EveManagerService.cs" Link="Shared\Services\EveManagerService.cs" />
     <Compile Include="..\Services\EventSnoozes.cs" Link="Shared\Services\EventSnoozes.cs" />
     <Compile Include="..\Services\EwarLines.cs" Link="Shared\Services\EwarLines.cs" />

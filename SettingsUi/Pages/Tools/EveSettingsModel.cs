@@ -278,20 +278,36 @@ public sealed class EveSettingsModel
     public string? AccountOf(string charId) =>
         S.AccountCharacterMap.FirstOrDefault(kv => kv.Value.Contains(charId)).Key;
 
+    /// <summary>The account a character is on: its link, else the account EVE saved together with it in this profile
+    /// (<see cref="EveAccountMatch"/>; <paramref name="matched"/> is then true). Null when neither says.</summary>
+    public string? AccountOf(string charId, EveProfile profile, out bool matched)
+    {
+        matched = false;
+        if (AccountOf(charId) is { } linked) return linked;
+        var account = EveAccountMatch.Of(profile.Path, charId);
+        matched = account != null;
+        return account;
+    }
+
     /// <summary>The accounts of the target characters, each once, without the source's own account in the same profile
-    /// (copying it onto itself does nothing), and the target characters that aren't linked to an account.</summary>
-    public (IReadOnlyList<string> Accounts, IReadOnlyList<string> Unlinked) TargetAccounts(EveProfile source, string sourceAccount,
+    /// (copying it onto itself does nothing), the target characters whose account isn't known, and how many accounts were
+    /// found only by when EVE saved the files.</summary>
+    public (IReadOnlyList<string> Accounts, IReadOnlyList<string> Unlinked, int Matched) TargetAccounts(EveProfile source, string sourceAccount,
         EveProfile target, IEnumerable<string> charIds)
     {
         var accounts = new List<string>();
         var unlinked = new List<string>();
+        int matched = 0;
+        var saves = EveAccountMatch.Read(target.Path);
         foreach (var id in charIds)
         {
-            if (AccountOf(id) is not { } account) { unlinked.Add(id); continue; }
+            var account = AccountOf(id);
+            if (account == null && (account = EveAccountMatch.Of(saves, id)) != null) matched++;
+            if (account == null) { unlinked.Add(id); continue; }
             if (SamePath(source.Path, target.Path) && account == sourceAccount) continue;
             if (!accounts.Contains(account)) accounts.Add(account);
         }
-        return (accounts, unlinked);
+        return (accounts, unlinked, matched);
     }
 
     public void CopyAccountInteractive(EveProfile? source, string? sourceId, EveProfile? target, IReadOnlyList<string> targetIds, bool toAll) =>
@@ -310,18 +326,20 @@ public sealed class EveSettingsModel
             Toast(toAll ? "L.S.Eve.TargetEmpty" : accounts ? "L.S.Eve.NeedTargetAccount" : "L.S.Eve.NeedTargetCharacter");
             return;
         }
-        // The character's account goes with it: its account must be known (Detect accounts…), or nothing is copied.
+        // The character's account goes with it: its account must be known (linked, or matched by save time), or nothing is copied.
         string? sourceAccount = null;
         IReadOnlyList<string> targetAccounts = Array.Empty<string>(), unlinked = Array.Empty<string>();
+        int matched = 0;
         if (withAccount && !accounts)
         {
-            sourceAccount = AccountOf(sourceId);
+            sourceAccount = AccountOf(sourceId, source, out var sourceMatched);
             if (sourceAccount == null)
             {
                 _ctx.Host.Toast(string.Format(Str("L.S.Eve.NeedAccountLink"), CharacterLabel(sourceId)));
                 return;
             }
-            (targetAccounts, unlinked) = TargetAccounts(source, sourceAccount, target, ids);
+            (targetAccounts, unlinked, matched) = TargetAccounts(source, sourceAccount, target, ids);
+            if (sourceMatched) matched++;
         }
         if (!ConfirmIfEveRunning()) return;
         // Ticks survive a search redraw, so targets the search hides are copied onto too: the question names them all.
@@ -333,6 +351,8 @@ public sealed class EveSettingsModel
             if (targetAccounts.Count > 0)
                 body += "\n\n" + string.Format(Str("L.S.Eve.AlsoAccountsConfirm"), AccountLabel(sourceAccount), targetAccounts.Count)
                     + "\n\n" + TargetList(targetAccounts.Select(AccountLabel).ToList());
+            if (matched > 0)
+                body += "\n\n" + string.Format(Str("L.S.Eve.AccountsMatched"), matched);
             if (unlinked.Count > 0)
                 body += "\n\n" + string.Format(Str("L.S.Eve.AccountsUnlinked"), unlinked.Count);
         }
