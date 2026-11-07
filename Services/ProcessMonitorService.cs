@@ -21,8 +21,17 @@ public sealed class ProcessMonitorService : IDisposable
     private System.Threading.Timer? _timer;
     private int _processorCount = Environment.ProcessorCount;
 
-    // VRAM: pre-built PID→bytes map, refreshed once per poll cycle
+    // VRAM: pre-built PID→bytes map. Reading it makes a counter for every GPU-memory instance on the PC, so it is read
+    // only while something shows VRAM (WantsVram), and at most every VramEvery; between reads the last map is reused.
     private bool _gpuCountersAvailable = true;
+    private Dictionary<int, long> _vramMap = new();
+    private DateTime _vramReadAt = DateTime.MinValue;
+    private static readonly TimeSpan VramEvery = TimeSpan.FromSeconds(15);
+    // 1 while a poll runs: a slow poll (counters can take seconds) is never overlapped by the next timer tick.
+    private int _polling;
+
+    /// <summary>Whether VRAM is shown anywhere (the thumbnails' process stats). False skips the GPU counters.</summary>
+    public Func<bool> WantsVram { get; set; } = () => true;
 
     /// <summary>Fires after each poll cycle with updated stats.</summary>
     public event Action? StatsUpdated;
@@ -35,13 +44,13 @@ public sealed class ProcessMonitorService : IDisposable
 
     private void PollStats(object? state)
     {
+        if (Interlocked.Exchange(ref _polling, 1) == 1) return;   // the last poll is still running (3TEARS, 2026-11-06)
         try
         {
             var eveProcesses = Process.GetProcessesByName("exefile");
             var activePids = new HashSet<int>();
 
-            // Build VRAM map ONCE per poll cycle (not per-PID)
-            var vramMap = BuildVramMap();
+            var vramMap = CurrentVramMap();
 
             foreach (var proc in eveProcesses)
             {
@@ -97,6 +106,25 @@ public sealed class ProcessMonitorService : IDisposable
         {
             Debug.WriteLine($"[ProcMon:Poll] ❌ Error: {ex.Message}");
         }
+        finally
+        {
+            Volatile.Write(ref _polling, 0);
+        }
+    }
+
+    /// <summary>The VRAM map to use this poll: empty while nothing shows VRAM, else re-read every <see cref="VramEvery"/>.</summary>
+    private Dictionary<int, long> CurrentVramMap()
+    {
+        bool wanted;
+        try { wanted = WantsVram(); } catch { wanted = false; }
+        if (!wanted) { _vramMap = new(); _vramReadAt = DateTime.MinValue; return _vramMap; }
+        var now = DateTime.UtcNow;
+        if (now - _vramReadAt >= VramEvery)
+        {
+            _vramMap = BuildVramMap();
+            _vramReadAt = now;
+        }
+        return _vramMap;
     }
 
     /// <summary>

@@ -327,6 +327,9 @@ public partial class App : Application
 
         // 4b. Process monitor (CPU/RAM per EVE client)
         _processMonitor = new ProcessMonitorService();
+        // VRAM is shown only in the thumbnails' process stats; its GPU counters are the poll's costly part. A single
+        // bool read from the pool thread: a stale answer only delays the change by one poll.
+        _processMonitor.WantsVram = () => _settings?.Settings.ShowProcessStats == true;
         _thumbnailManager.SetProcessMonitor(_processMonitor);
         _processMonitor.Start();
         // IDEAS #45: the monitor reports every 3 s from its pool thread; the settings are read on the window's thread

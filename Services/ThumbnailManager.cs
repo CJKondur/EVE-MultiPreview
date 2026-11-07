@@ -2587,7 +2587,7 @@ public sealed class ThumbnailManager : IDisposable
                     if (eve.Proc.PriorityClass != ProcessPriorityClass.Normal)
                         eve.Proc.PriorityClass = ProcessPriorityClass.Normal;
 
-                    long allCoresMask = (1L << totalCores) - 1;
+                    long allCoresMask = AllCoresMask();
                     if ((long)eve.Proc.ProcessorAffinity != allCoresMask)
                         eve.Proc.ProcessorAffinity = (IntPtr)allCoresMask;
                 }
@@ -2624,7 +2624,7 @@ public sealed class ThumbnailManager : IDisposable
                     else
                     {
                         // Restore to all cores but keep 'Idle' priority
-                        long allCoresMask = (1L << totalCores) - 1;
+                        long allCoresMask = AllCoresMask();
                         if ((long)eve.Proc.ProcessorAffinity != allCoresMask)
                             eve.Proc.ProcessorAffinity = (IntPtr)allCoresMask;
                     }
@@ -2638,6 +2638,9 @@ public sealed class ThumbnailManager : IDisposable
         }
     }
 
+    /// <summary>Every logical processor a process can be given (64 at most: 1L &lt;&lt; 64 would wrap to 1).</summary>
+    private static long AllCoresMask() => Environment.ProcessorCount >= 64 ? -1L : (1L << Environment.ProcessorCount) - 1;
+
     /// <summary>Restore every tracked EVE process to Normal priority and the
     /// full-cores affinity mask. Called once when the user disables
     /// ManageAffinity so previously-throttled inactive clients aren't left
@@ -2645,8 +2648,7 @@ public sealed class ThumbnailManager : IDisposable
     /// off.</summary>
     private void ResetAllEveAffinity()
     {
-        int totalCores = Environment.ProcessorCount;
-        long allCoresMask = (1L << totalCores) - 1;
+        long allCoresMask = AllCoresMask();
 
         foreach (var (_, thumb) in _thumbnails)
         {
@@ -5677,6 +5679,10 @@ public sealed class ThumbnailManager : IDisposable
 
         // Don't leave clients muted from auto-solo after we exit.
         try { UnmuteAllClientAudio(); } catch { }
+
+        // Nor on Idle priority and one core (Manage CPU affinity): nothing would put them back, and every client
+        // stayed slow until it was restarted or MultiPreview was opened again (3TEARS, 2026-11-06).
+        try { if (_lastManageAffinityState) ResetAllEveAffinity(); } catch { }
 
         // Same principle for "cover taskbar" (#99): a client left in the topmost band
         // would keep sitting over the taskbar after MultiPreview closes, with nothing

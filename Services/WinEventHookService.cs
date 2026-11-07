@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Threading;
 using EveMultiPreview.Interop;
@@ -32,8 +33,10 @@ public sealed class WinEventHookService : IDisposable
     // OS retains a callback pointer. Collection here = CallbackOnCollectedDelegate.
     private User32.WinEventDelegate? _systemCallback;
     private User32.WinEventDelegate? _objectCallback;
-    private IntPtr _systemHook;
-    private IntPtr _objectHook;
+    // One hook per event (or per adjacent pair) we use. A range hook delivers every event inside it: the old
+    // CREATE..NAMECHANGE range included EVENT_OBJECT_LOCATIONCHANGE, which Windows raises for the cursor on every
+    // mouse move anywhere, so each move was posted to this (the UI) thread only to be dropped (3TEARS, 2026-11-06).
+    private readonly List<IntPtr> _hooks = new();
     private bool _disposed;
 
     /// <summary>
@@ -43,32 +46,29 @@ public sealed class WinEventHookService : IDisposable
     /// </summary>
     public void Start()
     {
-        if (_systemHook != IntPtr.Zero || _objectHook != IntPtr.Zero) return;
+        if (_hooks.Count > 0) return;
 
         _systemCallback = OnSystemEvent;
         _objectCallback = OnObjectEvent;
 
-        // System events: foreground change + minimize start/end. Range covers
-        // 0x0003..0x0017 in one hook so the OS does the dispatching for us.
-        _systemHook = User32.SetWinEventHook(
-            User32.EVENT_SYSTEM_FOREGROUND,
-            User32.EVENT_SYSTEM_MINIMIZEEND,
-            IntPtr.Zero, _systemCallback, 0, 0,
-            User32.WINEVENT_OUTOFCONTEXT | User32.WINEVENT_SKIPOWNPROCESS);
-
-        // Object events: window create/destroy + name (title) change. We filter
+        // System events: foreground change, and minimize start/end (adjacent, 0x0016..0x0017).
+        // Object events: window create/destroy (adjacent, 0x8000..0x8001) and name (title) change. We filter
         // hard inside the callback because EVENT_OBJECT_NAMECHANGE in particular
         // fires VERY often for sub-controls across the entire desktop.
-        _objectHook = User32.SetWinEventHook(
-            User32.EVENT_OBJECT_CREATE,
-            User32.EVENT_OBJECT_NAMECHANGE,
-            IntPtr.Zero, _objectCallback, 0, 0,
-            User32.WINEVENT_OUTOFCONTEXT | User32.WINEVENT_SKIPOWNPROCESS);
-
-        if (_systemHook == IntPtr.Zero || _objectHook == IntPtr.Zero)
-            Debug.WriteLine($"[WinEventHook:Start] ⚠ SetWinEventHook failed (system=0x{_systemHook:X}, object=0x{_objectHook:X})");
-        else
-            Debug.WriteLine("[WinEventHook:Start] 🔧 Hooks installed (system + object)");
+        foreach (var (first, last, callback) in new[]
+        {
+            (User32.EVENT_SYSTEM_FOREGROUND, User32.EVENT_SYSTEM_FOREGROUND, _systemCallback!),
+            (User32.EVENT_SYSTEM_MINIMIZESTART, User32.EVENT_SYSTEM_MINIMIZEEND, _systemCallback!),
+            (User32.EVENT_OBJECT_CREATE, User32.EVENT_OBJECT_DESTROY, _objectCallback!),
+            (User32.EVENT_OBJECT_NAMECHANGE, User32.EVENT_OBJECT_NAMECHANGE, _objectCallback!),
+        })
+        {
+            var hook = User32.SetWinEventHook(first, last, IntPtr.Zero, callback, 0, 0,
+                User32.WINEVENT_OUTOFCONTEXT | User32.WINEVENT_SKIPOWNPROCESS);
+            if (hook == IntPtr.Zero) Debug.WriteLine($"[WinEventHook:Start] ⚠ SetWinEventHook failed for 0x{first:X}..0x{last:X}");
+            else _hooks.Add(hook);
+        }
+        Debug.WriteLine($"[WinEventHook:Start] 🔧 {_hooks.Count} hooks installed");
     }
 
     private void OnSystemEvent(IntPtr hook, uint eventType, IntPtr hwnd,
@@ -151,16 +151,8 @@ public sealed class WinEventHookService : IDisposable
 
     private void UnhookAll()
     {
-        if (_systemHook != IntPtr.Zero)
-        {
-            User32.UnhookWinEvent(_systemHook);
-            _systemHook = IntPtr.Zero;
-        }
-        if (_objectHook != IntPtr.Zero)
-        {
-            User32.UnhookWinEvent(_objectHook);
-            _objectHook = IntPtr.Zero;
-        }
+        foreach (var hook in _hooks) User32.UnhookWinEvent(hook);
+        _hooks.Clear();
         _systemCallback = null;
         _objectCallback = null;
         Debug.WriteLine("[WinEventHook:Dispose] 🛑 Hooks released");
