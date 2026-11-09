@@ -53,6 +53,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
     private int _ticks;
     private double _drawMs;
     private uint _lastActive, _previousActive;
+    private uint _lastFront;   // the last window in front that was not None (#118)
     private bool _allHidden;
     private Alerts? _alerts;
     private SharedSettingsWindow? _settingsWindow;
@@ -1347,6 +1348,10 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         }
         var watch = Stopwatch.StartNew();
         uint active = _clients.Active();
+        // None in front: the window manager is between two windows mid-switch. That is not "EVE lost focus" - read as such,
+        // a held cycle key landed in the gap, the keys went out of scope and were bound again (stopping the held key), and
+        // the thumbnails hid or froze for a tick (#118). The window that was in front stands until another one is.
+        if (active == 0) active = _lastFront; else _lastFront = active;
         if (active != _lastActive && _thumbs.ContainsKey(active))
         {
             if (_thumbs.ContainsKey(_lastActive)) _previousActive = _lastActive;
