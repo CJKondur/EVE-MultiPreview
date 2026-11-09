@@ -2093,6 +2093,10 @@ public sealed class ThumbnailManager : IDisposable
         }
 
         var fgHwnd = Interop.User32.GetForegroundWindow();
+        // No foreground window: Windows is between two windows mid-switch. That is not "EVE lost focus" - read as
+        // such, a held cycle key landed in the gap every few switches and hid (or froze) every thumbnail for a
+        // moment (#118). The next foreground event or timer tick runs this sweep again with the window that won.
+        if (fgHwnd == IntPtr.Zero) return;
         var s = _settings.Settings;
 
         // Check if EVE or our app is foreground

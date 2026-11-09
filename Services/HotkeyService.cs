@@ -453,14 +453,24 @@ public sealed class HotkeyService : IDisposable
     /// • EVE-only scope → register ONLY while EVE or this app is foreground, so a
     ///   keystroke that wouldn't be actioned is never consumed.
     /// • Global scope → register whenever clients exist (capture everywhere).
+    /// • EVE-only scope with NO foreground window (null) → leave as-is. Windows has no
+    ///   foreground for a moment while one window loses activation to the next, and a
+    ///   held cycle key switches every few tens of ms, so it lands in that gap often.
+    ///   Counting it as "another app in front" re-registered every hotkey under new IDs
+    ///   mid-hold and the held key stopped cycling (#118).
     /// </summary>
     public static RegistrationStep DecideRegistration(bool suspended, bool capturing, Func<bool> hasWindows,
-        bool eveOnlyScope, Func<bool> foregroundIsEveOrApp)
+        bool eveOnlyScope, Func<bool?> foregroundIsEveOrApp)
     {
         if (suspended || capturing) return RegistrationStep.Leave;
         if (!hasWindows()) return RegistrationStep.Deactivate;
         if (!eveOnlyScope) return RegistrationStep.Activate;
-        return foregroundIsEveOrApp() ? RegistrationStep.Activate : RegistrationStep.Deactivate;
+        return foregroundIsEveOrApp() switch
+        {
+            null => RegistrationStep.Leave,
+            true => RegistrationStep.Activate,
+            false => RegistrationStep.Deactivate,
+        };
     }
 
     /// <summary>
@@ -475,7 +485,9 @@ public sealed class HotkeyService : IDisposable
             _eveOnlyScope,
             () =>
             {
-                try { return User32.IsEveOrAppProcess(User32.GetProcessName(User32.GetForegroundWindow())); }
+                var fg = User32.GetForegroundWindow();
+                if (fg == IntPtr.Zero) return null;   // mid-switch: no foreground yet (#118)
+                try { return User32.IsEveOrAppProcess(User32.GetProcessName(fg)); }
                 catch { return false; }
             });
         if (step == RegistrationStep.Activate) ActivateHotkeys();
@@ -1779,7 +1791,7 @@ public sealed class HotkeyService : IDisposable
     /// release keys it swallowed itself.</summary>
     private void KeyHookThreadProc()
     {
-        var hiddenDown = new Dictionary<uint, KeySlot>();
+        var hiddenDown = new Dictionary<uint, uint>();   // vk -> the modifiers it was pressed with
         IntPtr handle = IntPtr.Zero;
         User32.LowLevelKeyboardProc proc = (nCode, wParam, lParam) =>
             KeyHookCallback(hiddenDown, handle, nCode, wParam, lParam);
@@ -1798,7 +1810,7 @@ public sealed class HotkeyService : IDisposable
 
     /// <summary>Runs for every keystroke system-wide, so it only does table lookups -
     /// no logging, no I/O, nothing that could approach the OS hook timeout.</summary>
-    private IntPtr KeyHookCallback(Dictionary<uint, KeySlot> hiddenDown, IntPtr handle,
+    private IntPtr KeyHookCallback(Dictionary<uint, uint> hiddenDown, IntPtr handle,
         int nCode, IntPtr wParam, IntPtr lParam)
     {
         _keyHookTick = Environment.TickCount;   // IDEAS #41: the stamp the hook check reads, this hook's only extra work
@@ -1819,11 +1831,15 @@ public sealed class HotkeyService : IDisposable
                     // Hide the release of a press we hid. Any other release is not ours.
                     if (hiddenDown.Remove(vk)) return (IntPtr)1;
                 }
-                else if (hiddenDown.TryGetValue(vk, out var held))
+                else if (hiddenDown.TryGetValue(vk, out var heldMods))
                 {
                     // Keyboard auto-repeat of a press we own. Mirror RegisterHotKey: a
                     // repeat slot re-posts (held-to-cycle); a MOD_NOREPEAT slot does not.
-                    if (held.Repeat) PostHiddenHotkey(held.Id, vk);
+                    // The slot is looked up again on every repeat: the hotkeys can be
+                    // registered afresh while the key is held, under new IDs, and the
+                    // ID from the key-down then names nothing (#118).
+                    if (_keyHookMap is { } now && now.TryGetValue((heldMods, vk), out var held) && held.Repeat)
+                        PostHiddenHotkey(held.Id, vk);
                     return (IntPtr)1;
                 }
                 else if (!User32.IsKeyDown((int)vk))
@@ -1833,9 +1849,10 @@ public sealed class HotkeyService : IDisposable
                     // the slots were published - so it is left alone end to end: hiding
                     // only its release would strand it logically down.
                     var map = _keyHookMap;
-                    if (map != null && map.TryGetValue((CurrentHotkeyMods(), vk), out var slot))
+                    uint mods = CurrentHotkeyMods();
+                    if (map != null && map.TryGetValue((mods, vk), out var slot))
                     {
-                        hiddenDown[vk] = slot;
+                        hiddenDown[vk] = mods;
                         PostHiddenHotkey(slot.Id, vk);
                         return (IntPtr)1;
                     }
