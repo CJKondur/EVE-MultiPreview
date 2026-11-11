@@ -58,6 +58,9 @@ public class AppSettings
     /// inside CycleGroup. Lower = faster cycling, higher = slower. Default 100ms.</summary>
     public int CycleDelayMs { get; set; } = 100;
 
+    /// <summary>The Jump Drive Calibration level (0–5) of the thumbnail menu's Open range on Dotlan › links.</summary>
+    public int DotlanJumpCalibration { get; set; } = 5;
+
     /// <summary>When true (default), holding a cycle hotkey auto-repeats the cycle
     /// at the CycleDelayMs cadence. When false, each press cycles exactly one
     /// client no matter how long the key/button is held — one cycle per push

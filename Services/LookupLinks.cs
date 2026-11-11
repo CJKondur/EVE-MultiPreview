@@ -29,6 +29,37 @@ public static class LookupLinks
         return "https://" + DotlanHost + "/system/" + segment;
     }
 
+    /// <summary>A jump-capable ship class on Open range on Dotlan ›: its menu text, and the hull Dotlan's range page is asked
+    /// for (Dotlan works out the light years from the hull and the Jump Drive Calibration level).</summary>
+    public sealed record RangeClass(string Key, string English, string DotlanShip);
+
+    /// <summary>The classes of Open range on Dotlan ›, in menu order. Each hull is a published ship of the SDE group the
+    /// class is named for (checked against Central's sde_types / sde_groups 2026-11-10): Black Ops, Carrier (Capital: a
+    /// carrier, dreadnought and force auxiliary jump alike), Command Carrier, Lancer Dreadnought, Jump Freighter, Capital
+    /// Industrial Ship, Supercarrier, Titan. The names are Dotlan's URL keys, not IDs; this app has no SDE to look them up in.</summary>
+    public static readonly IReadOnlyList<RangeClass> RangeClasses = new[]
+    {
+        new RangeClass("L.Ctx.Range.BlackOps", "Black Ops", "Redeemer"),
+        new RangeClass("L.Ctx.Range.Capital", "Capital", "Archon"),
+        new RangeClass("L.Ctx.Range.CommandCarrier", "Command Carrier", "Gaia"),
+        new RangeClass("L.Ctx.Range.Lancer", "Lancer Dreadnought", "Bane"),
+        new RangeClass("L.Ctx.Range.JumpFreighter", "Jump Freighter", "Rhea"),
+        new RangeClass("L.Ctx.Range.Rorqual", "Rorqual", "Rorqual"),
+        new RangeClass("L.Ctx.Range.Supercarrier", "Supercarrier", "Nyx"),
+        new RangeClass("L.Ctx.Range.Titan", "Titan", "Avatar"),
+    };
+
+    /// <summary>Dotlan's jump range page for a hull from the system, at a Jump Drive Calibration level (clamped to 0–5):
+    /// <c>/range/Redeemer,5/Jita</c>. The system is escaped as in <see cref="DotlanSystem"/>; null where that is null.</summary>
+    public static string? DotlanRange(string? system, string ship, int jumpCalibration)
+    {
+        var page = DotlanSystem(system);
+        if (page == null) return null;
+        var segment = page[(page.LastIndexOf('/') + 1)..];
+        int level = Math.Clamp(jumpCalibration, 0, 5);
+        return "https://" + DotlanHost + "/range/" + Uri.EscapeDataString(ship) + "," + level.ToString(CultureInfo.InvariantCulture) + "/" + segment;
+    }
+
     public static string ZKillboardCharacter(long id) =>
         "https://" + ZKillboardHost + "/character/" + id.ToString(CultureInfo.InvariantCulture) + "/";
 

@@ -2512,6 +2512,11 @@
     <sys:String x:Key="L.AutoProfile.Switch">Switch to {0}</sys:String>
     <sys:String x:Key="L.AutoProfile.Stay">Stay on {0}</sys:String>
     <sys:String x:Key="L.AutoProfile.Switched">Profile: {0}, picked by who is logged in</sys:String>
+    <sys:String x:Key="L.S.Sec.app.general.lookup">Lookup links</sys:String>
+    <sys:String x:Key="L.S.app.general.jumpCalibration">Jump Drive Calibration for Dotlan range</sys:String>
+    <sys:String x:Key="L.S.app.general.jumpCalibration.Desc">The skill level (0–5) the thumbnail menu's Open range on Dotlan links use. 5 is the most range.</sys:String>
+    <sys:String x:Key="L.Help.app.general.jumpCalibration.Title">Jump range on Dotlan</sys:String>
+    <sys:String x:Key="L.Help.app.general.jumpCalibration.Body">Right-click a thumbnail and pick Open range on Dotlan, then a ship class: Dotlan opens with every system that class can jump to from the character's current system. The range depends on Jump Drive Calibration; set the level here (5 unless the pilot has not trained it).</sys:String>
     <sys:String x:Key="L.S.Sec.app.general.control">Other programs</sys:String>
     <sys:String x:Key="L.S.app.general.acceptCommands">Take commands from other programs</sys:String>
     <sys:String x:Key="L.S.app.general.acceptCommands.Desc">Lets a Stream Deck, AutoHotkey or a shortcut tell the running MultiPreview to bring a character to the front, switch profile, or toggle thumbnails or focus mode. Only programs of your own Windows account can.</sys:String>
@@ -2587,6 +2592,15 @@
     <sys:String x:Key="L.AlertEvt.client_ready">Client ready</sys:String>
     <sys:String x:Key="L.Ctx.CopySystem">Copy system name</sys:String>
     <sys:String x:Key="L.Ctx.OpenDotlan">Open system on Dotlan</sys:String>
+    <sys:String x:Key="L.Ctx.OpenDotlanRange">Open range on Dotlan</sys:String>
+    <sys:String x:Key="L.Ctx.Range.BlackOps">Black Ops</sys:String>
+    <sys:String x:Key="L.Ctx.Range.Capital">Capital</sys:String>
+    <sys:String x:Key="L.Ctx.Range.CommandCarrier">Command Carrier</sys:String>
+    <sys:String x:Key="L.Ctx.Range.Lancer">Lancer Dreadnought</sys:String>
+    <sys:String x:Key="L.Ctx.Range.JumpFreighter">Jump Freighter</sys:String>
+    <sys:String x:Key="L.Ctx.Range.Rorqual">Rorqual</sys:String>
+    <sys:String x:Key="L.Ctx.Range.Supercarrier">Supercarrier</sys:String>
+    <sys:String x:Key="L.Ctx.Range.Titan">Titan</sys:String>
     <sys:String x:Key="L.Ctx.OpenZKill">Open character on zKillboard</sys:String>
     <sys:String x:Key="L.Ctx.OpenEveWho">Open character on EveWho</sys:String>
     <sys:String x:Key="L.S.thumbs.text.autoBorders">Automatic border colours</sys:String>

@@ -2513,6 +2513,11 @@
     <sys:String x:Key="L.AutoProfile.Switch">{0}(으)로 전환</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Stay">{0}에 머무르기</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Switched">프로필: {0}, 로그인한 캐릭터에 따라 선택</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.general.lookup">조회 링크</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.jumpCalibration">Dotlan 사거리용 점프 드라이브 보정</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.jumpCalibration.Desc">썸네일 메뉴의 'Dotlan에서 사거리 열기' 링크가 쓰는 스킬 레벨(0–5)입니다. 5가 가장 긴 사거리입니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.jumpCalibration.Title">Dotlan 점프 사거리</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.jumpCalibration.Body">썸네일을 오른쪽 클릭해 'Dotlan에서 사거리 열기'를 고르고 함급을 고르면, 캐릭터의 현재 항성계에서 그 함급이 점프할 수 있는 모든 항성계를 Dotlan이 보여 줍니다. 사거리는 점프 드라이브 보정 스킬에 따라 달라지므로 여기서 레벨을 정하세요(훈련하지 않은 경우가 아니면 5).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.control">다른 프로그램</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands">다른 프로그램의 명령 받기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands.Desc">Stream Deck, AutoHotkey, 바로 가기가 실행 중인 MultiPreview에게 캐릭터를 맨 앞으로 가져오거나, 프로필을 전환하거나, 썸네일이나 포커스 모드를 켜고 끄라고 알릴 수 있게 해요. 내 Windows 계정의 프로그램만 할 수 있어요.</sys:String> <!-- draft -->
@@ -2588,6 +2593,15 @@
     <sys:String x:Key="L.AlertEvt.client_ready">클라이언트 준비됨</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.CopySystem">항성계 이름 복사</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenDotlan">Dotlan에서 항성계 열기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenDotlanRange">Dotlan에서 사거리 열기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.BlackOps">블랙 옵스</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Capital">캐피탈</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.CommandCarrier">커맨드 캐리어</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Lancer">랜서 드레드노트</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.JumpFreighter">점프 프레이터</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Rorqual">로퀄</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Supercarrier">슈퍼캐리어</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Titan">타이탄</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenZKill">zKillboard에서 캐릭터 열기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">EveWho에서 캐릭터 열기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.autoBorders">테두리 색상 자동 지정</sys:String> <!-- draft -->

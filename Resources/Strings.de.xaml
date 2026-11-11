@@ -2512,6 +2512,11 @@
     <sys:String x:Key="L.AutoProfile.Switch">Zu {0} wechseln</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Stay">Bei {0} bleiben</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Switched">Profil: {0}, gewählt nach den angemeldeten Charakteren</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.general.lookup">Nachschlage-Links</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.jumpCalibration">Jump Drive Calibration für die Dotlan-Reichweite</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.jumpCalibration.Desc">Die Skillstufe (0–5) für die Links „Reichweite auf Dotlan öffnen“ im Thumbnail-Menü. 5 ergibt die größte Reichweite.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.jumpCalibration.Title">Sprungreichweite auf Dotlan</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.jumpCalibration.Body">Rechtsklicke ein Thumbnail, wähle „Reichweite auf Dotlan öffnen“ und dann eine Schiffsklasse: Dotlan zeigt jedes System, das diese Klasse vom aktuellen System des Charakters aus anspringen kann. Die Reichweite hängt von Jump Drive Calibration ab; stelle die Stufe hier ein (5, außer der Pilot hat den Skill nicht trainiert).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.control">Andere Programme</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands">Befehle von anderen Programmen annehmen</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands.Desc">Lässt ein Stream Deck, AutoHotkey oder eine Verknüpfung dem laufenden MultiPreview sagen, einen Charakter nach vorn zu holen, das Profil zu wechseln oder Vorschaubilder oder den Fokusmodus umzuschalten. Das können nur Programme deines eigenen Windows-Kontos.</sys:String> <!-- draft -->
@@ -2587,6 +2592,15 @@
     <sys:String x:Key="L.AlertEvt.client_ready">Client bereit</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.CopySystem">Systemnamen kopieren</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenDotlan">System auf Dotlan öffnen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenDotlanRange">Reichweite auf Dotlan öffnen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.BlackOps">Black Ops</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Capital">Capital</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.CommandCarrier">Command Carrier</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Lancer">Lancer-Dreadnought</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.JumpFreighter">Jump Freighter</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Rorqual">Rorqual</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Supercarrier">Supercarrier</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Titan">Titan</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenZKill">Charakter auf zKillboard öffnen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">Charakter auf EveWho öffnen</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.autoBorders">Automatische Rahmenfarben</sys:String> <!-- draft -->

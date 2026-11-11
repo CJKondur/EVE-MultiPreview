@@ -2530,6 +2530,11 @@
     <sys:String x:Key="L.AutoProfile.Switch">Passa a {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Stay">Resta su {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Switched">Profilo: {0}, scelto in base ai personaggi connessi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.general.lookup">Link di consultazione</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.jumpCalibration">Jump Drive Calibration per il raggio su Dotlan</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.jumpCalibration.Desc">Il livello della skill (0–5) usato dai link «Apri il raggio su Dotlan» del menu della miniatura. 5 dà il raggio maggiore.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.jumpCalibration.Title">Raggio di salto su Dotlan</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.jumpCalibration.Body">Fai clic destro su una miniatura, scegli «Apri il raggio su Dotlan» e poi una classe di nave: Dotlan mostra tutti i sistemi che quella classe può raggiungere con un salto dal sistema attuale del personaggio. Il raggio dipende da Jump Drive Calibration; imposta qui il livello (5 a meno che il pilota non l'abbia addestrata).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.control">Altri programmi</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands">Accetta comandi da altri programmi</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands.Desc">Permette a uno Stream Deck, ad AutoHotkey o a un collegamento di dire al MultiPreview in esecuzione di portare un personaggio in primo piano, cambiare profilo, oppure attivare o disattivare le miniature o la modalità focus. Possono farlo solo i programmi del tuo account Windows.</sys:String> <!-- draft -->
@@ -2605,6 +2610,15 @@
     <sys:String x:Key="L.AlertEvt.client_ready">Client pronto</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.CopySystem">Copia il nome del sistema</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenDotlan">Apri il sistema su Dotlan</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenDotlanRange">Apri il raggio su Dotlan</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.BlackOps">Black Ops</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Capital">Capital</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.CommandCarrier">Command Carrier</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Lancer">Lancer Dreadnought</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.JumpFreighter">Jump Freighter</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Rorqual">Rorqual</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Supercarrier">Supercarrier</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Titan">Titan</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenZKill">Apri il personaggio su zKillboard</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">Apri il personaggio su EveWho</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.autoBorders">Colori del bordo automatici</sys:String> <!-- draft -->

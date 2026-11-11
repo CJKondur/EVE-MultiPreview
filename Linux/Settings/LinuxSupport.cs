@@ -200,6 +200,7 @@ internal static class LinuxSupport
         ["app.general.startWithWindows"] = W,
         ["app.general.keepAwake"] = S, ["app.general.downtime"] = S,   // LinuxKeepAwake (systemd-inhibit), Previews.FollowDowntime (S3b)
         ["app.general.tranquility"] = S, ["app.general.tranquilityWaiting"] = S,   // S7: Previews.FollowTranquility, the shared watch; no live check on either platform yet (P120)
+        ["app.general.jumpCalibration"] = S,  // Linux/ThumbnailMenu: Open range on Dotlan ›
         ["app.general.acceptCommands"] = S,
         ["app.general.allowPairingRequests"] = W, ["app.general.buttons"] = W,   // the Elgato Stream Deck plugin
         ["app.general.acceptCommandsUnelevated"] = W,                            // Windows elevation

@@ -9,8 +9,9 @@ namespace EveMultiPreview.Linux;
 
 /// <summary>What a thumbnail's menu shows when it opens (the Windows ThumbnailMenuState).</summary>
 /// <param name="Frozen">ClientWatch says the client is frozen: "End this frozen client…" is offered.</param>
+/// <param name="JumpCalibration">The Jump Drive Calibration level of Open range on Dotlan › (DotlanJumpCalibration).</param>
 public sealed record ThumbnailMenuState(string Character, string? System, DateTime? MutedUntil,
-    IReadOnlyList<EventSnooze> Snoozes, int Volume, long? CharacterId, bool Frozen = false);
+    IReadOnlyList<EventSnooze> Snoozes, int Volume, long? CharacterId, bool Frozen = false, int JumpCalibration = 5);
 
 /// <summary>What the menu's items do.</summary>
 /// <param name="Mute">Minutes: &gt; 0 for that long, int.MaxValue until unmuted, 0 unmutes.</param>
@@ -95,7 +96,16 @@ public static class ThumbnailMenu
         var id = character ? state.CharacterId : null;
         var links = new List<Control>();
         if (system != null) links.Add(Item(T("L.Ctx.CopySystem", "Copy system name"), () => act.CopyText(system)));
-        if (LookupLinks.DotlanSystem(system) is { } dotlan) links.Add(Item(T("L.Ctx.OpenDotlan", "Open system on Dotlan"), () => act.OpenLink(dotlan)));
+        if (LookupLinks.DotlanSystem(system) is { } dotlan)
+        {
+            links.Add(Item(T("L.Ctx.OpenDotlan", "Open system on Dotlan"), () => act.OpenLink(dotlan)));
+            // Open range on Dotlan ›: Dotlan's jump range page from the system, one item per ship class (the Windows menu's).
+            var range = new MenuItem { Header = new TextBlock { Text = T("L.Ctx.OpenDotlanRange", "Open range on Dotlan") } };
+            foreach (var ship in LookupLinks.RangeClasses)
+                if (LookupLinks.DotlanRange(system, ship.DotlanShip, state.JumpCalibration) is { } url)
+                    range.Items.Add(Item(T(ship.Key, ship.English), () => act.OpenLink(url)));
+            links.Add(range);
+        }
         if (id is { } known)
         {
             links.Add(Item(T("L.Ctx.OpenZKill", "Open character on zKillboard"), () => act.OpenLink(LookupLinks.ZKillboardCharacter(known))));

@@ -22,6 +22,7 @@ public static class AppPages
         new HelpTopic("app.general", "keepAwake", new[] { "app.general.keepAwake" }),
         new HelpTopic("app.general", "downtime", new[] { "app.general.downtime" }),
         new HelpTopic("app.general", "tranquility", new[] { "app.general.tranquility" }),
+        new HelpTopic("app.general", "jumpCalibration", new[] { "app.general.jumpCalibration" }),
         new HelpTopic("app.general", "commands", new[] { "app.general.acceptCommands" }),
         new HelpTopic("app.general", "pairing", new[] { "app.general.allowPairingRequests" }),
         new HelpTopic("app.general", "buttons", new[] { EditorIds.CommandButtonsEditor }),
@@ -89,6 +90,11 @@ public static class AppPages
             new SettingItem(Setting.Toggle("app.general.tranquility", s => s.TranquilityBackUp)),
             new InfoItem("app.general.tranquilityWaiting", InfoSeverity.Info)
                 { ShowIf = s => s.TranquilityBackUp && !TranquilityWatch.LiveCheckApproved },
+        }),
+        // The thumbnail menu's Open range on Dotlan ›: read each time the menu opens, so a change only saves.
+        new SectionDef("app.general.lookup", new PageItem[]
+        {
+            new SettingItem(Setting.Number("app.general.jumpCalibration", s => s.DotlanJumpCalibration, 0, 5)),
         }),
         // IDEAS #39: App opens or closes the pipe after every settings change (FollowCommandServer).
         new SectionDef("app.general.control", new PageItem[]

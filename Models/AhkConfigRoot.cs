@@ -82,6 +82,7 @@ public class AhkConfigRoot
         s.ResizeThumbnailsOnHover = g.ResizeThumbnailsOnHover != 0;
         s.HoverScale = UsableHoverScale(g.HoverScale);
         s.CycleDelayMs = g.CycleDelayMs;
+        s.DotlanJumpCalibration = Math.Clamp(g.DotlanJumpCalibration, 0, 5);
         s.CycleWhileHeld = g.CycleWhileHeld != 0;
         s.MinimizeDelay = g.MinimizeDelay;
         s.SimpleMode = g.SimpleMode != 0;
@@ -448,6 +449,7 @@ public class AhkConfigRoot
         g.ResizeThumbnailsOnHover = s.ResizeThumbnailsOnHover ? 1 : 0;
         g.HoverScale = UsableHoverScale(s.HoverScale);
         g.CycleDelayMs = s.CycleDelayMs;
+        g.DotlanJumpCalibration = s.DotlanJumpCalibration;   // clamped where read: the card, the load, LookupLinks.DotlanRange
         g.CycleWhileHeld = s.CycleWhileHeld ? 1 : 0;
         g.MinimizeDelay = s.MinimizeDelay;
         g.SimpleMode = s.SimpleMode ? 1 : 0;
@@ -1252,6 +1254,9 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("CycleDelayMs")]
     public int CycleDelayMs { get; set; } = 100;
+
+    [JsonPropertyName("DotlanJumpCalibration")]
+    public int DotlanJumpCalibration { get; set; } = 5;
 
     [JsonPropertyName("CycleWhileHeld")]
     public int CycleWhileHeld { get; set; } = 1;

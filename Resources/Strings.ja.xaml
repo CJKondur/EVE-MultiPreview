@@ -2513,6 +2513,11 @@
     <sys:String x:Key="L.AutoProfile.Switch">{0} に切り替える</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Stay">{0} のままにする</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Switched">プロファイル：{0}（ログイン中のキャラクターから選択）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.general.lookup">検索リンク</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.jumpCalibration">Dotlan 射程のジャンプドライブキャリブレーション</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.jumpCalibration.Desc">サムネイルメニューの「Dotlan で射程を開く」リンクが使うスキルレベル (0–5)。5 が最大射程です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.jumpCalibration.Title">Dotlan でのジャンプ射程</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.jumpCalibration.Body">サムネイルを右クリックして「Dotlan で射程を開く」を選び、艦種を選ぶと、キャラクターの現在の星系からその艦種がジャンプできるすべての星系を Dotlan が表示します。射程はジャンプドライブキャリブレーションで決まるので、ここでレベルを設定してください (未習得でなければ 5)。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.control">ほかのプログラム</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands">ほかのプログラムからのコマンドを受け付ける</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands.Desc">Stream Deck、AutoHotkey、ショートカットから、実行中の MultiPreview に、キャラクターを最前面に出す、プロファイルを切り替える、サムネイルやフォーカスモードをオン／オフする、のいずれかを伝えられるようにします。できるのは、ご自身の Windows アカウントのプログラムだけです。</sys:String> <!-- draft -->
@@ -2588,6 +2593,15 @@
     <sys:String x:Key="L.AlertEvt.client_ready">クライアント準備完了</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.CopySystem">星系名をコピー</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenDotlan">Dotlan で星系を開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenDotlanRange">Dotlan で射程を開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.BlackOps">ブラックオプス</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Capital">キャピタル</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.CommandCarrier">コマンドキャリア</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Lancer">ランサードレッドノート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.JumpFreighter">ジャンプフレイター</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Rorqual">ロークァル</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Supercarrier">スーパーキャリア</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Titan">タイタン</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenZKill">zKillboard でキャラクターを開く</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">EveWho でキャラクターを開く</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.autoBorders">枠の色を自動で割り当てる</sys:String> <!-- draft -->

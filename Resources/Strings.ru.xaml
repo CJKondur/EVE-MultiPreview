@@ -2532,6 +2532,11 @@
     <sys:String x:Key="L.AutoProfile.Switch">Переключить на {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Stay">Остаться на {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Switched">Профиль: {0}, выбран по вошедшим персонажам</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.general.lookup">Ссылки для поиска</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.jumpCalibration">Jump Drive Calibration для дальности на Dotlan</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.jumpCalibration.Desc">Уровень навыка (0–5) для ссылок «Открыть дальность на Dotlan» в меню миниатюры. 5 даёт наибольшую дальность.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.jumpCalibration.Title">Дальность прыжка на Dotlan</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.jumpCalibration.Body">Щёлкните миниатюру правой кнопкой, выберите «Открыть дальность на Dotlan», затем класс корабля: Dotlan покажет все системы, куда этот класс может прыгнуть из текущей системы персонажа. Дальность зависит от Jump Drive Calibration; задайте уровень здесь (5, если пилот его изучил).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.control">Другие программы</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands">Принимать команды от других программ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands.Desc">Позволяет Stream Deck, AutoHotkey или ярлыку сказать запущенному MultiPreview вывести персонажа на передний план, переключить профиль, скрыть или показать миниатюры либо включить или выключить режим фокуса. Это могут делать только программы вашей собственной учётной записи Windows.</sys:String> <!-- draft -->
@@ -2607,6 +2612,15 @@
     <sys:String x:Key="L.AlertEvt.client_ready">Клиент готов</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.CopySystem">Копировать название системы</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenDotlan">Открыть систему на Dotlan</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenDotlanRange">Открыть дальность на Dotlan</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.BlackOps">Black Ops</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Capital">Капиталы</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.CommandCarrier">Command Carrier</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Lancer">Lancer Dreadnought</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.JumpFreighter">Jump Freighter</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Rorqual">Rorqual</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Supercarrier">Суперкэрриер</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Titan">Титан</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenZKill">Открыть персонажа на zKillboard</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">Открыть персонажа на EveWho</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.autoBorders">Автоматические цвета рамок</sys:String> <!-- draft -->

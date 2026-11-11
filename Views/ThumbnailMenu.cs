@@ -37,6 +37,8 @@ public static class ThumbnailCommands
     /// <summary>Lookup links (Plan 17, P1): copy the system's name, open it on Dotlan, open the character on zKillboard or EveWho.</summary>
     public const string CopySystem = "thumb.copySystem";
     public const string Dotlan = "thumb.dotlan";
+    /// <summary>Open range on Dotlan ›: one item per ship class (LookupLinks.RangeClasses), named DotlanRange + "." + index.</summary>
+    public const string DotlanRange = "thumb.dotlanRange";
     public const string ZKill = "thumb.zkill";
     public const string EveWho = "thumb.evewho";
 }
@@ -73,7 +75,8 @@ public sealed class ThumbnailMenu : IDisposable
     private readonly Action<string?> _endSnooze;
     private readonly Action<string> _openUrl, _copyText;
     private readonly Func<string, long?> _characterId;
-    private readonly ToolStripMenuItem _copySystem, _dotlan, _zkill, _evewho;
+    private readonly ToolStripMenuItem _copySystem, _dotlan, _dotlanRange, _zkill, _evewho;
+    private readonly Func<int> _jumpCalibration;
     private readonly ToolStripSeparator _lookupLine = new();
     private string? _system;
     private long? _id;
@@ -90,10 +93,13 @@ public sealed class ThumbnailMenu : IDisposable
     /// <param name="openUrl">Opens a lookup link (Plan 17, P1); default: the browser, for the three allowed hosts only.</param>
     /// <param name="copyText">Copies the system's name; default: the clipboard.</param>
     /// <param name="characterId">The character's ID by name, for the zKillboard and EveWho pages; default: the saved name cache.</param>
+    /// <param name="jumpCalibration">The Jump Drive Calibration level of Open range on Dotlan ›, read at each click; default: the setting.</param>
     public ThumbnailMenu(Action editLabel, Action<int> mute, Action<int> audio, Action openSettings, Action closeClient,
         Action<string?>? endSnooze = null, Action? endFrozen = null,
-        Action<string>? openUrl = null, Action<string>? copyText = null, Func<string, long?>? characterId = null)
+        Action<string>? openUrl = null, Action<string>? copyText = null, Func<string, long?>? characterId = null,
+        Func<int>? jumpCalibration = null)
     {
+        _jumpCalibration = jumpCalibration ?? (() => DiagnosticsService.GlobalSettings?.DotlanJumpCalibration ?? 5);
         _endSnooze = endSnooze ?? (_ => { });
         _openUrl = openUrl ?? (url => OpenAllowed(url));
         _copyText = copyText ?? (text => ClipboardText.Set(text));
@@ -156,9 +162,18 @@ public sealed class ThumbnailMenu : IDisposable
         Strip.Items.Add(_lookupLine);
         _copySystem = Item(ThumbnailCommands.CopySystem, "L.Ctx.CopySystem", "Copy system name", () => { if (_system != null) _copyText(_system); });
         _dotlan = Item(ThumbnailCommands.Dotlan, "L.Ctx.OpenDotlan", "Open system on Dotlan", () => OpenLink(LookupLinks.DotlanSystem(_system)));
+        // Open range on Dotlan ›: Dotlan's jump range page from the system, one item per ship class.
+        _dotlanRange = Item(ThumbnailCommands.DotlanRange, "L.Ctx.OpenDotlanRange", "Open range on Dotlan", null);
+        FluentMenu.Style(_dotlanRange.DropDown, showIcons: false);
+        for (int i = 0; i < LookupLinks.RangeClasses.Count; i++)
+        {
+            var range = LookupLinks.RangeClasses[i];
+            _dotlanRange.DropDownItems.Add(Item(ThumbnailCommands.DotlanRange + "." + i, range.Key, range.English,
+                () => OpenLink(LookupLinks.DotlanRange(_system, range.DotlanShip, _jumpCalibration()))));
+        }
         _zkill = Item(ThumbnailCommands.ZKill, "L.Ctx.OpenZKill", "Open character on zKillboard", () => OpenLink(_id is { } id ? LookupLinks.ZKillboardCharacter(id) : null));
         _evewho = Item(ThumbnailCommands.EveWho, "L.Ctx.OpenEveWho", "Open character on EveWho", () => OpenLink(_id is { } id ? LookupLinks.EveWhoCharacter(id) : null));
-        foreach (var lookup in new[] { _copySystem, _dotlan, _zkill, _evewho })
+        foreach (var lookup in new[] { _copySystem, _dotlan, _dotlanRange, _zkill, _evewho })
         {
             lookup.Available = false;
             Strip.Items.Add(lookup);
@@ -221,7 +236,7 @@ public sealed class ThumbnailMenu : IDisposable
         _system = character && !string.IsNullOrWhiteSpace(state.SystemName) ? state.SystemName!.Trim() : null;
         _id = character ? _characterId(state.CharacterName) : null;
         _copySystem.Available = _system != null;
-        _dotlan.Available = LookupLinks.DotlanSystem(_system) != null;
+        _dotlan.Available = _dotlanRange.Available = LookupLinks.DotlanSystem(_system) != null;
         _zkill.Available = _evewho.Available = _id != null;
         _lookupLine.Available = _copySystem.Available || _dotlan.Available || _zkill.Available;
     }

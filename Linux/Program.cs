@@ -2036,7 +2036,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         var character = thumb.Client.Character;
         var state = new ThumbnailMenuState(character, _alerts.SystemOf(character), _alerts.Mutes.Until(character),
             _alerts.Snoozes.Of(character), Volume(character), LookupLinks.CharacterId(S.EveManager?.CharNameCache, character),
-            Frozen: _clientWatch.IsHung((IntPtr)thumb.Client.Window));
+            Frozen: _clientWatch.IsHung((IntPtr)thumb.Client.Window), JumpCalibration: S.DotlanJumpCalibration);
         var menu = ThumbnailMenu.Build(state, new ThumbnailMenuActions(
             EditLabel: () => EditLabel(character),
             Mute: minutes => Mute(character, minutes),

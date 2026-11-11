@@ -2530,6 +2530,11 @@
     <sys:String x:Key="L.AutoProfile.Switch">切换到 {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Stay">留在 {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Switched">配置文件：{0}，按已登录的角色选择</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.general.lookup">查询链接</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.jumpCalibration">Dotlan 范围的跳跃引擎校准</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.jumpCalibration.Desc">缩略图菜单中“在 Dotlan 上打开跳跃范围”链接使用的技能等级 (0–5)。5 的范围最大。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.jumpCalibration.Title">Dotlan 上的跳跃范围</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.jumpCalibration.Body">右键点击缩略图，选择“在 Dotlan 上打开跳跃范围”，再选一种舰船类别：Dotlan 会列出该类别从角色当前星系可跳到的所有星系。范围取决于跳跃引擎校准技能；在此设置等级（除非飞行员没有训练，否则为 5）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.control">其他程序</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands">接受其他程序的命令</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands.Desc">让 Stream Deck、AutoHotkey 或快捷方式通知正在运行的 MultiPreview 把某个角色带到最前面、切换配置文件，或切换缩略图或专注模式。只有你自己 Windows 账户下的程序才能这样做。</sys:String> <!-- draft -->
@@ -2605,6 +2610,15 @@
     <sys:String x:Key="L.AlertEvt.client_ready">客户端就绪</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.CopySystem">复制星系名称</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenDotlan">在 Dotlan 上打开星系</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenDotlanRange">在 Dotlan 上打开跳跃范围</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.BlackOps">黑隐特勤舰</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Capital">旗舰</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.CommandCarrier">指挥航母</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Lancer">枪骑兵无畏舰</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.JumpFreighter">跳跃货舰</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Rorqual">长须鲸级</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Supercarrier">超级航母</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.Range.Titan">泰坦</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenZKill">在 zKillboard 上打开角色</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">在 EveWho 上打开角色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.autoBorders">自动边框颜色</sys:String> <!-- draft -->
