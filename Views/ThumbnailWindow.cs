@@ -496,6 +496,11 @@ public class ThumbnailWindow : Form
     {
         base.OnHandleCreated(e);
         _ownHwnd = Handle;
+        // Drop the hidden owner WinForms gives a ShowInTaskbar=false form (#119). An OWNED window's z-order follows its
+        // owner: a user's [Thumb:Stuck] log showed every stuck thumbnail with topmost=False beside swpOk=True and a
+        // non-zero owner=, the signature the crops had (#80/#87, CropWindow.OnLoaded). WS_EX_TOOLWINDOW (CreateParams)
+        // already keeps the thumbnail off the taskbar and Alt+Tab, so the owner buys nothing.
+        User32.SetWindowLongPtr(_ownHwnd, User32.GWLP_HWNDPARENT, IntPtr.Zero);
         // A radius set before the handle only stored the Region. Forget what it was made for, so it is pushed to the new HWND.
         _regionFor = default;
         ApplyCornerRegion();
@@ -1639,13 +1644,48 @@ public class ThumbnailWindow : Form
             User32.SWP_NOACTIVATE | User32.SWP_NOZORDER);
     }
 
+    /// <summary>#119: the result of the body's last z-order call, for <see cref="TopmostDiag"/>.</summary>
+    private bool _lastSwpOk = true;
+    private int _lastSwpErr;
+
+    private void SetBodyZOrder(IntPtr insertAfter, uint flags)
+    {
+        _lastSwpOk = User32.SetWindowPos(_ownHwnd, insertAfter, 0, 0, 0, 0, flags);
+        _lastSwpErr = _lastSwpOk ? 0 : System.Runtime.InteropServices.Marshal.GetLastWin32Error();
+    }
+
+    /// <summary>Whether the body and its label overlay ACTUALLY carry WS_EX_TOPMOST, read from the OS (#119). A window
+    /// that does not exist yet counts as in place, so a thumbnail without an overlay is not re-raised on every sweep.</summary>
+    public (bool Body, bool Overlay) TopmostBits()
+    {
+        static bool Bit(IntPtr h) => h == IntPtr.Zero || (User32.GetWindowLong(h, User32.GWL_EXSTYLE) & User32.WS_EX_TOPMOST) != 0;
+        return (Bit(_ownHwnd), Bit(_textOverlay?.GetHwnd() ?? IntPtr.Zero));
+    }
+
+    /// <summary>One thumbnail's z-order facts for debug_dwm.log (#119, the thumbnail twin of CropWindow.TopmostDiag):
+    /// the cached and the live handle, the real topmost bits of the body and its overlay, the body's owner and the last
+    /// SetWindowPos result. A cache that disagrees with a real bit beside a call that succeeded is the answer (#80/#87).</summary>
+    public string TopmostDiag()
+    {
+        var h = _ownHwnd;
+        if (h == IntPtr.Zero) return $"'{CharacterName}' hwnd=0 (not realized)";
+        var live = IsHandleCreated ? Handle : IntPtr.Zero;
+        var (body, overlay) = TopmostBits();
+        var owner = User32.GetWindowLongPtr(h, User32.GWLP_HWNDPARENT);
+        var overlayHwnd = _textOverlay?.GetHwnd() ?? IntPtr.Zero;
+        var overlayOwner = overlayHwnd != IntPtr.Zero ? User32.GetWindowLongPtr(overlayHwnd, User32.GWLP_HWNDPARENT) : IntPtr.Zero;
+        return $"'{CharacterName}' hwnd=0x{h.ToInt64():X} live=0x{live.ToInt64():X} alive={User32.IsWindow(h)} vis={User32.IsWindowVisible(h)} " +
+               $"topmost={body} cached={_isTopmost} owner=0x{owner.ToInt64():X} swpOk={_lastSwpOk} swpErr={_lastSwpErr} " +
+               $"overlay=0x{overlayHwnd.ToInt64():X} overlayTopmost={overlay} overlayOwner=0x{overlayOwner.ToInt64():X} " +
+               $"src=0x{_eveHwnd.ToInt64():X} srcIconic={(_eveHwnd != IntPtr.Zero && User32.IsIconic(_eveHwnd))}";
+    }
+
     public new void BringToFront()
     {
         var zOrder = _isTopmost ? User32.HWND_TOPMOST : User32.HWND_TOP;
         if (_ownHwnd != IntPtr.Zero)
         {
-            User32.SetWindowPos(_ownHwnd, zOrder, 0, 0, 0, 0,
-                User32.SWP_NOACTIVATE | User32.SWP_NOMOVE | User32.SWP_NOSIZE);
+            SetBodyZOrder(zOrder, User32.SWP_NOACTIVATE | User32.SWP_NOMOVE | User32.SWP_NOSIZE);
         }
 
         if (_textOverlay != null)
@@ -1687,8 +1727,7 @@ public class ThumbnailWindow : Form
             // thumbnail to grab activation and kick the Settings UI into a
             // Activated/Deactivated flicker loop that makes it unclickable.
             var insertAfter = topmost ? User32.HWND_TOPMOST : User32.HWND_NOTOPMOST;
-            User32.SetWindowPos(_ownHwnd, insertAfter, 0, 0, 0, 0,
-                User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE);
+            SetBodyZOrder(insertAfter, User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE);
         }
         // Drop/raise the overlay's topmost via RAW SetWindowPos, NOT the WPF
         // Topmost property. BringToFront/EnsureOverlayZOrder raise the overlay

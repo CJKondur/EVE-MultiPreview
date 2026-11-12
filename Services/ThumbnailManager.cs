@@ -1272,8 +1272,9 @@ public sealed class ThumbnailManager : IDisposable
         thumb.SetCycleExclusionPosition(s.CycleExclusionBadgePosition);
         thumb.SetAlertTextPosition(s.AlertTextPosition);
 
-        // Always on top
-        thumb.SetTopmost(s.ShowThumbnailsAlwaysOnTop);
+        // Always on top, or Keep above EVE clients while one is in front: the sweep's rule (UpdateActiveBorders). Always on
+        // top alone dropped every thumbnail out of the topmost band on each settings apply while an EVE client was in front (#119).
+        thumb.SetTopmost(s.ShowThumbnailsAlwaysOnTop || (s.KeepThumbnailsAboveClients && _lastEveFocused));
 
         // Confine drags to the starting monitor (edge-snap feature).
         thumb.ConfineDragsToMonitor = s.ConfineDragsToMonitor;
@@ -2061,6 +2062,34 @@ public sealed class ThumbnailManager : IDisposable
         dispatcher.BeginInvoke(new Action(UpdateActiveBorders), DispatcherPriority.Background);
     }
 
+    private string? _lastThumbZOrderLogState;
+
+    /// <summary>#119 (thumbnail picture behind the EVE client while its labels stay above): the thumbnails' REAL topmost
+    /// bits beside what this sweep wanted, written to debug_dwm.log only while that log is on and only when something
+    /// changed, with every thumbnail whose body is not topmost while it should be dumped (ThumbnailWindow.TopmostDiag).
+    /// The thumbnail twin of CropManager's [Crop:ZOrder] / [Crop:Stuck], which found #80/#87.</summary>
+    private void LogThumbnailZOrder(IntPtr fg, string? fgProc, bool eveFocused, bool desiredTopmost)
+    {
+        if (DiagnosticsService.GlobalSettings?.EnableDebugLogging_DWM != true || _thumbnails.IsEmpty) return;
+        bool fgTop = fg != IntPtr.Zero && (Interop.User32.GetWindowLong(fg, Interop.User32.GWL_EXSTYLE) & Interop.User32.WS_EX_TOPMOST) != 0;
+        int bodies = 0, overlays = 0;
+        var stuck = new List<ThumbnailWindow>();
+        foreach (var (_, thumb) in _thumbnails)
+        {
+            var (body, overlay) = thumb.TopmostBits();
+            if (body) bodies++;
+            if (overlay) overlays++;
+            if (desiredTopmost && (!body || !overlay)) stuck.Add(thumb);
+        }
+        var state = $"{fgProc}|{eveFocused}|{fgTop}|{desiredTopmost}|{_thumbnails.Count}|{bodies}|{overlays}";
+        if (state == _lastThumbZOrderLogState) return;
+        _lastThumbZOrderLogState = state;
+        DiagnosticsService.LogDwm($"[Thumb:ZOrder] fg=0x{fg.ToInt64():X} proc={fgProc ?? "?"} eveFocused={eveFocused} fgTopmost={fgTop} " +
+            $"desiredTopmost={desiredTopmost} thumbs={_thumbnails.Count} bodiesTopmost={bodies} overlaysTopmost={overlays}");
+        foreach (var thumb in stuck)
+            DiagnosticsService.LogDwm($"[Thumb:Stuck] {thumb.TopmostDiag()}");
+    }
+
     private void UpdateActiveBorders()
     {
         // Skip all heavy Win32/DWM work during drag — prevents contention
@@ -2306,7 +2335,13 @@ public sealed class ThumbnailManager : IDisposable
         _lastAppliedTopmost = desiredTopmost;
         foreach (var (_, thumb) in _thumbnails)
         {
-            if (topmostChanged || thumb.Topmost != desiredTopmost) thumb.SetTopmost(desiredTopmost);
+            // The REAL bits, not only the cache (#119): the label overlay is a WPF window, and WPF re-applies its own
+            // Topmost=False to it on a re-show. Windows then drops the overlay's OWNER (this thumbnail) out of the topmost
+            // band too, a later raise lifts only the overlay back, and the picture sat behind the EVE client while its
+            // labels stayed above, with the cache still reading "topmost" so nothing ever retried. Same lesson as the
+            // crops (#80/#87): converge on what the OS says.
+            if (topmostChanged || thumb.Topmost != desiredTopmost || (desiredTopmost && thumb.TopmostBits() != (true, true)))
+                thumb.SetTopmost(desiredTopmost);
         }
         foreach (var (_, sw) in _statWindows)
         {
@@ -2333,6 +2368,7 @@ public sealed class ThumbnailManager : IDisposable
             RaiseEnlargedAgain();
         }
         _lastEveFocused = eveFocused;
+        LogThumbnailZOrder(fgHwnd, fgProc, eveFocused, desiredTopmost);
 
         // Unseen alerts that nobody looked at for AlertAttention.MaxAge go now, with their badge and the tray's red
         // icon, whether or not anything else looks at the list (IDEAS P78). Free while nothing is unseen.
