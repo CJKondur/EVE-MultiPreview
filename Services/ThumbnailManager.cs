@@ -1225,7 +1225,7 @@ public sealed class ThumbnailManager : IDisposable
             s.FpsOverlayTextSize);
 
     /// <summary>The range the resize limit's width and height may take (the settings cards use it too).</summary>
-    public const int MinFloor = 20, MaxFloor = 2000;
+    public const int MinFloor = 1, MaxFloor = 2000;
 
     /// <summary>The smallest size a thumbnail can be dragged to (IDEAS P26): 80 × 50, as it always was, until the player
     /// turns on the limit; then the minimum size, held to MinFloor–MaxFloor. Files store 50 × 50, EVE-O imports 192 × 108
@@ -2120,6 +2120,13 @@ public sealed class ThumbnailManager : IDisposable
             t.EnsureMenuStateValid();
             PutBackUnheld(Enlarge, t, ReportEnlarge);
         }
+
+        // A thumbnail's right-click menu is open: leave z-order alone, as for the tray's menu above. The menu sits in the
+        // topmost band, and this sweep's raises (Keep above EVE clients re-raises every tick, and the topmost self-heal,
+        // #119) put the thumbnails and their labels back over it. After the watchdog loop on purpose: EnsureMenuStateValid
+        // clears a menu flag left up while no menu is on the screen, so this pause cannot outlive its menu.
+        if (ThumbnailWindow.MenuOpen)
+            return;
 
         var fgHwnd = Interop.User32.GetForegroundWindow();
         // No foreground window: Windows is between two windows mid-switch. That is not "EVE lost focus" - read as

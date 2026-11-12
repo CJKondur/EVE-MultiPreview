@@ -9,7 +9,7 @@ namespace EveMultiPreview.Services
     public sealed class ThumbnailManager
     {
         /// <summary>The range the resize limit's width and height may take (the settings cards use it at build time).</summary>
-        public const int MinFloor = 20, MaxFloor = 2000;
+        public const int MinFloor = 1, MaxFloor = 2000;
 
         /// <summary>Render time: no thumbnail is running here.</summary>
         public ThumbnailWindow? GetThumbnailForCharacter(string characterName) => null;

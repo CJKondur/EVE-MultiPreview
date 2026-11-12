@@ -298,7 +298,7 @@ public sealed class ThumbnailWindow : Window
             : (80, 50);
 
     /// <summary>The range the minimum size is held to (ThumbnailManager.MinFloor / MaxFloor).</summary>
-    public const int FloorMin = 20, FloorMax = 2000;
+    public const int FloorMin = 1, FloorMax = 2000;
 
     /// <summary>Gives the thumbnail this size and a picture of that size; its place stays. The picture is drawn into the
     /// new bitmap by the next <see cref="Update"/> (EveClients.Grab builds its scaling steps again for the new size). A
