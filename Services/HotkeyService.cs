@@ -1580,7 +1580,9 @@ public sealed class HotkeyService : IDisposable
         _mouseHookThreadId = User32.GetCurrentThreadId();
         // The delegate lives in this thread's local, not a shared field: the next hook thread must not overwrite it while
         // this thread's hook is still installed, or the OS would call a collected delegate.
-        User32.LowLevelMouseProc mouseProc = MouseHookCallback;
+        // Buttons whose DOWN this hook swallowed, local for the same reason: only their UP is ours to swallow (#120).
+        var swallowedDown = new HashSet<string>();
+        User32.LowLevelMouseProc mouseProc = (nCode, wParam, lParam) => MouseHookCallback(swallowedDown, nCode, wParam, lParam);
         // This thread owns the hook it installs: a replaced thread can wake from WM_QUIT after its successor has
         // installed a new hook, and must then unhook only its own, never the successor's.
         var handle = User32.SetWindowsHookEx(
@@ -1878,7 +1880,7 @@ public sealed class HotkeyService : IDisposable
         return m;
     }
 
-    private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+    private IntPtr MouseHookCallback(HashSet<string> swallowedDown, int nCode, IntPtr wParam, IntPtr lParam)
     {
         _mouseHookTick = Environment.TickCount;   // IDEAS #41: the stamp the hook check reads, this hook's only extra work
         var bindings = _mouseBindings;   // one snapshot per event
@@ -1902,18 +1904,18 @@ public sealed class HotkeyService : IDisposable
 
             if (buttonName != null)
             {
-                bool hasAnyBinding = bindings.Any(b => b.ButtonName == buttonName);
-
-                // UP: stop any in-flight repeat for this button. Suppress the UP
-                // if we have a binding for this button so the focused app sees
-                // matched DOWN/UP (we suppressed the DOWN earlier).
+                // UP: stop any in-flight repeat for this button. Suppress the UP only
+                // when this hook suppressed its DOWN, so every app sees matched DOWN/UP.
+                // Suppressing the UP of a DOWN we let through (plain M4 with only
+                // Shift+M4 bound) left the button logically held: keyboard dead and
+                // clicks captured by EVE until Ctrl+Alt+Del (#120).
                 if (isUp)
                 {
                     // StopMouseRepeat touches a DispatcherTimer — marshal to UI thread
                     // (this callback now runs on the dedicated hook thread).
                     if (_mouseRepeatButton == buttonName)
                         System.Windows.Application.Current?.Dispatcher.BeginInvoke((Action)StopMouseRepeat);
-                    return hasAnyBinding
+                    return swallowedDown.Remove(buttonName)
                         ? (IntPtr)1
                         : User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
                 }
@@ -2009,6 +2011,7 @@ public sealed class HotkeyService : IDisposable
                         });
 
                         // Return 1 to suppress the mouse event from reaching other apps
+                        swallowedDown.Add(buttonName);
                         return (IntPtr)1;
                     }
                 }
