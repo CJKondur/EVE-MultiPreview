@@ -92,6 +92,11 @@ public sealed class AppServices
     /// <summary>What Discord last answered to the push way (IDEAS #2; PushWay.Status), for the card's last line when
     /// it comes into view. Null in tests and in a window opened without the app: no line.</summary>
     public Func<PushStatus?>? PushStatus { get; init; }
+    /// <summary>Sends one test message to the saved ntfy topic now (PushWay.TestAsync of the ntfy way), for the button on
+    /// Alerts › Alert hub › ntfy. Null in tests and in a window opened without the app.</summary>
+    public Func<System.Threading.Tasks.Task<PushResult>>? TestNtfy { get; init; }
+    /// <summary>What the ntfy server last answered (PushWay.Status of the ntfy way). Null in tests and without the app.</summary>
+    public Func<PushStatus?>? NtfyStatus { get; init; }
     /// <summary>The player's own alert rules, for Alerts › Custom rules (IDEAS #8). Saving through it reaches the log
     /// monitor at once. Null in tests.</summary>
     public CustomAlertStore? CustomAlerts { get; init; }

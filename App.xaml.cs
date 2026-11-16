@@ -75,6 +75,7 @@ public partial class App : Application
     /// shows nothing and the key is not there.</summary>
     private NotificationsWay? _notificationsWay;
     private PushWay? _pushWay;
+    private PushWay? _ntfyWay;
     private NotificationRegistration? _notificationRegistration;
     /// <summary>What a click on a notification does, and how the switch is followed: App's parts as functions, in a
     /// class a test can run (NotificationActions).</summary>
@@ -608,7 +609,7 @@ public partial class App : Application
             _alertWays.Add(_spokenWay);
             _thumbnailManager.Attention.Looked += _spokenWay.Looked;
             _spokenWay.Follow(_settings.Settings.SpeakAlerts);
-            _escalation.HandOff = alert => { _spokenWay?.HandedOff(alert); _pushWay?.HandedOff(alert); };
+            _escalation.HandOff = alert => { _spokenWay?.HandedOff(alert); _pushWay?.HandedOff(alert); _ntfyWay?.HandedOff(alert); };
             // IDEAS #33: Windows notifications. The way is told of every alert that got past the gates and of every
             // client that was looked at; a click on a notification comes back on a thread of Windows' and is done on
             // the window's: "Switch to" as a toast's click does it, "Snooze" as a toast's menu does it
@@ -637,6 +638,16 @@ public partial class App : Application
                 AlertHub.EventDisplayName, LocalizationService.Str, failed: LogError);
             _pushWay.Follow(_settings.Settings);
             _alertWays.Add(_pushWay);
+            // ntfy, beside Discord with rules of its own: the topic and token are read from the settings file, encrypted
+            // for this Windows user. The message says where, as the hub toast does ("Left behind": where the others went).
+            _ntfyWay = new PushWay(new NtfyChannel(new NtfySender(DiscordSender.RealHandler()),
+                    stored => NtfySecret.Unprotect(stored), stored => NtfySecret.Unprotect(stored), AlertHub.EventDisplayName,
+                    (who, type) => _stragglerAlerts?.PlaceOf(who, type) ?? _thumbnailManager?.GetCharacterSystem(who), LocalizationService.Str),
+                (s, severity) => _doNotDisturb.Silences(s, severity, DateTime.Now),
+                () => PushWay.Idle(Environment.TickCount, EveMultiPreview.Interop.User32.LastInputTick()),
+                failed: LogError);
+            _ntfyWay.Follow(_settings.Settings);
+            _alertWays.Add(_ntfyWay);
             // IDEAS #13: a thumbnail grows for a few seconds on an alert. The manager owns the decision and its tick.
             _alertWays.Add(_thumbnailManager.Enlarge);
             }
@@ -2483,6 +2494,7 @@ public partial class App : Application
             FollowNotifications();  // IDEAS #33: the registry key is written or removed as its switch says
             _spokenWay?.Follow(_settings!.Settings.SpeakAlerts);   // FX-m4: off and on again counts the voice's asks anew
             _pushWay?.Follow(_settings!.Settings);   // IDEAS #2: a newly saved link or a switch takes effect now
+            _ntfyWay?.Follow(_settings!.Settings);
             FollowCommandServer();   // IDEAS #39: the pipe opens or closes with its switch
             FollowGamepad();         // IDEAS #43: the pad is read, or not, as its switch says; the lines are read again
             FollowNameBar();         // IDEAS #38: the bar and the hold on the thumbnails follow their switch at once
@@ -2543,6 +2555,8 @@ public partial class App : Application
                     TestNotification = ShowTestNotification,
                     TestPush = () => _pushWay?.TestAsync(_settings.Settings) ?? System.Threading.Tasks.Task.FromResult(new PushResult(PushOutcome.Refused)),
                     PushStatus = () => _pushWay?.Status,
+                    TestNtfy = () => _ntfyWay?.TestAsync(_settings.Settings) ?? System.Threading.Tasks.Task.FromResult(new PushResult(PushOutcome.Refused)),
+                    NtfyStatus = () => _ntfyWay?.Status,
                     CustomAlerts = _customAlerts,
                     // Which custom rules the log monitor has switched off for what they cost: the page says it on their cards.
                     CustomRulesSwitchedOff = () => _logMonitor?.CustomRulesSwitchedOff ?? CustomAlertEngine.NoneSwitchedOff,
@@ -3013,6 +3027,7 @@ public partial class App : Application
             _spokenWay?.Stop();   // IDEAS #26: nothing more is said, and what is being said is cut off
             _notificationsWay?.Stop();   // IDEAS #33: what this session showed is taken out of the Notification Center
             _pushWay?.Stop();   // IDEAS #2: what waits to be sent is dropped and the one sender is let go
+            _ntfyWay?.Stop();
             _alertTimer?.Stop();
             _alertHub?.Dispose();
             _broadcastHud?.Dispose();

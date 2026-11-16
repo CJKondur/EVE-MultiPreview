@@ -735,6 +735,10 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
 
     PushStatus? ISettingsHost.PushStatus => _alerts?.PushStatus;
 
+    Task<PushResult> ISettingsHost.TestNtfy() => _alerts?.TestNtfy() ?? Task.FromResult(new PushResult(PushOutcome.Refused));
+
+    PushStatus? ISettingsHost.NtfyStatus => _alerts?.NtfyStatus;
+
     void ISettingsHost.TrayChanged() => TrayMenu?.Rebuild();
 
     void ISettingsHost.Imported()

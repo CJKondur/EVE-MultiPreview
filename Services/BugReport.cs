@@ -93,10 +93,11 @@ public static class BugReport
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern uint GetShortPathNameW(string longPath, [Out] char[] shortPath, uint size);
 
-    // The one line the settings file keeps the Discord webhook in, as SettingsBackup's export finds it (IDEAS #2).
-    private static readonly Regex WebhookLine = new("(\"PushDiscordWebhook\"\\s*:\\s*)\"[^\"\\r\\n]*\"", RegexOptions.CultureInvariant);
+    // The lines the settings file keeps the Discord webhook (IDEAS #2) and ntfy's topic and token in, as SettingsBackup's
+    // export finds them.
+    private static readonly Regex WebhookLine = new("(\"(?:PushDiscordWebhook|NtfyTopic|NtfyToken)\"\\s*:\\s*)\"[^\"\\r\\n]*\"", RegexOptions.CultureInvariant);
 
-    /// <summary>The settings with the Discord webhook written empty, as an export writes it.</summary>
+    /// <summary>The settings with the Discord webhook and ntfy's topic and token written empty, as an export writes them.</summary>
     public static string WithoutWebhook(string settingsJson) => WebhookLine.Replace(settingsJson, "$1\"\"");
 
     // A Discord webhook link anywhere (discord.com, discordapp.com, their canary. and ptb. hosts, with or without an API

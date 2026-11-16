@@ -288,7 +288,7 @@ internal sealed partial class SettingsEditors
             // "Client closed unexpectedly" needs the client's exit code, which Linux gives only to the program that started it.
             var events = AlertEvents.Listed.Where(e => e.Group == group && e.Key != ClientWatch.ClosedEvent).ToList();
             if (events.Count == 0) continue;
-            var table = new Grid { ColumnDefinitions = new ColumnDefinitions("*,110") };
+            var table = new Grid { ColumnDefinitions = new ColumnDefinitions("*,110,Auto,Auto") };   // the last two: PushEventColumns.cs
             int row = 0;
             table.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
             var heading = new TextBlock { Text = T("L.S.Events.Group." + group, group), FontWeight = FontWeight.SemiBold, Opacity = 0.85 };
@@ -296,6 +296,7 @@ internal sealed partial class SettingsEditors
             var severityHeading = new TextBlock { Text = T("L.S.Events.ColSeverity", "Severity"), Opacity = 0.6 };
             Grid.SetColumn(severityHeading, 1);
             table.Children.Add(severityHeading);
+            AddPushHeadings(table);
             foreach (var ev in events)
             {
                 row++;
@@ -309,6 +310,7 @@ internal sealed partial class SettingsEditors
                 Grid.SetRow(severity, row);
                 Grid.SetColumn(severity, 1);
                 table.Children.Add(severity);
+                AddPushTicks(table, ev.Key, T(ev.LabelKey, ev.Key), row);
             }
             page.Children.Add(Ui.Card(table));
         }

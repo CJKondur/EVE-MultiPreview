@@ -68,6 +68,7 @@ public static class AlertsPages
         new HelpTopic(HubId, "hiding", new[] { "alerts.hub.autoHide", "alerts.hub.autoHideAfter", "alerts.hub.positionRow" }),
         new HelpTopic(HubId, "windows", new[] { "alerts.hub.notify", "alerts.hub.notifyFrom", EditorIds.NotificationCheckEditor }),
         new HelpTopic(HubId, "push", new[] { "alerts.hub.push", "alerts.hub.pushFrom", "alerts.hub.pushMention", "alerts.hub.pushAway", EditorIds.PushWebhookEditor }),
+        new HelpTopic(HubId, "ntfy", new[] { "alerts.hub.ntfy", "alerts.hub.ntfyFrom", "alerts.hub.ntfyAway", EditorIds.NtfyEditor }),
         new HelpTopic(HubId, "history", new[] { "alerts.hub.keepHistory", "alerts.hub.historyDays", "alerts.hub.historyFolder" }),
         new HelpTopic(HubId, "historyWindow", new[] { "alerts.hub.historyRow" }),
         new HelpTopic(CustomId, "rules", new[] { EditorIds.CustomRulesEditor }),
@@ -128,6 +129,7 @@ public static class AlertsPages
                 {
                     "AppSettings.AlertColors", "AppSettings.AlertDurations", "AppSettings.BadgeOnThumbnailAlertTypes",
                     "AppSettings.AlertSolidBorder", "AppSettings.EnabledAlertTypes",
+                    "AppSettings.PushAlertTypes", "AppSettings.NtfyAlertTypes",
                 },
             },
             // IDEAS #4: what a player must know before relying on "Capacitor neutralized" and "Jammed": off until
@@ -482,6 +484,20 @@ public static class AlertsPages
             {
                 Binds = new[] { "AppSettings.PushDiscordWebhook" },
                 ShowIf = s => s.PushAlerts,
+            },
+        }),
+        // ntfy, beside Discord with rules of its own: a PushWay of its own (NtfyChannel) reads these for every alert that
+        // got past the gates, so a change only saves; App hands the way every settings change (PushWay.Follow).
+        new SectionDef("alerts.hub.ntfy", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("alerts.hub.ntfy", s => s.NtfyAlerts)),
+            From("alerts.hub.ntfyFrom", s => s.NtfyAlertsFrom, (s, v) => s.NtfyAlertsFrom = v, "AppSettings.NtfyAlertsFrom", s => s.NtfyAlerts),
+            new SettingItem(Setting.Toggle("alerts.hub.ntfyAway", s => s.NtfyOnlyWhenAway) with { ShowIf = s => s.NtfyAlerts }),
+            // The topic and the token are secrets: the card keeps them DPAPI-encrypted, empties their boxes and masks the topic.
+            new EditorItem(EditorIds.NtfyEditor)
+            {
+                Binds = new[] { "AppSettings.NtfyServer", "AppSettings.NtfyTopic", "AppSettings.NtfyToken" },
+                ShowIf = s => s.NtfyAlerts,
             },
         }),
         // IDEAS #1. Shown whether the hub is on or not: an alert is kept either way. App passes both settings to the

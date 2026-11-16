@@ -16,12 +16,13 @@ namespace EveMultiPreview.SettingsUi;
 /// <summary>Alerts › Events › the event table (spec §5): Event, Severity, Colour, Lasts, Badge, Steady and On, one
 /// row per event in groups. Every cell writes its own dictionary entry; the runtime reads them at the next alert,
 /// so a change only saves.</summary>
-public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRefreshable
+public sealed partial class EventTableEditor : System.Windows.Controls.UserControl, IRefreshable
 {
     private static readonly string[] Columns =
     {
         "L.S.Events.ColEvent", "L.S.Events.ColSeverity", "L.S.Events.ColColour", "L.S.Events.ColLasts",
         "L.S.Events.ColBadge", "L.S.Events.ColSteady", "L.S.Events.ColOn",
+        "L.S.Events.ColDiscord", "L.S.Events.ColNtfy",     // the last two: EventTableEditor.Push.cs
     };
 
     private readonly SettingsContext _ctx;
@@ -96,7 +97,7 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
         _englishMarks.Clear();
         _table.Reset(Columns.Select((_, c) => c == 0 ? new GridLength(1, GridUnitType.Star) : GridLength.Auto).ToArray());
         int header = AddRow(header: true);
-        for (int c = 0; c < Columns.Length; c++) Place(EditorTable.Head(Columns[c]), header, c);
+        for (int c = 0; c < Columns.Length; c++) Place(PushColumn(EditorTable.Head(Columns[c]), c), header, c);
         var keys = new List<string>();
         foreach (var group in AlertEvents.Groups)
         {
@@ -155,6 +156,7 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
         var onSwitch = EditorCard.Toggle(AlertFields.IsOn(_ctx.S, e.Key), v => Store(() => AlertFields.SetOn(_ctx.S, e.Key, v)));
         AutomationProperties.SetName(onSwitch, string.Format(Str("L.S.Events.OnFor"), name));
         Place(onSwitch, r, 6);
+        AddPushSwitches(e.Key, name, r);
 
         // IDEAS P89: these two are read from an English client's log only. A line of their own under the row, across the
         // table, shown while a running client's log header is not English (ShowEnglishMarks); the row is gone while it is collapsed.

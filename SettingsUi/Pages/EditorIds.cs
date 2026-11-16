@@ -14,6 +14,7 @@ public static class EditorIds
     public const string GroupSoundsEditor = "alerts.sounds.groups";
     public const string NotificationCheckEditor = "alerts.hub.notifyTest";
     public const string PushWebhookEditor = "alerts.hub.pushWebhook";
+    public const string NtfyEditor = "alerts.hub.ntfyTopic";
     public const string CustomRulesEditor = "alerts.custom.editor";
     public const string CommandButtonsEditor = "app.general.buttons";
     public const string RecentChangesEditor = "app.general.recent";

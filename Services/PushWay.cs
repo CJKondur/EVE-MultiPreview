@@ -7,7 +7,7 @@ using EveMultiPreview.Models;
 
 namespace EveMultiPreview.Services;
 
-/// <summary>What Discord last answered, for the card's last line. Holds no link and no name.</summary>
+/// <summary>What the service (Discord, ntfy) last answered, for the card's last line. Holds no link and no name.</summary>
 /// <param name="Status">The HTTP status (0 when none came).</param>
 public sealed record PushStatus(PushOutcome Outcome, int Status, DateTime AtUtc);
 
@@ -17,19 +17,18 @@ public sealed record PushStatus(PushOutcome Outcome, int Status, DateTime AtUtc)
 /// <see cref="WorkPump"/> sends it through an <see cref="IPushSender"/>, so an alert never waits for Discord. The link
 /// is read through the handed-in <c>webhookOf</c> (WebhookSecret.Unprotect in the app) and never appears in a status,
 /// a report or an exception text of this class. It is handed everything it uses (the sender, the clock, the waiting,
-/// the idle time), so a test hands it fakes and no request leaves the PC.</summary>
+/// the idle time), so a test hands it fakes and no request leaves the PC. What is Discord's in it is a
+/// <see cref="DiscordChannel"/>; another <see cref="IPushChannel"/> (ntfy) gets a way of its own, with its own ledger,
+/// pump and status, through the other constructor.</summary>
 public sealed class PushWay : IAlertWay
 {
     /// <summary>With "Only while you're away from the PC" on, nothing is sent while Windows saw keyboard or mouse
     /// input less than this long ago.</summary>
     public static readonly TimeSpan AwayAfter = TimeSpan.FromMinutes(2);
 
-    private readonly IPushSender _sender;
-    private readonly Func<string?, Uri?> _webhookOf;
+    private readonly IPushChannel _channel;
     private readonly Func<AppSettings, string, bool> _silenced;
     private readonly Func<TimeSpan?> _idle;
-    private readonly Func<string, string> _eventName;
-    private readonly Func<string, string, string> _str;
     private readonly Func<DateTime> _utcNow;
     private readonly Func<TimeSpan, CancellationToken, Task> _wait;
     private readonly Action<Exception> _failed;
@@ -42,7 +41,7 @@ public sealed class PushWay : IAlertWay
     private string? _followed;                  // the stored link text at the last Follow (under _followLock)
     // The drain's own (the pump runs one drain at a time): the link, read again only when the stored text changed.
     private string? _linkFor;
-    private Uri? _link;
+    private object? _link;
     private bool _linkRead;
     // Bumped (under _followLock) each time Follow starts the sending again for another link. An answer to a message
     // sent under an older generation was about the old link: it must not mark the new one gone, nor put its lines
@@ -64,13 +63,18 @@ public sealed class PushWay : IAlertWay
     public PushWay(IPushSender sender, Func<string?, Uri?> webhookOf, Func<AppSettings, string, bool> silenced, Func<TimeSpan?> idle,
         Func<string, string> eventName, Func<string, string, string> str, Func<DateTime>? utcNow = null,
         Func<TimeSpan, CancellationToken, Task>? wait = null, Action<Exception>? failed = null)
+        : this(new DiscordChannel(sender, webhookOf, eventName, str), silenced, idle, utcNow, wait, failed)
     {
-        _sender = sender;
-        _webhookOf = webhookOf;
+    }
+
+    /// <summary>A way to another service: <paramref name="channel"/> says which settings gate it, where a message goes
+    /// and how it is sent; the rest is as for Discord. Stop disposes the channel.</summary>
+    public PushWay(IPushChannel channel, Func<AppSettings, string, bool> silenced, Func<TimeSpan?> idle, Func<DateTime>? utcNow = null,
+        Func<TimeSpan, CancellationToken, Task>? wait = null, Action<Exception>? failed = null)
+    {
+        _channel = channel;
         _silenced = silenced;
         _idle = idle;
-        _eventName = eventName;
-        _str = str;
         _utcNow = utcNow ?? (() => DateTime.UtcNow);
         _wait = wait ?? Task.Delay;
         _failed = failed ?? (_ => { });
@@ -86,7 +90,7 @@ public sealed class PushWay : IAlertWay
     /// <summary>What Discord last answered, an alert's message or the test's; null before the first.</summary>
     public PushStatus? Status => _status;
 
-    public bool IsOn(AppSettings s) => s.PushAlerts && !string.IsNullOrEmpty(s.PushDiscordWebhook);
+    public bool IsOn(AppSettings s) => _channel.IsOn(s);
 
     public void Raised(AlertNotice notice, AppSettings s) => Take(notice, s, insist: false);
 
@@ -103,11 +107,14 @@ public sealed class PushWay : IAlertWay
     private void Take(AlertNotice notice, AppSettings s, bool insist)
     {
         if (_stopped) return;
-        if (!AlertWays.Reaches(s.PushAlertsFrom, notice.Severity)) return;
+        if (!AlertWays.Reaches(_channel.From(s), notice.Severity)) return;
+        if (!_channel.Sends(s, notice.EventKey)) return;
         if (_silenced(s, notice.Severity)) return;
         // A player at the PC sees the alert there; a Windows that won't say how long it is idle counts as away.
-        if (s.PushOnlyWhenAway && _idle() is { } idle && idle < AwayAfter) return;
+        if (_channel.OnlyWhenAway(s) && _idle() is { } idle && idle < AwayAfter) return;
         _settings = s;
+        try { _channel.Taken(notice); }
+        catch (Exception) { /* what the channel notes is extra: the alert still goes */ }
         if (Ledger.Raised(notice, insist)) Pump.Wake();
     }
 
@@ -118,7 +125,7 @@ public sealed class PushWay : IAlertWay
     {
         if (_stopped) return;
         _settings = s;
-        var stored = s.PushDiscordWebhook ?? "";
+        var stored = _channel.Stored(s);
         lock (_followLock)
         {
             if (stored != _followed)
@@ -137,21 +144,17 @@ public sealed class PushWay : IAlertWay
     public async Task<PushResult> TestAsync(AppSettings s)
     {
         if (_stopped) return new PushResult(PushOutcome.Refused);
-        Uri? link;
-        try { link = _webhookOf(s.PushDiscordWebhook); }
-        catch (Exception) { link = null; }
+        var link = _channel.Destination(s);
         if (link == null) return new PushResult(PushOutcome.Refused);
         PushResult result;
         try
         {
-            // The test message never mentions anybody, whatever the setting is.
-            result = await _sender.SendAsync(link, _str("L.Push.Test", "Test message from EVE MultiPreview: alerts will arrive here."),
-                _cancel.Token, PushMention.None).ConfigureAwait(false) ?? new PushResult(PushOutcome.Unreachable);
+            result = await _channel.TestAsync(link, _cancel.Token).ConfigureAwait(false) ?? new PushResult(PushOutcome.Unreachable);
         }
         catch (Exception ex)
         {
             result = new PushResult(PushOutcome.Unreachable);
-            if (!_stopped) Once(ref _toldThrew, () => AlertWays.Failure("Discord push: sending", ex));
+            if (!_stopped) Once(ref _toldThrew, () => AlertWays.Failure(_channel.Name + " push: sending", ex));
             _status = new PushStatus(result.Outcome, result.Status, _utcNow());
             return result;
         }
@@ -170,9 +173,9 @@ public sealed class PushWay : IAlertWay
             Pump.Stop();
             _cancel.Cancel();
             Ledger.Clear();
-            (_sender as IDisposable)?.Dispose();
+            _channel.Dispose();
         }
-        catch (Exception ex) { Tell(AlertWays.Failure("Discord push: stopping", ex)); }
+        catch (Exception ex) { Tell(AlertWays.Failure(_channel.Name + " push: stopping", ex)); }
     }
 
     /// <summary>How long since Windows last saw input: the difference of two Environment.TickCount values, across
@@ -192,10 +195,10 @@ public sealed class PushWay : IAlertWay
         {
             int generation = Volatile.Read(ref _generation);     // before the link is read: an answer is about this link
             if (_settings is not { } s) return;
-            var stored = s.PushDiscordWebhook ?? "";
+            var stored = _channel.Stored(s);
             if (!_linkRead || stored != _linkFor)
             {
-                _link = _webhookOf(stored);
+                _link = _channel.Destination(s);
                 _linkFor = stored;
                 _linkRead = _link != null;     // a link that could not be read (a transient failure) is tried again by the next drain
             }
@@ -220,12 +223,8 @@ public sealed class PushWay : IAlertWay
             bool stale = false;
             try
             {
-                // The owner's @here / @everyone goes only on a message that holds a critical line (IDEAS #2, batch 30);
-                // the token is put there by PushMessage.WithMention, the text of a name never makes one. A stored number
-                // outside 1 and 2 is no mention. Built inside the try: a throwing name lookup counts as a sender that throws.
-                var mention = (s.PushMention is 1 or 2) && batch.Lines.Any(l => l.Severity == "critical") ? (PushMention)s.PushMention : PushMention.None;
-                var text = PushMessage.WithMention(PushMessage.Build(batch, _eventName, _str), mention);
-                result = await _sender.SendAsync(link, text, token, mention).ConfigureAwait(false)
+                // The channel builds the message inside the try: a throwing name lookup counts as a sender that throws.
+                result = await _channel.SendAsync(link, batch, s, token).ConfigureAwait(false)
                          ?? new PushResult(PushOutcome.Unreachable);
             }
             catch (Exception ex)
@@ -252,7 +251,7 @@ public sealed class PushWay : IAlertWay
             if (thrown != null)
             {
                 _status = new PushStatus(result.Outcome, result.Status, _utcNow());
-                Once(ref _toldThrew, () => AlertWays.Failure("Discord push: sending", thrown));
+                Once(ref _toldThrew, () => AlertWays.Failure(_channel.Name + " push: sending", thrown));
             }
             else Answered(result);
         }
@@ -267,14 +266,13 @@ public sealed class PushWay : IAlertWay
         switch (result.Outcome)
         {
             case PushOutcome.Gone:
-                Once(ref _toldGone, () => new InvalidOperationException(
-                    "Discord push: Discord says the webhook does not exist (" + code + "); nothing more is sent until a new link is saved."));
+                Once(ref _toldGone, () => new InvalidOperationException(_channel.GoneText(code)));
                 break;
             case PushOutcome.Unreachable:
-                Once(ref _toldUnreachable, () => new InvalidOperationException("Discord push: Discord could not be reached."));
+                Once(ref _toldUnreachable, () => new InvalidOperationException(_channel.Name + " push: " + _channel.Name + " could not be reached."));
                 break;
             case PushOutcome.Refused:
-                Once(ref _toldRefused, () => new InvalidOperationException("Discord push: Discord refused a message (" + code + ")."));
+                Once(ref _toldRefused, () => new InvalidOperationException(_channel.Name + " push: " + _channel.Name + " refused a message (" + code + ")."));
                 break;
         }
     }

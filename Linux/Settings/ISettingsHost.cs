@@ -31,6 +31,10 @@ public interface ISettingsHost
     Task<PushResult> TestPush();
     /// <summary>What Discord last answered, or null before the first message.</summary>
     PushStatus? PushStatus { get; }
+    /// <summary>Sends one test message to the saved ntfy topic. Refused when there is none this account can read.</summary>
+    Task<PushResult> TestNtfy();
+    /// <summary>What the ntfy server last answered, or null before the first message.</summary>
+    PushStatus? NtfyStatus { get; }
     /// <summary>The events snoozed for one character, or null before the alerts exist.</summary>
     EventSnoozes? Snoozes { get; }
     /// <summary>Asks GitHub for a newer release and offers to install it; the text to show (up to date, or why it failed).</summary>

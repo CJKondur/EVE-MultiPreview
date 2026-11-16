@@ -22,6 +22,7 @@ public sealed class Alerts : IDisposable
     private readonly AlertWays _ways = new(ex => ErrorLog.Shared.Record(ex, "App", DateTime.Now));
     private readonly SpokenWay? _spoken;
     private readonly PushWay? _push;
+    private readonly PushWay? _ntfy;
     private readonly XIdle _idle = new();
 
     // The events MultiPreview works out itself (AlertEvents.Derived), raised through StragglerAlerts.Raise as App raises them:
@@ -123,8 +124,15 @@ public sealed class Alerts : IDisposable
                 _idle.Query, EventName, LocalizationService.Str,
                 failed: ex => ErrorLog.Shared.Record(ex, "App", DateTime.Now));
             _ways.Add(_push);
+            // ntfy, beside Discord with rules of its own: the topic and token are read from their 0600 files (NtfyFile).
+            _ntfy = new PushWay(new NtfyChannel(new NtfySender(DiscordSender.RealHandler()),
+                    stored => NtfyFile.Read(NtfyFile.TopicFile, stored), stored => NtfyFile.Read(NtfyFile.TokenFile, stored), EventName,
+                    (who, type) => _derived.PlaceOf(who, type) ?? _monitor.GetCharacterSystem(who), LocalizationService.Str),
+                (s, severity) => _doNotDisturb.Silences(s, severity, DateTime.Now),
+                _idle.Query, failed: ex => ErrorLog.Shared.Record(ex, "App", DateTime.Now));
+            _ways.Add(_ntfy);
             // IDEAS #29: the last repeat of a critical alert nobody looked at is said and pushed once more (App's HandOff).
-            _escalation.HandOff = alert => { _spoken?.HandedOff(alert); _push?.HandedOff(alert); };
+            _escalation.HandOff = alert => { _spoken?.HandedOff(alert); _push?.HandedOff(alert); _ntfy?.HandedOff(alert); };
         }
         catch (Exception ex)
         {
@@ -338,6 +346,7 @@ public sealed class Alerts : IDisposable
     {
         _spoken?.Follow(S.SpeakAlerts);
         _push?.Follow(S);
+        _ntfy?.Follow(S);
     }
 
     /// <summary>The player looked at this character's client: the voice forgets what it holds against saying that
@@ -349,6 +358,12 @@ public sealed class Alerts : IDisposable
 
     /// <summary>What Discord last answered, or null before the first message.</summary>
     public PushStatus? PushStatus => _push?.Status;
+
+    /// <summary>The settings page's ntfy "Send a test message": one message now. Refused when no topic can be read here.</summary>
+    public Task<PushResult> TestNtfy() => _ntfy?.TestAsync(S) ?? Task.FromResult(new PushResult(PushOutcome.Refused));
+
+    /// <summary>What the ntfy server last answered, or null before the first message.</summary>
+    public PushStatus? NtfyStatus => _ntfy?.Status;
 
     /// <summary>The voice the alerts are said with; the settings page lists its voices and tries them.</summary>
     public LinuxSpeaker Speaker { get; } = new(() => LocalizationService.CurrentLanguage);
@@ -542,6 +557,7 @@ public sealed class Alerts : IDisposable
         _monitor.Stop();
         _spoken?.Stop();
         _push?.Stop();
+        _ntfy?.Stop();
         _idle.Dispose();
         _history.Dispose();
     }

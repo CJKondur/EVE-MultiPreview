@@ -44,6 +44,7 @@ public static class EditorFactories
         { GroupSoundsEditor.ItemId, (ctx, _) => new GroupSoundsEditor(ctx) },
         { NotificationCheckEditor.ItemId, (ctx, _) => new NotificationCheckEditor(ctx) },
         { PushWebhookEditor.ItemId, (ctx, _) => new PushWebhookEditor(ctx) },
+        { NtfyEditor.ItemId, (ctx, _) => new NtfyEditor(ctx) },
         { CustomRulesEditor.ItemId, (ctx, _) => new CustomRulesEditor(ctx) },
         { "perf.cpu.coreTable", (ctx, _) => new CoreTableEditor(ctx) },
         { "tools.stats.metrics", (ctx, _) => new StatMetricsEditor(ctx) },

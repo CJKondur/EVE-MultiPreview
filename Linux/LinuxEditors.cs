@@ -22,6 +22,7 @@ internal static class LinuxEditors
         { EditorIds.SnoozesEditor, (pages, _, _) => pages.Snoozed() },
         { EditorIds.SpeechVoicesEditor, (pages, _, _) => pages.Voices() },
         { EditorIds.PushWebhookEditor, (pages, _, _) => pages.Webhook() },
+        { EditorIds.NtfyEditor, (pages, _, _) => pages.Ntfy() },
         { EditorIds.RecentChangesEditor, (_, ctx, _) => new RecentChangesCard(ctx) },
         // S3b (Linux/Settings/*Editors.cs): Avalonia ports of the Windows editors, over the same shared logic.
         { "app.profiles.current", (pages, ctx, _) => pages.ProfilePicker(ctx) },

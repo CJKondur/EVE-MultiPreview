@@ -74,10 +74,12 @@ public static class SettingsBackup
         CopyWithoutWebhook(svc.SettingsPath, destination);
     }
 
-    // The one line the settings file keeps the Discord webhook in (IDEAS #2): "PushDiscordWebhook": "<kept text>".
-    private static readonly Regex WebhookLine = new("(\"PushDiscordWebhook\"\\s*:\\s*)\"[^\"\\r\\n]*\"", RegexOptions.CultureInvariant);
+    // The lines the settings file keeps the Discord webhook (IDEAS #2) and ntfy's topic and token in:
+    // "PushDiscordWebhook": "<kept text>", "NtfyTopic": "<kept text>", "NtfyToken": "<kept text>".
+    private static readonly Regex WebhookLine = new("(\"(?:PushDiscordWebhook|NtfyTopic|NtfyToken)\"\\s*:\\s*)\"[^\"\\r\\n]*\"", RegexOptions.CultureInvariant);
 
-    /// <summary>Copies a settings file for an export, with the Discord webhook (IDEAS #2) written empty: an export is
+    /// <summary>Copies a settings file for an export, with the Discord webhook (IDEAS #2) and ntfy's topic and token
+    /// written empty (they are secrets too): an export is
     /// shared and posted, and the link is a secret even encrypted. The live settings and the file itself are not
     /// touched; every other byte is copied as it is. Imported, the export means "no link". Backups keep the link:
     /// they are this PC's own, and restoring one should not lose it.</summary>

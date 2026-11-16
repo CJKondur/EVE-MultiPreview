@@ -283,6 +283,25 @@ public class AppSettings
     public bool PushOnlyWhenAway { get; set; } = true;
     public string PushDiscordWebhook { get; set; } = "";
 
+    /// <summary>Alerts to ntfy (https://ntfy.sh), whose app on a phone shows them, read by a PushWay of their own
+    /// (NtfyChannel) beside Discord's, with rules of their own: on or off, from which severity (0 critical only, 1
+    /// critical and warning, 2 all), and whether only while away. NtfyServer is the server (empty: https://ntfy.sh),
+    /// kept without its trailing slash. NtfyTopic and NtfyToken (the token only for a server that asks for one) are
+    /// secrets: NtfySecret's DPAPI text on Windows, NtfyFile's marker on Linux, never in plain; an export writes them
+    /// empty. New keys: off, critical only, only while away, the public server, no topic, no token.</summary>
+    public bool NtfyAlerts { get; set; } = false;
+    public int NtfyAlertsFrom { get; set; } = 0;
+    public bool NtfyOnlyWhenAway { get; set; } = true;
+    public string NtfyServer { get; set; } = "";
+    public string NtfyTopic { get; set; } = "";
+    public string NtfyToken { get; set; } = "";
+
+    /// <summary>The events Discord (PushAlertTypes) and ntfy (NtfyAlertTypes) do not send, chosen in the Discord and ntfy
+    /// columns of Alerts › Events: only the ones switched off are stored, as false (PushEvents). New keys: empty, every
+    /// event is sent.</summary>
+    public Dictionary<string, bool> PushAlertTypes { get; set; } = new();
+    public Dictionary<string, bool> NtfyAlertTypes { get; set; } = new();
+
     /// <summary>Keep the PC awake while EVE runs (IDEAS #46): App's KeepAwake holds Windows from sleeping while a
     /// character is logged in; the display may still turn off. New key: off in a file without it.</summary>
     public bool KeepPcAwake { get; set; } = false;

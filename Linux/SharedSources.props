@@ -86,6 +86,9 @@
     <Compile Include="..\Services\PushLedger.cs" Link="Shared\Services\PushLedger.cs" />
     <Compile Include="..\Services\PushMessage.cs" Link="Shared\Services\PushMessage.cs" />
     <Compile Include="..\Services\PushWay.cs" Link="Shared\Services\PushWay.cs" />
+    <Compile Include="..\Services\PushChannel.cs" Link="Shared\Services\PushChannel.cs" />
+    <Compile Include="..\Services\Ntfy.cs" Link="Shared\Services\Ntfy.cs" />
+    <Compile Include="..\Services\PushEvents.cs" Link="Shared\Services\PushEvents.cs" />
     <Compile Include="..\Services\ReleaseNotes.cs" Link="Shared\Services\ReleaseNotes.cs" />
     <Compile Include="..\Services\RemoteCommand.cs" Link="Shared\Services\RemoteCommand.cs" />
     <Compile Include="..\Services\RunMarker.cs" Link="Shared\Services\RunMarker.cs" />

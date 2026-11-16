@@ -142,6 +142,14 @@ public class AhkConfigRoot
         s.PushMention = g.PushMention;
         s.PushOnlyWhenAway = g.PushOnlyWhenAway != 0;
         s.PushDiscordWebhook = g.PushDiscordWebhook ?? "";
+        s.NtfyAlerts = g.NtfyAlerts != 0;
+        s.NtfyAlertsFrom = g.NtfyAlertsFrom;
+        s.NtfyOnlyWhenAway = g.NtfyOnlyWhenAway != 0;
+        s.NtfyServer = g.NtfyServer ?? "";
+        s.NtfyTopic = g.NtfyTopic ?? "";
+        s.NtfyToken = g.NtfyToken ?? "";
+        s.PushAlertTypes = ConvertIntDictToBoolDict(g.PushAlertTypes);
+        s.NtfyAlertTypes = ConvertIntDictToBoolDict(g.NtfyAlertTypes);
         s.KeepPcAwake = g.KeepPcAwake != 0;
         s.MemoryAlertMb = g.MemoryAlertMb;
         s.MemoryGrowthMb = g.MemoryGrowthMb;
@@ -503,6 +511,14 @@ public class AhkConfigRoot
         g.PushMention = s.PushMention;
         g.PushOnlyWhenAway = s.PushOnlyWhenAway ? 1 : 0;
         g.PushDiscordWebhook = s.PushDiscordWebhook;
+        g.NtfyAlerts = s.NtfyAlerts ? 1 : 0;
+        g.NtfyAlertsFrom = s.NtfyAlertsFrom;
+        g.NtfyOnlyWhenAway = s.NtfyOnlyWhenAway ? 1 : 0;
+        g.NtfyServer = s.NtfyServer;
+        g.NtfyTopic = s.NtfyTopic;
+        g.NtfyToken = s.NtfyToken;
+        g.PushAlertTypes = ConvertBoolDictToIntDict(s.PushAlertTypes);
+        g.NtfyAlertTypes = ConvertBoolDictToIntDict(s.NtfyAlertTypes);
         g.KeepPcAwake = s.KeepPcAwake ? 1 : 0;
         g.MemoryAlertMb = s.MemoryAlertMb;
         g.MemoryGrowthMb = s.MemoryGrowthMb;
@@ -1429,6 +1445,33 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("PushDiscordWebhook")]
     public string? PushDiscordWebhook { get; set; } = "";
+
+    // Alerts to ntfy: a file without them loads off, critical only, only while away, the public server, no topic, no
+    // token. The topic and the token are kept DPAPI-encrypted for the Windows user (NtfySecret), never in plain.
+    [JsonPropertyName("NtfyAlerts")]
+    public int NtfyAlerts { get; set; }
+
+    [JsonPropertyName("NtfyAlertsFrom")]
+    public int NtfyAlertsFrom { get; set; }
+
+    [JsonPropertyName("NtfyOnlyWhenAway")]
+    public int NtfyOnlyWhenAway { get; set; } = 1;
+
+    [JsonPropertyName("NtfyServer")]
+    public string? NtfyServer { get; set; } = "";
+
+    [JsonPropertyName("NtfyTopic")]
+    public string? NtfyTopic { get; set; } = "";
+
+    [JsonPropertyName("NtfyToken")]
+    public string? NtfyToken { get; set; } = "";
+
+    // The events Discord and ntfy do not send (PushEvents): a file without them sends every event.
+    [JsonPropertyName("PushAlertTypes")]
+    public Dictionary<string, int>? PushAlertTypes { get; set; }
+
+    [JsonPropertyName("NtfyAlertTypes")]
+    public Dictionary<string, int>? NtfyAlertTypes { get; set; }
 
     // Keep the PC awake while EVE runs (IDEAS #46), new after 2.3.42: a file without it loads off.
     [JsonPropertyName("KeepPcAwake")]

@@ -27,6 +27,9 @@
     <sys:String x:Key="L.Linux.SpeechNoProgram">No speech program found, so nothing can be spoken. Install speech-dispatcher (spd-say) or espeak-ng.</sys:String>
     <sys:String x:Key="L.Linux.SpeechTryFailed">The voice could not say that. Check that speech-dispatcher or espeak-ng works and that a sound device is connected.</sys:String>
     <sys:String x:Key="L.Linux.PushDpapi">The saved link comes from the Windows app, where it is encrypted for that Windows user. It can't be read here: paste it again.</sys:String>
+    <sys:String x:Key="L.Linux.NtfyDpapi">The saved topic comes from the Windows app, where it is encrypted for that Windows user. It can't be read here: enter it again.</sys:String>
+    <sys:String x:Key="L.Linux.NtfyKeptIn">The topic and token are kept in files only you can read, in {0}</sys:String>
+    <sys:String x:Key="L.Linux.NtfyWriteFailed">The topic or token could not be saved: its file could not be written.</sys:String>
     <sys:String x:Key="L.Linux.PushKeptIn">The link is kept in a file only you can read: {0}</sys:String>
     <sys:String x:Key="L.Linux.PushWriteFailed">The link could not be saved: its file could not be written.</sys:String>
     <sys:String x:Key="L.Linux.PushAwayNote">Away is read from the X server's idle time. Where the X server can't say, alerts are sent anyway.</sys:String>

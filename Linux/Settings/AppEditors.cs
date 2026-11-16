@@ -102,6 +102,8 @@ internal sealed partial class SettingsEditors
         }
         // The imported settings keep no link of ours (the Windows app's is empty or encrypted): the file would stay behind, unused.
         if (!(S.PushDiscordWebhook ?? "").StartsWith(WebhookFile.Marker, StringComparison.Ordinal)) WebhookFile.Delete();
+        if (!(S.NtfyTopic ?? "").StartsWith(NtfyFile.Marker, StringComparison.Ordinal)) NtfyFile.Delete(NtfyFile.TopicFile);
+        if (!(S.NtfyToken ?? "").StartsWith(NtfyFile.Marker, StringComparison.Ordinal)) NtfyFile.Delete(NtfyFile.TokenFile);
         LocalizationService.SetLanguage(S.Language);
         _host.Imported();
         _relocalize();
