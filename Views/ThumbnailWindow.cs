@@ -1448,6 +1448,10 @@ public class ThumbnailWindow : Form
 
     public void SetBorder(WpfColor color, int thickness)
     {
+        // The flash tick calls this every 50 ms for every flashing thumbnail: an unchanged border must not repaint.
+        // Each repaint of this layered window makes DWM recompose it over the EVE client, and in a fight that work
+        // cost the clients their frame rate.
+        if (_baseBorderColor is WpfColor was && was == color && _borderThickness == thickness) return;
         _baseBorderColor = color;
 
         if (_borderThickness != thickness)
@@ -1471,6 +1475,7 @@ public class ThumbnailWindow : Form
     public void SetAlertBorder(WpfColor? color, int thickness)
     {
         thickness = Math.Max(0, thickness);
+        if (Nullable.Equals(color, _alertBorderColor) && thickness == _alertBorderThickness) return;   // no repaint for no change
         bool insetChanged = thickness != _alertBorderThickness;
         _alertBorderColor = color;
         _alertBorderThickness = thickness;
@@ -1480,6 +1485,7 @@ public class ThumbnailWindow : Form
 
     // ── Under Fire Pulse ─────────────────────────────────────────
 
+    public const int UnderFirePulseMs = 250;
     private bool _isUnderFire;
     private double _underFirePhase;
     private int _borderThicknessBeforeUnderFire;
@@ -1501,10 +1507,12 @@ public class ThumbnailWindow : Form
 
             _underFirePulseTimer?.Stop();
             _underFirePulseTimer?.Dispose();
-            _underFirePulseTimer = new System.Windows.Forms.Timer { Interval = 50 };
+            // 4 repaints a second, not 20: every repaint is DWM work over the EVE client, and a fight puts every
+            // client under fire at once. Same pulse period as before (3 rad/s), in coarser steps.
+            _underFirePulseTimer = new System.Windows.Forms.Timer { Interval = UnderFirePulseMs };
             _underFirePulseTimer.Tick += (_, _) =>
             {
-                _underFirePhase += 0.15;
+                _underFirePhase += 0.75;
                 byte alpha = (byte)(168 + 87 * Math.Sin(_underFirePhase));
                 _underFireColor = WpfColor.FromArgb(alpha, 255, 40, 40);
                 if (IsHandleCreated) Invalidate();
