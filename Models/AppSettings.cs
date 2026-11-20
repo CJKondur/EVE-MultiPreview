@@ -866,6 +866,10 @@ public class Profile
     public Dictionary<string, ThumbnailGroup> Groups { get; set; } = new();
     public Dictionary<string, int> ThumbnailVisibility { get; set; } = new();
     public List<string> DontMinimizeClients { get; set; } = new();
+    /// <summary>The order the next / previous client keys walk the clients in (Home › Switching › Cycle order): these
+    /// characters first, in this order, then every other client (Services/CycleOrder). Empty = window order. Kept in the
+    /// profile's "Thumbnail Settings" in the file as "CycleOrder", names joined by commas (as AutoSelectCharacters).</summary>
+    public List<string> CycleOrder { get; set; } = new();
 
     /// <summary>Name of the layout preset last applied to this profile, so switching
     /// profiles can show which layout is in effect (#94). Display only — it does not

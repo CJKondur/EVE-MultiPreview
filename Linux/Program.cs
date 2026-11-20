@@ -1119,6 +1119,10 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         // S6: "Include clients at the login screen" (IncludeLoginScreensInCycle, ThumbnailManager.CycleAll): the next / previous
         // keys also go to the login-screen thumbnails, and every client is then walked in window order, as on Windows.
         if (order == null && S.IncludeLoginScreensInCycle) windows = windows.OrderBy(w => w).ToList();
+        // Home › Switching › Cycle order (ThumbnailManager.CycleAll): the profile's listed characters first, then the rest.
+        if (order == null)
+            windows = CycleOrder.Apply(windows, w => _thumbs.TryGetValue(w, out var t) ? t.Client.Character : null,
+                _settings.CurrentProfile.CycleOrder);
         if (windows.Count == 0) return;
         var options = CycleFilterOptions.From(S);
         if (CycleFilter.Changed(ref _cycleSwitches, options)) { _groupCycleWalk.Forget(); _allCycleWalk.Forget(); }

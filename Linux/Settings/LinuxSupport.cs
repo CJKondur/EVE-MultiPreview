@@ -35,7 +35,7 @@ internal static class LinuxSupport
     {
         // ── Home ──
         ["home.simpleBanner"] = S, ["home.showAllRow"] = S, ["home.tiles"] = S, ["home.groupKeys"] = S,
-        ["home.next"] = S, ["home.previous"] = S, ["home.size"] = S, ["home.opacity"] = S,
+        ["home.next"] = S, ["home.previous"] = S, ["home.cycleOrder"] = S, /* Previews.Cycle */ ["home.size"] = S, ["home.opacity"] = S,
         ["home.monitor"] = S,                 // PreferredMonitor: Previews.Place / TargetWorkArea (S6)
         ["home.alertAttack"] = S, ["home.alertScram"] = S, ["home.alertDecloak"] = S, ["home.alertFleet"] = S, ["home.alertSound"] = S,
         ["home.quickActions"] = S,            // Linux/Settings/MoreEditors.cs (S3b)

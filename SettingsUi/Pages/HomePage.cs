@@ -18,7 +18,7 @@ public static class HomePage
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
         new HelpTopic(Id, "clients", new[] { "home.tiles" }),
-        new HelpTopic(Id, "switching", new[] { "home.groupKeys", "home.next", "home.previous" }),
+        new HelpTopic(Id, "switching", new[] { "home.groupKeys", "home.next", "home.previous", "home.cycleOrder" }),
         new HelpTopic(Id, "thumbnails", new[] { "home.size", "home.opacity", "home.monitor" }),
         new HelpTopic(Id, "alerts", new[] { "home.alertAttack", "home.alertScram", "home.alertDecloak", "home.alertFleet", "home.alertSound" }),
         new HelpTopic(Id, "quick", new[] { "home.quickActions", "home.startWithWindows", "home.showAllRow" }),
@@ -60,6 +60,8 @@ public static class HomePage
             },
             Simple(Setting.Hotkey("home.next", s => s.GlobalCycleForwardHotkey)),
             Simple(Setting.Hotkey("home.previous", s => s.GlobalCycleBackwardHotkey)),
+            // The order those two keys walk the clients in (Services/CycleOrder; ThumbnailManager.CycleAll reads it).
+            new EditorItem("home.cycleOrder") { Binds = new[] { "Profile.CycleOrder" } },
         }),
         new SectionDef("home.thumbnails", new PageItem[]
         {

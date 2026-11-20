@@ -1265,6 +1265,14 @@
     <sys:String x:Key="L.S.home.next">下一个客户端，所有正在运行的客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.next.Desc">会遍历所有正在运行的客户端，不论属于哪个分组。上方每个磁贴也可以设置各自的按键。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.previous">上一个客户端，所有正在运行的客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.cycleOrder">切换顺序</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.cycleOrder.Desc">“下一个客户端”和“上一个客户端”的切换顺序。列表中的角色按此顺序排在前面，其他正在运行的客户端排在后面。移动名字即可调整位置。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.cycleOrder.Empty">尚未设置顺序：按窗口顺序遍历所有正在运行的客户端。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CycleOrder.Add">添加（_D）…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CycleOrder.AddTitle">将角色加入切换顺序</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CycleOrder.Clear">清空</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CycleOrder.ClearTitle">清空切换顺序</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CycleOrder.ClearAsk">要从切换顺序中移除所有角色吗？“下一个/上一个客户端”将恢复按窗口顺序切换。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.thumbnails">缩略图</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size">缩略图大小</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size.Desc">每个缩略图的宽度；高度按 16:9 自动调整。拖动某个缩略图的边缘可单独调整它的大小。</sys:String> <!-- draft -->
@@ -1297,7 +1305,7 @@
     <sys:String x:Key="L.Help.home.clients.Title">你的客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.clients.Body">每个正在运行的角色都有一个磁贴。点击其按键可录制直接切换到该角色的热键，并用开关隐藏或显示其缩略图。**›** 会打开该角色的所有设置。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.switching.Title">切换客户端</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.home.switching.Body">**分组按键** 会按分组自己的顺序在该组成员之间切换：可在此处设置，也可在 客户端 › 分组 中设置。&#x0A;**下一个客户端** 和 **上一个客户端，所有正在运行的客户端** 会遍历所有正在运行的客户端。按住按键可持续切换。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.home.switching.Body">**分组按键** 会按分组自己的顺序在该组成员之间切换：可在此处设置，也可在 客户端 › 分组 中设置。&#x0A;**下一个客户端** 和 **上一个客户端，所有正在运行的客户端** 会遍历所有正在运行的客户端。按住按键可持续切换。**切换顺序** 决定切换的先后：先是列表中的角色，然后是其他正在运行的客户端。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Title">缩略图</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Body">**缩略图大小** 一次设置所有缩略图并保持 16:9 比例。拖动缩略图可移动它，拖动其边缘可单独调整它的大小。&#x0A;&#x0A;**不透明度** 让游戏画面透出来。更多外观选项在所有设置的“缩略图”下。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.alerts.Title">战斗警报</sys:String> <!-- draft -->
@@ -2532,7 +2540,7 @@
     <sys:String x:Key="L.AutoProfile.Switched">配置文件：{0}，按已登录的角色选择</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.lookup">查询链接</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.jumpCalibration">Dotlan 范围的跳跃引擎校准</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.app.general.jumpCalibration.Desc">缩略图菜单中“在 Dotlan 上打开跳跃范围”链接使用的技能等级 (0–5)。5 的范围最大。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.jumpCalibration.Desc">缩略图菜单中“在 Dotlan 上打开跳跃范围”链接使用的技能等级（0–5）。5 的范围最大。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.jumpCalibration.Title">Dotlan 上的跳跃范围</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.jumpCalibration.Body">右键点击缩略图，选择“在 Dotlan 上打开跳跃范围”，再选一种舰船类别：Dotlan 会列出该类别从角色当前星系可跳到的所有星系。范围取决于跳跃引擎校准技能；在此设置等级（除非飞行员没有训练，否则为 5）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.control">其他程序</sys:String> <!-- draft -->

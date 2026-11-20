@@ -152,6 +152,69 @@ internal sealed partial class SettingsEditors
         return panel;
     }
 
+    /// <summary>Home › Switching › Cycle order (the Windows CycleOrderEditor): the profile's CycleOrder as numbered names with
+    /// ◀ ▶ to move one a place earlier or later and ✕, then Add…, Add all running clients and Clear. Read on every press of the
+    /// next / previous client keys (Previews.Cycle, Services/CycleOrder), so Save is enough.</summary>
+    internal Control CycleOrderList(SettingsContext ctx)
+    {
+        var panel = Titled("home.cycleOrder");
+        var chips = new WrapPanel { Orientation = Orientation.Horizontal };
+        Button clear = null!;
+        void Changed() { ctx.Applier.Request(ApplyScope.Save); Show(); }
+        void Show()
+        {
+            chips.Children.Clear();
+            var p = CharacterDirectory.Current(ctx.S);
+            int n = 0;
+            foreach (var listed in p.CycleOrder.ToList())
+            {
+                var name = listed;
+                var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 2, Margin = new Thickness(0, 0, 6, 6) };
+                row.Children.Add(Step("◀", () => { CycleOrder.Step(CharacterDirectory.Current(ctx.S), name, up: true); Changed(); }));
+                var chip = Chip($"{++n}  {name}", () => { CycleOrder.Remove(CharacterDirectory.Current(ctx.S), name); Changed(); });
+                chip.Margin = new Thickness(0);
+                row.Children.Add(chip);
+                row.Children.Add(Step("▶", () => { CycleOrder.Step(CharacterDirectory.Current(ctx.S), name, up: false); Changed(); }));
+                chips.Children.Add(row);
+            }
+            if (p.CycleOrder.Count == 0) chips.Children.Add(new TextBlock { Text = S3("L.S.home.cycleOrder.Empty"), Opacity = 0.65, TextWrapping = TextWrapping.Wrap });
+            if (clear != null) clear.IsEnabled = p.CycleOrder.Count > 0;
+        }
+        static Button Step(string arrow, Action click)
+        {
+            var b = new Button { Content = arrow, Padding = new Thickness(6, 0), VerticalAlignment = VerticalAlignment.Center, Classes = { "quiet" } };
+            b.Click += (_, _) => click();
+            return b;
+        }
+        clear = Action("L.S.CycleOrder.Clear", () =>
+        {
+            if (!ctx.Host.Confirm(S3("L.S.CycleOrder.ClearTitle"), S3("L.S.CycleOrder.ClearAsk"))) return;
+            CharacterDirectory.Current(ctx.S).CycleOrder.Clear();
+            Changed();
+        }, destructive: true);
+        panel.Children.Add(Buttons(
+            Action("L.S.CycleOrder.Add", () =>
+            {
+                var name = ctx.Host.PickCharacter(S3("L.S.CycleOrder.AddTitle"), CharacterDirectory.AllKnown(ctx.S, CharacterDirectory.Running(ctx)));
+                if (name == null || !CycleOrder.Add(CharacterDirectory.Current(ctx.S), name)) return;
+                Changed();
+            }),
+            Action("L.S.Running.AddAll", () =>
+            {
+                var running = CharacterDirectory.Running(ctx);
+                if (running.Count == 0) { ctx.Host.Toast(S3("L.S.Running.None")); return; }
+                var p = CharacterDirectory.Current(ctx.S);
+                int added = running.Count(n => CycleOrder.Add(p, n));
+                if (added == 0) { ctx.Host.Toast(S3("L.S.Running.AllThere")); return; }
+                ctx.Host.Toast(string.Format(S3("L.S.Running.Added"), added));
+                Changed();
+            }),
+            clear));
+        Show();
+        panel.Children.Add(chips);
+        return panel;
+    }
+
     /// <summary>A name with a ✕ that takes it away (the Windows EditorCard.Chip).</summary>
     internal static Control Chip(string text, Action remove)
     {

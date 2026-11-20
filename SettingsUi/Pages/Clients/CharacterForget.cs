@@ -28,6 +28,7 @@ public static class CharacterForget
             Keys(p.ClientPositions);
             p.DontMinimizeClients.RemoveAll(Same);
             p.ClientSlotExcluded.RemoveAll(Same);
+            p.CycleOrder.RemoveAll(Same);
             p.AutoSelectCharacters = AutoProfile.Without(p.AutoSelectCharacters, name);   // IDEAS #11
             foreach (var slot in p.ClientSlots) slot.Characters.RemoveAll(Same);
             foreach (var group in p.HotkeyGroups.Values) group.Characters.RemoveAll(Same);

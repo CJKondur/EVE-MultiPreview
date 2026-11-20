@@ -25,7 +25,7 @@ public sealed class ProfileCode
     public static readonly string[] CarriedStores =
     {
         "ThumbnailVisibility", "ThumbnailPositions", "CustomColors", "SecondaryThumbnails", "Crops", "ClientPositions",
-        "DontMinimizeClients", "ClientSlotExcluded", "AutoSelectCharacters", "ClientSlots", "HotkeyGroups", "Groups",
+        "DontMinimizeClients", "ClientSlotExcluded", "AutoSelectCharacters", "ClientSlots", "HotkeyGroups", "Groups", "CycleOrder",
         "ThumbnailAnnotations", "ThumbnailLabelStyles", "ThumbnailGroups",
     };
 
@@ -52,6 +52,9 @@ public sealed class ProfileCode
     [JsonPropertyName("m")] public required List<int> DontMinimize { get; init; }
     [JsonPropertyName("e")] public required List<int> SlotExcluded { get; init; }
     [JsonPropertyName("a")] public required List<int> Auto { get; init; }
+    /// <summary>Home › Switching › Cycle order, in its order (not sorted like the other lists). Written only when there is one,
+    /// so a code without it still reads in an older MultiPreview, whose strict reader refuses a key it does not know.</summary>
+    [JsonPropertyName("co"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public List<int>? CycleOrder { get; init; }
     [JsonPropertyName("sl")] public required List<GroupCode> Slots { get; init; }
     [JsonPropertyName("hg")] public required List<GroupCode> HotkeyGroups { get; init; }
     [JsonPropertyName("g")] public required List<GroupCode> Groups { get; init; }
@@ -162,7 +165,7 @@ public sealed class ProfileCode
                 && Pixel(s.X) && Pixel(s.Y) && Size(s.W) && Size(s.H))
             && Crops != null && ValidCrops(n)
             && OnePerRole(ClientPositions, n, c => c.Role, c => Pixel(c.X) && Pixel(c.Y) && Size(c.W) && Size(c.H) && c.Maximized is 0 or 1)
-            && Roles(DontMinimize, n) && Roles(SlotExcluded, n) && Roles(Auto, n)
+            && Roles(DontMinimize, n) && Roles(SlotExcluded, n) && Roles(Auto, n) && (CycleOrder == null || Roles(CycleOrder, n))
             && ValidGroups(Slots, n, withColour: false) && ValidGroups(HotkeyGroups, n, withColour: false)
             && ValidGroups(Groups, n, withColour: true) && ValidGroups(ThumbnailGroups, n, withColour: true)
             && OnePerRole(Labels, n, l => l.Role, l => IsText(l.Text, MaxLabel))
@@ -287,6 +290,7 @@ public sealed class ProfileCode
             DontMinimize = Listed(p.DontMinimizeClients),
             SlotExcluded = Listed(p.ClientSlotExcluded),
             Auto = Listed(AutoProfile.Characters(p.AutoSelectCharacters)),
+            CycleOrder = p.CycleOrder.Where(role.ContainsKey).Select(m => role[m]).Distinct().ToList() is { Count: > 0 } order ? order : null,
             Slots = Named(p.ClientSlots.Select(x => (x.Name, "", (IEnumerable<string>)x.Characters)), false, true),
             HotkeyGroups = Named(p.HotkeyGroups.Select(kv => (kv.Key, "", (IEnumerable<string>)kv.Value.Characters)), false, false),
             Groups = Named(p.Groups.Select(kv => (kv.Key, kv.Value.Color, (IEnumerable<string>)kv.Value.Members)), true, false),
@@ -333,7 +337,7 @@ public sealed class ProfileCode
     {
         var all = p.ThumbnailVisibility.Keys
             .Concat(p.ThumbnailPositions.Keys).Concat(p.CustomColors.Keys).Concat(p.SecondaryThumbnails.Keys).Concat(p.Crops.Keys)
-            .Concat(p.ClientPositions.Keys).Concat(p.DontMinimizeClients).Concat(p.ClientSlotExcluded)
+            .Concat(p.ClientPositions.Keys).Concat(p.DontMinimizeClients).Concat(p.ClientSlotExcluded).Concat(p.CycleOrder)
             .Concat(AutoProfile.Characters(p.AutoSelectCharacters))
             .Concat(p.ClientSlots.SelectMany(x => x.Characters)).Concat(p.HotkeyGroups.Values.SelectMany(x => x.Characters))
             .Concat(p.Groups.Values.SelectMany(x => x.Members));
@@ -381,6 +385,7 @@ public sealed class ProfileCode
         Drop(made.Crops); Drop(made.ClientPositions);
         made.DontMinimizeClients.RemoveAll(Mine);
         made.ClientSlotExcluded.RemoveAll(Mine);
+        made.CycleOrder.RemoveAll(Mine);
         foreach (var g in made.HotkeyGroups.Values) g.Characters.RemoveAll(Mine);
         foreach (var g in made.Groups.Values) g.Members.RemoveAll(Mine);
 
@@ -403,6 +408,7 @@ public sealed class ProfileCode
             made.ClientPositions[t] = new ClientPosition { X = c.X, Y = c.Y, Width = c.W, Height = c.H, IsMaximized = c.Maximized };
         foreach (var r in DontMinimize) if (Target(r) is { } t) made.DontMinimizeClients.Add(t);
         foreach (var r in SlotExcluded) if (Target(r) is { } t) made.ClientSlotExcluded.Add(t);
+        foreach (var r in CycleOrder ?? new List<int>()) if (Target(r) is { } t) EveMultiPreview.Services.CycleOrder.Add(made, t);
         made.AutoSelectCharacters = AutoProfile.Join(Auto.Select(Target).Where(t => t != null).Cast<string>());
 
         // A client slot is the player's own geometry on this machine's monitors: never made from a code. A character joins the

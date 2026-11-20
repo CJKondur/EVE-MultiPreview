@@ -29,6 +29,7 @@ public static partial class CharacterDirectory
             .Concat(p.PerClientCores.Keys)
             .Concat(p.PerClientAudioVolume.Keys)
             .Concat(p.DontMinimizeClients)
+            .Concat(p.CycleOrder)
             .Concat(s.ThumbnailAnnotations.Keys)
             .Concat(s.PerCharacterStats.Keys);
         return Order(running, stored);

@@ -1248,6 +1248,14 @@
     <sys:String x:Key="L.S.home.next">다음 클라이언트, 실행 중인 모든 클라이언트</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.next.Desc">그룹과 관계없이 실행 중인 모든 클라이언트를 차례로 전환해요. 위의 각 타일에도 개별 키를 지정할 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.previous">이전 클라이언트, 실행 중인 모든 클라이언트</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.cycleOrder">전환 순서</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.cycleOrder.Desc">다음 클라이언트와 이전 클라이언트가 가는 순서예요. 목록의 캐릭터가 이 순서대로 먼저 오고, 그다음 다른 실행 중인 클라이언트가 이어져요. 이름을 옮기면 순서가 바뀌어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.cycleOrder.Empty">아직 순서가 없어요. 실행 중인 모든 클라이언트를 창 순서대로 전환해요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CycleOrder.Add">추가(_D)…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CycleOrder.AddTitle">전환 순서에 캐릭터 추가</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CycleOrder.Clear">비우기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CycleOrder.ClearTitle">전환 순서 비우기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CycleOrder.ClearAsk">전환 순서에서 모든 캐릭터를 뺄까요? 다음·이전 클라이언트는 다시 창 순서로 전환해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.thumbnails">미리보기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size">미리보기 크기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size.Desc">모든 미리보기의 너비예요. 높이는 16:9로 따라가요. 미리보기의 가장자리를 드래그하면 그 미리보기만 크기를 바꿀 수 있어요.</sys:String> <!-- draft -->
@@ -1280,7 +1288,7 @@
     <sys:String x:Key="L.Help.home.clients.Title">내 클라이언트</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.clients.Body">실행 중인 캐릭터마다 타일이 표시돼요. 키를 클릭하면 해당 캐릭터로 바로 전환하는 단축키를 기록할 수 있고, 스위치로 미리보기를 숨기거나 표시할 수 있어요. **›** 는 그 캐릭터의 모든 설정을 열어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.switching.Title">클라이언트 전환</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.home.switching.Body">**그룹 키** 는 한 그룹의 구성원을 그 순서대로 전환해요. 여기서 또는 클라이언트 › 그룹에서 설정하세요.&#x0A;**다음 클라이언트** 와 **이전 클라이언트, 실행 중인 모든 클라이언트** 는 실행 중인 모든 클라이언트를 차례로 전환해요. 키를 누르고 있으면 계속 전환돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.home.switching.Body">**그룹 키** 는 한 그룹의 구성원을 그 순서대로 전환해요. 여기서 또는 클라이언트 › 그룹에서 설정하세요.&#x0A;**다음 클라이언트** 와 **이전 클라이언트, 실행 중인 모든 클라이언트** 는 실행 중인 모든 클라이언트를 차례로 전환해요. 키를 누르고 있으면 계속 전환돼요. **전환 순서** 로 가는 순서를 정해요. 목록의 캐릭터가 먼저, 그다음 다른 실행 중인 클라이언트가 와요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Title">미리보기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Body">**미리보기 크기** 는 모든 미리보기를 한 번에 설정하고 16:9 비율을 유지해요. 미리보기를 드래그하면 이동하고, 가장자리를 드래그하면 그 미리보기만 크기를 바꿔요.&#x0A;&#x0A;**불투명도** 는 게임 화면이 비쳐 보이게 해요. 더 많은 옵션은 모든 설정의 미리보기에 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.alerts.Title">전투 알림</sys:String> <!-- draft -->

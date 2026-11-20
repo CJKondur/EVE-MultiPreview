@@ -46,6 +46,7 @@ public static class BugReportSources
             names.AddRange(p.PerClientAudioVolume.Keys);
             names.AddRange(p.DontMinimizeClients);
             names.AddRange(p.ClientSlotExcluded);
+            names.AddRange(p.CycleOrder);
             names.AddRange(p.ClientSlots.SelectMany(slot => slot.Characters));
             names.AddRange(p.HotkeyGroups.Values.SelectMany(g => g.Characters));
             names.AddRange(p.Groups.Values.SelectMany(g => g.Members));

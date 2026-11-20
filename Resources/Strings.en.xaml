@@ -1247,6 +1247,14 @@
     <sys:String x:Key="L.S.home.next">Next client, all running clients</sys:String>
     <sys:String x:Key="L.S.home.next.Desc">Goes through every running client, whatever its group. Each tile above can have its own key too.</sys:String>
     <sys:String x:Key="L.S.home.previous">Previous client, all running clients</sys:String>
+    <sys:String x:Key="L.S.home.cycleOrder">Cycle order</sys:String>
+    <sys:String x:Key="L.S.home.cycleOrder.Desc">The order Next client and Previous client go in. Listed characters come first, in this order; any other running client follows. Move a name to change its place.</sys:String>
+    <sys:String x:Key="L.S.home.cycleOrder.Empty">No order yet: every running client is visited in window order.</sys:String>
+    <sys:String x:Key="L.S.CycleOrder.Add">A_dd…</sys:String>
+    <sys:String x:Key="L.S.CycleOrder.AddTitle">Add a character to the cycle order</sys:String>
+    <sys:String x:Key="L.S.CycleOrder.Clear">Clear</sys:String>
+    <sys:String x:Key="L.S.CycleOrder.ClearTitle">Clear the cycle order</sys:String>
+    <sys:String x:Key="L.S.CycleOrder.ClearAsk">Take every character off the cycle order? Next and Previous client then go in window order again.</sys:String>
     <sys:String x:Key="L.S.Sec.home.thumbnails">Thumbnails</sys:String>
     <sys:String x:Key="L.S.home.size">Thumbnail size</sys:String>
     <sys:String x:Key="L.S.home.size.Desc">Width of every thumbnail; the height follows at 16:9. Drag a thumbnail's edge to size one on its own.</sys:String>
@@ -1279,7 +1287,7 @@
     <sys:String x:Key="L.Help.home.clients.Title">Your clients</sys:String>
     <sys:String x:Key="L.Help.home.clients.Body">Each running character gets a tile. Click its key to record a hotkey that switches straight to it, and use the switch to hide or show its thumbnail. **›** opens every setting for that character.</sys:String>
     <sys:String x:Key="L.Help.home.switching.Title">Switching clients</sys:String>
-    <sys:String x:Key="L.Help.home.switching.Body">**Group keys** switch through one group's members, in its order: set them here or under Clients › Groups.&#x0A;**Next client** and **Previous client, all running clients** go through every running client. Hold a key to keep going.</sys:String>
+    <sys:String x:Key="L.Help.home.switching.Body">**Group keys** switch through one group's members, in its order: set them here or under Clients › Groups.&#x0A;**Next client** and **Previous client, all running clients** go through every running client. Hold a key to keep going. **Cycle order** sets the order they go in: the characters you list first, then any other running client.</sys:String>
     <sys:String x:Key="L.Help.home.thumbnails.Title">Thumbnails</sys:String>
     <sys:String x:Key="L.Help.home.thumbnails.Body">**Thumbnail size** sets every thumbnail at once and keeps a 16:9 shape. Drag a thumbnail to move it, or drag its edge to size just that one.&#x0A;&#x0A;**Opacity** lets the game show through. More looks are under Thumbnails in all settings.</sys:String>
     <sys:String x:Key="L.Help.home.alerts.Title">Combat alerts</sys:String>

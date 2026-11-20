@@ -1248,6 +1248,14 @@
     <sys:String x:Key="L.S.home.next">次のクライアント、起動中のすべてのクライアント</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.next.Desc">グループに関係なく、起動中のすべてのクライアントを順に切り替えます。上の各タイルにも個別のキーを設定できます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.previous">前のクライアント、起動中のすべてのクライアント</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.cycleOrder">切り替え順</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.cycleOrder.Desc">次のクライアントと前のクライアントが進む順番です。一覧のキャラクターがこの順で先に来て、その後に他の起動中のクライアントが続きます。名前を動かすと順番が変わります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.cycleOrder.Empty">まだ順番がありません。起動中のすべてのクライアントをウィンドウ順に切り替えます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CycleOrder.Add">追加（_D）…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CycleOrder.AddTitle">切り替え順にキャラクターを追加</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CycleOrder.Clear">クリア</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CycleOrder.ClearTitle">切り替え順をクリア</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CycleOrder.ClearAsk">切り替え順からすべてのキャラクターを外しますか？次と前のクライアントはウィンドウ順に戻ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.thumbnails">サムネイル</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size">サムネイルのサイズ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size.Desc">すべてのサムネイルの幅です。高さは 16:9 で自動的に決まります。サムネイルの端をドラッグすると、そのサムネイルだけサイズを変えられます。</sys:String> <!-- draft -->
@@ -1280,7 +1288,7 @@
     <sys:String x:Key="L.Help.home.clients.Title">あなたのクライアント</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.clients.Body">起動中のキャラクターごとにタイルが表示されます。キーをクリックすると、そのキャラクターへ直接切り替えるホットキーを記録でき、スイッチでサムネイルの表示と非表示を切り替えられます。**›** でそのキャラクターのすべての設定を開きます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.switching.Title">クライアントの切り替え</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.home.switching.Body">**グループキー** は、グループのメンバーをその順番で切り替えます。ここか、クライアント › グループで設定できます。&#x0A;**次のクライアント** と **前のクライアント、起動中のすべてのクライアント** は、起動中のすべてのクライアントを順に切り替えます。キーを押し続けると切り替えが続きます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.home.switching.Body">**グループキー** は、グループのメンバーをその順番で切り替えます。ここか、クライアント › グループで設定できます。&#x0A;**次のクライアント** と **前のクライアント、起動中のすべてのクライアント** は、起動中のすべてのクライアントを順に切り替えます。キーを押し続けると切り替えが続きます。**切り替え順** で進む順番を決められます。一覧のキャラクターが先、その後に他の起動中のクライアントが続きます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Title">サムネイル</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Body">**サムネイルのサイズ** はすべてのサムネイルを一度に設定し、16:9 の形を保ちます。サムネイルをドラッグすると移動でき、端をドラッグするとそのサムネイルだけサイズを変えられます。&#x0A;&#x0A;**不透明度** でゲーム画面が透けて見えます。ほかの見た目の設定は、すべての設定の「サムネイル」にあります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.alerts.Title">戦闘アラート</sys:String> <!-- draft -->
@@ -2515,9 +2523,9 @@
     <sys:String x:Key="L.AutoProfile.Switched">プロファイル：{0}（ログイン中のキャラクターから選択）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.lookup">検索リンク</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.jumpCalibration">Dotlan 射程のジャンプドライブキャリブレーション</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.app.general.jumpCalibration.Desc">サムネイルメニューの「Dotlan で射程を開く」リンクが使うスキルレベル (0–5)。5 が最大射程です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.jumpCalibration.Desc">サムネイルメニューの「Dotlan で射程を開く」リンクが使うスキルレベル（0–5）。5 が最大射程です。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.jumpCalibration.Title">Dotlan でのジャンプ射程</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.general.jumpCalibration.Body">サムネイルを右クリックして「Dotlan で射程を開く」を選び、艦種を選ぶと、キャラクターの現在の星系からその艦種がジャンプできるすべての星系を Dotlan が表示します。射程はジャンプドライブキャリブレーションで決まるので、ここでレベルを設定してください (未習得でなければ 5)。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.jumpCalibration.Body">サムネイルを右クリックして「Dotlan で射程を開く」を選び、艦種を選ぶと、キャラクターの現在の星系からその艦種がジャンプできるすべての星系を Dotlan が表示します。射程はジャンプドライブキャリブレーションで決まるので、ここでレベルを設定してください（未習得でなければ 5）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.control">ほかのプログラム</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands">ほかのプログラムからのコマンドを受け付ける</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands.Desc">Stream Deck、AutoHotkey、ショートカットから、実行中の MultiPreview に、キャラクターを最前面に出す、プロファイルを切り替える、サムネイルやフォーカスモードをオン／オフする、のいずれかを伝えられるようにします。できるのは、ご自身の Windows アカウントのプログラムだけです。</sys:String> <!-- draft -->

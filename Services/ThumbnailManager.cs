@@ -5018,6 +5018,9 @@ public sealed class ThumbnailManager : IDisposable
             })
             .Select(kv => kv.Key)
             .ToList();
+        // Home › Switching › Cycle order: the profile's listed characters first, in its order, then the rest in window order.
+        hwnds = CycleOrder.Apply(hwnds, h => _thumbnails.TryGetValue(h, out var t) ? t.CharacterName : null,
+            _settings.CurrentProfile.CycleOrder);
 
         if (hwnds.Count == 0) return;
         _lastCycleTime = DateTime.UtcNow;

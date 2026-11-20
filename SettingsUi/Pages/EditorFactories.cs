@@ -12,6 +12,7 @@ public static class EditorFactories
     {
         { "home.tiles", (ctx, _) => new HomeTilesEditor(ctx) },
         { "home.groupKeys", (ctx, _) => new HomeGroupKeysEditor(ctx) },
+        { CycleOrderEditor.ItemId, (ctx, _) => new CycleOrderEditor(ctx) },
         { "home.monitor", (ctx, _) => new MonitorPickerEditor(ctx, "home.monitor") },
         { "home.quickActions", (ctx, _) => new QuickActionsEditor(ctx) },
         { "clients.characters.table", (ctx, _) => new CharactersEditor(ctx) },

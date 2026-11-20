@@ -321,6 +321,7 @@ public class AhkConfigRoot
             {
                 profile.AppliedLayoutPreset = ts.AppliedLayoutPreset ?? "";
                 profile.AutoSelectCharacters = ts.AutoSelectCharacters ?? "";
+                profile.CycleOrder = EveMultiPreview.Services.AutoProfile.Characters(ts.CycleOrder).ToList();
                 profile.ShowAllColoredBorders = ts.ShowAllColoredBorders != 0;
                 profile.AutoCharacterBorders = ts.AutoCharacterBorders != 0;
                 profile.ThumbnailCornerRadius = Math.Clamp(ts.ThumbnailCornerRadius, 0, Profile.MaxCornerRadius);   // a hand-edited file is held to the card's range
@@ -670,6 +671,7 @@ public class AhkConfigRoot
             {
                 AppliedLayoutPreset = profile.AppliedLayoutPreset,
                 AutoSelectCharacters = profile.AutoSelectCharacters,
+                CycleOrder = EveMultiPreview.Services.AutoProfile.Join(profile.CycleOrder),
                 ShowAllColoredBorders = profile.ShowAllColoredBorders ? 1 : 0,
                 AutoCharacterBorders = profile.AutoCharacterBorders ? 1 : 0,
                 ThumbnailCornerRadius = profile.ThumbnailCornerRadius,
@@ -932,6 +934,11 @@ public class AhkThumbnailSettings
     /// that no odd value in it can make the file unloadable.</summary>
     [JsonPropertyName("AutoSelectCharacters")]
     public string? AutoSelectCharacters { get; set; } = "";
+
+    /// <summary>Home › Switching › Cycle order: names joined by commas, as AutoSelectCharacters (EVE names have none); a file
+    /// without it loads "" (window order). A text, so that no odd value in it can make the file unloadable.</summary>
+    [JsonPropertyName("CycleOrder")]
+    public string? CycleOrder { get; set; } = "";
 
     [JsonPropertyName("ShowAllColoredBorders")]
     public int ShowAllColoredBorders { get; set; }

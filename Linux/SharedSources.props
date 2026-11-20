@@ -39,6 +39,7 @@
     <Compile Include="..\Services\CustomAlertRules.cs" Link="Shared\Services\CustomAlertRules.cs" />
     <Compile Include="..\Services\CustomAlertStore.cs" Link="Shared\Services\CustomAlertStore.cs" />
     <Compile Include="..\Services\CycleFilter.cs" Link="Shared\Services\CycleFilter.cs" />
+    <Compile Include="..\Services\CycleOrder.cs" Link="Shared\Services\CycleOrder.cs" />
     <Compile Include="..\Services\CycleStep.cs" Link="Shared\Services\CycleStep.cs" />
     <Compile Include="..\Services\DiagnosticsService.cs" Link="Shared\Services\DiagnosticsService.cs" />
     <Compile Include="..\Services\DiscordSender.cs" Link="Shared\Services\DiscordSender.cs" />
