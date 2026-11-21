@@ -1512,6 +1512,7 @@ public class ThumbnailWindow : Form
             _underFirePulseTimer = new System.Windows.Forms.Timer { Interval = UnderFirePulseMs };
             _underFirePulseTimer.Tick += (_, _) =>
             {
+                using var op = EveMultiPreview.Services.StallWatch.Op("under-fire pulse");
                 _underFirePhase += 0.75;
                 byte alpha = (byte)(168 + 87 * Math.Sin(_underFirePhase));
                 _underFireColor = WpfColor.FromArgb(alpha, 255, 40, 40);

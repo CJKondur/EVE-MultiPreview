@@ -115,6 +115,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         Console.WriteLine($"Logs: chat {(chat.Length > 0 ? chat : "not found")}; game {(game.Length > 0 ? game : "not found")}");
         new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Background, (_, _) => Tick()).Start();
         Tick();
+        StartStallWatch();
         // Commands from other programs (IDEAS #39): taken only while AcceptCommands is on, run on the UI thread.
         CommandSocket.Serve(command =>
         {
@@ -943,6 +944,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
 
     public void Exit()
     {
+        _stallWatch?.Dispose();
         _probeTimer?.Dispose();
         _nameBar?.Close();
         _keepAwake.Dispose();
@@ -1110,6 +1112,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
     /// does), and a wrap from the last client to the first plays the wrap-around sound.</summary>
     private void Cycle(IReadOnlyList<string>? order, bool forward)
     {
+        using var op = StallWatch.Op("cycle");
         var windows = (order == null
             ? _thumbs.Values.ToList()
             : order.Select(n => _thumbs.Values.FirstOrDefault(t => string.Equals(t.Client.Character, n, StringComparison.OrdinalIgnoreCase)))
@@ -1328,9 +1331,28 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         Console.WriteLine($"Alert: {character} {alertType} ({severity})");
     }
 
+    /// <summary>The stall recorder (Logs/debug_stalls.log, as App's): the UI thread's blocks and the process's stalls, with
+    /// what was running. X has no low-level hooks and no hung-window probe, so those two parts are Windows' only.</summary>
+    private StallWatch? _stallWatch;
+
+    private void StartStallWatch()
+    {
+        try
+        {
+            _stallWatch = new StallWatch(
+                postToUi: a => Dispatcher.UIThread.Post(a, DispatcherPriority.Normal),
+                context: () => $"clients {_thumbs.Count}, alerts flashing {_alertBorders.Count}");
+            var version = typeof(Previews).Assembly.GetName().Version?.ToString(3) ?? "?";
+            _stallWatch.Start($"EVE MultiPreview for Linux {version} on {System.Runtime.InteropServices.RuntimeInformation.OSDescription}, "
+                + $"{Environment.ProcessorCount} logical processors | {StallWatch.SettingsSummary(S)}");
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException) { ErrorLog.Shared.Record(ex, "App", DateTime.Now); }
+    }
+
     private void Tick()
     {
-        if (_ticks++ % 20 == 0) Sync();
+        using var op = StallWatch.Op("tick");
+        if (_ticks++ % 20 == 0) { using var sync = StallWatch.Op("window sync"); Sync(); }
         if (_ticks % 5 == 0)   // App's half-second timer
         {
             _alerts?.LookDerived(DateTime.UtcNow, RunningCharacters());

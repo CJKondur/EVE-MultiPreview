@@ -166,6 +166,34 @@ public partial class App : Application
     // time: never while a sound is started, never round a call into another class.
     private readonly object _soundCooldownLock = new();
 
+    /// <summary>The stall recorder (Logs\debug_stalls.log): what froze in a fight, for how long, and what was running.</summary>
+    private StallWatch? _stallWatch;
+    private DispatcherOperation? _runningOperation;
+    private static readonly System.Reflection.PropertyInfo? OperationName =
+        typeof(DispatcherOperation).GetProperty("Name", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+
+    private void StartStallWatch()
+    {
+        try
+        {
+            var tm = _thumbnailManager;
+            _stallWatch = new StallWatch(
+                postToUi: a => Dispatcher.BeginInvoke(a, DispatcherPriority.Normal),
+                context: () => tm?.StallContext() ?? "",
+                uiClients: () => tm?.StallClients() ?? Array.Empty<StallWatch.ClientRef>(),
+                hung: ClientProbe.IsHung);
+            // The operation the dispatcher is running, named only once a block is seen (WPF's internal Name: its method).
+            Dispatcher.Hooks.OperationStarted += (_, e) => _runningOperation = e.Operation;
+            Dispatcher.Hooks.OperationCompleted += (_, e) => { if (ReferenceEquals(_runningOperation, e.Operation)) _runningOperation = null; };
+            Dispatcher.Hooks.OperationAborted += (_, e) => { if (ReferenceEquals(_runningOperation, e.Operation)) _runningOperation = null; };
+            StallWatch.Unmarked = () => _runningOperation is { } op ? OperationName?.GetValue(op) as string : null;
+            var version = typeof(App).Assembly.GetName().Version?.ToString(3) ?? "?";
+            _stallWatch.Start($"EVE MultiPreview {version} on {Environment.OSVersion.VersionString}, {Environment.ProcessorCount} logical processors | "
+                + (_settings != null ? StallWatch.SettingsSummary(_settings.Settings) + ", " + StallWatch.WindowsSettingsSummary(_settings.Settings) : "settings not loaded"));
+        }
+        catch (Exception ex) { LogError(ex); }
+    }
+
     // Sound player for cycle-wrap chime (single instance is fine here — wraps
     // can't overlap meaningfully).
     private MediaPlayer? _soundPlayer;
@@ -395,6 +423,7 @@ public partial class App : Application
         _discovery.Start(_winEvents);
         _thumbnailManager.StartFocusTracking(_winEvents);
         PerfLog($"Discovery + FocusTracking started: {startupSw.ElapsedMilliseconds}ms");
+        StartStallWatch();
 
         // ── DEFER slower startup tasks so thumbnail BeginInvoke runs first ──
         var deferTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
@@ -685,6 +714,7 @@ public partial class App : Application
             {
             _logMonitor.AlertTriggered += (charName, alertType, severity) =>
             {
+                using var op = StallWatch.Op("alert " + alertType);
                 // What a custom rule matched is there only while its alert is being raised: taken first (IDEAS #8).
                 // The rule's name is taken with it: the toast and the sound are posted to the window's thread and show
                 // or play later, and the player may rename or delete the rule meanwhile. The history keeps the name the alert was
@@ -3006,6 +3036,7 @@ public partial class App : Application
             _clientExits.Forget();      // IDEAS #22: the clients' process handles are let go
             _commandServer?.Dispose();   // IDEAS #39: no more commands
             _commandServer = null;
+            _stallWatch?.Dispose();
             StopGamepad();   // IDEAS #43: the pad is no longer read
             _hotkeySheet?.Dismiss();   // IDEAS #16
             _nameBar?.Close();   // IDEAS #38: its preview's picture is let go with it

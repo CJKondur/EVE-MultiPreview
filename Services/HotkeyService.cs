@@ -1360,6 +1360,7 @@ public sealed class HotkeyService : IDisposable
         if (msg == User32.WM_HOTKEY)
         {
             int id = wParam.ToInt32();
+            using var op = StallWatch.Op("hotkey");
             // IDEAS #41: a hotkey whose keystroke the keyboard hook should have hidden arrived the ordinary way.
             if ((lParam.ToInt64() & HiddenKeystrokeMark) == 0) CheckKeyHook(id, User32.GetMessageTime());
             // The internal vk0xE8 activation hotkey is a foreground-rights bridge
@@ -1823,6 +1824,7 @@ public sealed class HotkeyService : IDisposable
             // held-modifier re-press, remapper software - keep the RegisterHotKey path.
             if ((kb.flags & LLKHF_INJECTED) == 0)
             {
+                StallWatch.HookLag(kb.time, mouse: false);   // input lag in a fight: a subtraction, kept as a running maximum
                 uint vk = kb.vkCode;
                 // A key still held across a client switch, hidden from the client we
                 // switched to until it is released (#115). Checked first: its async state
@@ -1884,6 +1886,8 @@ public sealed class HotkeyService : IDisposable
     {
         _mouseHookTick = Environment.TickCount;   // IDEAS #41: the stamp the hook check reads, this hook's only extra work
         var bindings = _mouseBindings;   // one snapshot per event
+        // Input lag in a fight: MSLLHOOKSTRUCT's flags (offset 12) and time (offset 16) read in place, real events only.
+        if (nCode >= 0 && (Marshal.ReadInt32(lParam, 12) & 1) == 0) StallWatch.HookLag(unchecked((uint)Marshal.ReadInt32(lParam, 16)), mouse: true);
         if (nCode >= 0 && bindings.Count > 0)
         {
             int msg = wParam.ToInt32();

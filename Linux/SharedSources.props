@@ -97,6 +97,7 @@
     <Compile Include="..\Services\Speech.cs" Link="Shared\Services\Speech.cs" />
     <Compile Include="..\Services\SpokenAlerts.cs" Link="Shared\Services\SpokenAlerts.cs" />
     <Compile Include="..\Services\SpokenWay.cs" Link="Shared\Services\SpokenWay.cs" />
+    <Compile Include="..\Services\StallWatch.cs" Link="Shared\Services\StallWatch.cs" />
     <Compile Include="..\Services\StartupSteps.cs" Link="Shared\Services\StartupSteps.cs" />
     <Compile Include="..\Services\StatLogReader.cs" Link="Shared\Services\StatLogReader.cs" />
     <Compile Include="..\Services\StatReport.cs" Link="Shared\Services\StatReport.cs" />
