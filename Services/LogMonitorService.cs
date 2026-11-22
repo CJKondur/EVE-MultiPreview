@@ -62,11 +62,15 @@ public sealed class LogMonitorService : IDisposable
     private int _pollInterval = 250;
     private long _lastEventTime = long.MinValue / 2;   // Environment.TickCount64 of the last event: only "how long ago" is asked, so no wall clock
     private int _momentumCounter = 0;
-    private int _scanThrottleCounter = SCAN_EVERY_N_POLLS - 1; // ensures first iteration scans immediately
+    private long _nextScanAt;                     // TickCount64 of the next folder scan; 0 = scan on this pass
     private const int FAST_POLL = 50;     // fallback: 50ms (matches AHK) — FSW usually wakes faster
     private const int SLOW_POLL = 250;    // fallback: 250ms when idle — FSW still provides instant wake
     private const int MOMENTUM_THRESHOLD = 60;  // stay fast for 3s after last event
-    private const int SCAN_EVERY_N_POLLS = 20;  // only scan for new files every 20th cycle
+    /// <summary>How often the folders are listed for new logs, whatever the poll speed (#122). It was every 20th poll,
+    /// so a fight (50 ms polls) listed them every second, and one listing of a Gamelogs folder holding tens of
+    /// thousands of old logs costs 75-300 ms of a processor: a CPU spike every second, which cost the clients their
+    /// frame rate. A log being created asks for a scan at once (the watchers), so a new client still shows up quickly.</summary>
+    public const int ScanEveryMs = 5000;
 
     // Character tracking
     private readonly ConcurrentDictionary<string, string> _fileCharacterMap = new(StringComparer.OrdinalIgnoreCase); // filepath → character name
@@ -1091,7 +1095,7 @@ public sealed class LogMonitorService : IDisposable
     }
 
     /// <summary>Takes the chat watcher's note that a log was created (IDEAS P64): the next scan runs at once, and the
-    /// rules' channels are listed on it, instead of at the next twentieth pass and the next five-second listing. Runs
+    /// rules' channels are listed on it, instead of at the next timed scan (<see cref="ScanEveryMs"/>) and the next five-second listing. Runs
     /// on the reading thread (or PollOnce's caller), which alone writes _nextChannelListing; the watcher's thread
     /// writes the note and nothing else. The note is cleared before the scan looks at the folder, so a log created
     /// before the clear is listed by that scan, and one created after it is noted again.</summary>
@@ -1149,7 +1153,7 @@ public sealed class LogMonitorService : IDisposable
             }
             if (_cts != null) StartFileWatchers();
         }
-        _scanThrottleCounter = SCAN_EVERY_N_POLLS - 1;   // look for the new folder's files on this pass
+        _nextScanAt = 0;                                 // look for the new folder's files on this pass
         _initialScanComplete = false;                    // and send the systems found there once, as at startup
         Debug.WriteLine($"[LogMonitor:Scan] 🔧 Folders now — Chat: {_chatLogPath}, Game: {_gameLogPath}");
     }
@@ -1295,13 +1299,13 @@ public sealed class LogMonitorService : IDisposable
             {
                 ApplyPendingFolders();   // a settings change (IDEAS P30), on this thread, between reads
                 NoteCreatedLog();        // a log the chat watcher saw created (IDEAS P64)
-                if (_scanRequested) { _scanRequested = false; _scanThrottleCounter = SCAN_EVERY_N_POLLS - 1; }
+                if (_scanRequested) { _scanRequested = false; _nextScanAt = 0; }
 
-                // Throttle file discovery — only scan every Nth poll cycle
-                _scanThrottleCounter++;
-                if (_scanThrottleCounter >= SCAN_EVERY_N_POLLS)
+                // File discovery on a clock, not per poll (#122): see ScanEveryMs.
+                long scanNow = Environment.TickCount64;
+                if (scanNow >= _nextScanAt)
                 {
-                    _scanThrottleCounter = 0;
+                    _nextScanAt = scanNow + ScanEveryMs;
                     ScanForNewFiles();
                 }
                 ReadNewLines();
@@ -1345,7 +1349,7 @@ public sealed class LogMonitorService : IDisposable
         lock (_watchLock)
         {
             _chatWatcher = TryCreateWatcher(_chatLogPath, ChatWatchFilters(_customRules), OnChatLogCreated);
-            _gameWatcher = TryCreateWatcher(_gameLogPath, new[] { "*.txt" }, OnLogFileChanged);
+            _gameWatcher = TryCreateWatcher(_gameLogPath, new[] { "*.txt" }, OnGameLogCreated);
         }
         Debug.WriteLine($"[LogMonitor:FSW] ⚡ FileSystemWatchers started (chat={_chatWatcher != null}, game={_gameWatcher != null})");
     }
@@ -1407,6 +1411,14 @@ public sealed class LogMonitorService : IDisposable
     {
         // Wake the monitor loop immediately — don't wait for fallback poll. A second releaser used to throw from a
         // thread-pool thread and end the process (IDEAS P41).
+        WakeReader();
+    }
+
+    /// <summary>A game log was created (a client logged in): the reading thread scans on its next pass instead of at
+    /// the next <see cref="ScanEveryMs"/> listing (#122). Runs on the watcher's thread: it only asks, then wakes.</summary>
+    private void OnGameLogCreated(object sender, FileSystemEventArgs e)
+    {
+        _scanRequested = true;
         WakeReader();
     }
 
@@ -2009,7 +2021,7 @@ public sealed class LogMonitorService : IDisposable
         foreach (var channel in _channelLogsSeen.Keys)
             if (engine == null || !engine.Reads(channel)) _channelLogsSeen.TryRemove(channel, out _);
         _nextChannelListing = long.MinValue;             // list the new rules' channels on this pass
-        _scanThrottleCounter = SCAN_EVERY_N_POLLS - 1;   // look for the new rules' channels on this pass
+        _nextScanAt = 0;                                 // look for the new rules' channels on this pass
         ApplyWatchFilters(engine);                       // and wake for them (IDEAS P64): its own method, with its own lock
     }
 
