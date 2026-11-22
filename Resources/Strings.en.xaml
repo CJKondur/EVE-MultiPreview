@@ -316,7 +316,7 @@
     <sys:String x:Key="L.Perf.Subtitle">Orchestrate CPU priority and core affinity to ensure inactive clients never steal P-Core cycles.</sys:String>
     <sys:String x:Key="L.Perf.GlobalSettings">Global Settings</sys:String>
     <sys:String x:Key="L.Perf.ManageAffinity">Enable Background Client Affinity/Priority Management</sys:String>
-    <sys:String x:Key="L.Perf.ManageAffinityNote">When enabled, inactive EVE clients are dropped to 'Idle' priority to prevent stuttering.</sys:String>
+    <sys:String x:Key="L.Perf.ManageAffinityNote">When enabled, inactive EVE clients are dropped to 'Below normal' priority to prevent stuttering. A client under fire keeps normal priority.</sys:String>
     <sys:String x:Key="L.Perf.AutoBalance">Auto-Balance Inactive Clients to E-Cores (App Decides)</sys:String>
     <sys:String x:Key="L.Perf.AutoBalanceNote">Dynamically round-robins inactive clients across the bottom half of your logical cores (E-Cores or 2nd CCD).</sys:String>
     <sys:String x:Key="L.Perf.GpuOpt">Thumbnail GPU Optimization</sys:String>
@@ -1703,7 +1703,7 @@
     <sys:String x:Key="L.S.CoreTable.CoreFor">Core for {0}</sys:String>
     <sys:String x:Key="L.Help.perf.cpu.Intro">With many clients, the one you're playing should get the processor. MultiPreview can lower the others and keep each one on a core.</sys:String>
     <sys:String x:Key="L.Help.perf.cpu.priority.Title">Background priority and cores</sys:String>
-    <sys:String x:Key="L.Help.perf.cpu.priority.Body">With **Manage background priority** on, every client you aren't playing runs at low priority; the one in front runs normally on every core. Turning it off gives every client its normal priority and all cores back.&#x0A;- **Spread background clients over the last cores** gives each one a core from the second half of your cores.&#x0A;- A **pinned core** keeps one character on the core you choose. The character's own page has the same setting.</sys:String>
+    <sys:String x:Key="L.Help.perf.cpu.priority.Body">With **Manage background priority** on, every client you aren't playing runs at low priority; the one in front runs normally on every core. Turning it off gives every client its normal priority and all cores back. A client under fire (the under-fire indicator must be on) keeps normal priority and every core until the indicator clears.&#x0A;- **Spread background clients over the last cores** gives each one a core from the second half of your cores.&#x0A;- A **pinned core** keeps one character on the core you choose. The character's own page has the same setting.</sys:String>
     <sys:String x:Key="L.S.Page.perf.gpu">GPU</sys:String>
     <sys:String x:Key="L.S.Page.perf.gpu.Desc">Save graphics power when you run many clients.</sys:String>
     <sys:String x:Key="L.S.Sec.perf.gpu.preset">Quick setup</sys:String>

@@ -315,7 +315,7 @@
     <sys:String x:Key="L.Perf.Subtitle">Orchestra priorità CPU e affinità dei core per assicurarti che i client inattivi non rubino mai cicli dei P-Core.</sys:String>
     <sys:String x:Key="L.Perf.GlobalSettings">Impostazioni globali</sys:String>
     <sys:String x:Key="L.Perf.ManageAffinity">Abilita gestione affinità/priorità dei client in background</sys:String>
-    <sys:String x:Key="L.Perf.ManageAffinityNote">Se abilitato, i client EVE inattivi vengono abbassati a priorità "Inattiva" per prevenire scatti.</sys:String>
+    <sys:String x:Key="L.Perf.ManageAffinityNote">Se abilitato, i client EVE inattivi vengono abbassati a priorità "Sotto il normale" per prevenire scatti. Un client sotto attacco mantiene la priorità normale.</sys:String>
     <sys:String x:Key="L.Perf.AutoBalance">Bilancia automaticamente i client inattivi sugli E-Core (decide l'app)</sys:String>
     <sys:String x:Key="L.Perf.AutoBalanceNote">Distribuisce dinamicamente a rotazione i client inattivi sulla metà inferiore dei tuoi core logici (E-Core o 2° CCD).</sys:String>
     <sys:String x:Key="L.Perf.GpuOpt">Ottimizzazione GPU delle miniature</sys:String>
@@ -1721,7 +1721,7 @@
     <sys:String x:Key="L.S.CoreTable.CoreFor">Core per {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.Intro">Con molti client, quello che giochi dovrebbe avere il processore. MultiPreview può abbassare gli altri e tenere ciascuno su un core.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.priority.Title">Priorità in secondo piano e core</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.perf.cpu.priority.Body">Con **Gestisci la priorità in secondo piano** attivo, ogni client che non giochi gira a bassa priorità; quello davanti gira normalmente su tutti i core. Disattivato, ogni client torna alla priorità normale e a tutti i core.&#x0A;- **Distribuisci i client in secondo piano sugli ultimi core** dà a ciascuno un core dalla seconda metà dei tuoi core.&#x0A;- Un **core fissato** tiene un personaggio sul core che scegli. La pagina del personaggio ha la stessa impostazione.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.perf.cpu.priority.Body">Con **Gestisci la priorità in secondo piano** attivo, ogni client che non giochi gira a bassa priorità; quello davanti gira normalmente su tutti i core. Disattivato, ogni client torna alla priorità normale e a tutti i core. Un client sotto attacco (l'indicatore sotto attacco deve essere attivo) mantiene la priorità normale e tutti i core finché l'indicatore non si spegne.&#x0A;- **Distribuisci i client in secondo piano sugli ultimi core** dà a ciascuno un core dalla seconda metà dei tuoi core.&#x0A;- Un **core fissato** tiene un personaggio sul core che scegli. La pagina del personaggio ha la stessa impostazione.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu">GPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu.Desc">Risparmia potenza grafica quando usi molti client.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.gpu.preset">Impostazione rapida</sys:String> <!-- draft -->

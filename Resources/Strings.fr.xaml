@@ -315,7 +315,7 @@
     <sys:String x:Key="L.Perf.Subtitle">Orchestrez la priorité CPU et l'affinité de cœurs pour garantir que les clients inactifs ne volent jamais de cycles P-Core.</sys:String>
     <sys:String x:Key="L.Perf.GlobalSettings">Paramètres globaux</sys:String>
     <sys:String x:Key="L.Perf.ManageAffinity">Activer la gestion de l'affinité/priorité des clients en arrière-plan</sys:String>
-    <sys:String x:Key="L.Perf.ManageAffinityNote">Une fois activé, les clients EVE inactifs passent en priorité « Inactif » pour éviter les saccades.</sys:String>
+    <sys:String x:Key="L.Perf.ManageAffinityNote">Une fois activé, les clients EVE inactifs passent en priorité « Inférieure à la normale » pour éviter les saccades. Un client sous le feu garde la priorité normale.</sys:String>
     <sys:String x:Key="L.Perf.AutoBalance">Équilibrer automatiquement les clients inactifs vers les E-Cores (l'app décide)</sys:String>
     <sys:String x:Key="L.Perf.AutoBalanceNote">Répartit dynamiquement les clients inactifs à tour de rôle sur la moitié inférieure de vos cœurs logiques (E-Cores ou 2e CCD).</sys:String>
     <sys:String x:Key="L.Perf.GpuOpt">Optimisation GPU des miniatures</sys:String>
@@ -1706,7 +1706,7 @@
     <sys:String x:Key="L.S.CoreTable.CoreFor">Cœur pour {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.Intro">Avec beaucoup de clients, celui que vous jouez doit avoir le processeur. MultiPreview peut abaisser les autres et garder chacun sur un cœur.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.priority.Title">Priorité en arrière-plan et cœurs</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.perf.cpu.priority.Body">Avec **Gérer la priorité en arrière-plan** activé, chaque client que vous ne jouez pas tourne en priorité basse ; celui au premier plan tourne normalement sur tous les cœurs. Désactivé, chaque client retrouve sa priorité normale et tous les cœurs.&#x0A;- **Répartir les clients d'arrière-plan sur les derniers cœurs** donne à chacun un cœur de la seconde moitié de vos cœurs.&#x0A;- Un **cœur épinglé** garde un personnage sur le cœur que vous choisissez. La page du personnage a le même réglage.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.perf.cpu.priority.Body">Avec **Gérer la priorité en arrière-plan** activé, chaque client que vous ne jouez pas tourne en priorité basse ; celui au premier plan tourne normalement sur tous les cœurs. Désactivé, chaque client retrouve sa priorité normale et tous les cœurs. Un client sous le feu (l'indicateur « sous le feu » doit être activé) garde la priorité normale et tous les cœurs jusqu'à ce que l'indicateur s'éteigne.&#x0A;- **Répartir les clients d'arrière-plan sur les derniers cœurs** donne à chacun un cœur de la seconde moitié de vos cœurs.&#x0A;- Un **cœur épinglé** garde un personnage sur le cœur que vous choisissez. La page du personnage a le même réglage.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu">GPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu.Desc">Économise la puissance graphique quand vous lancez beaucoup de clients.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.gpu.preset">Réglage rapide</sys:String> <!-- draft -->

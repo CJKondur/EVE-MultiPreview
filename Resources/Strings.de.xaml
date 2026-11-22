@@ -315,7 +315,7 @@
     <sys:String x:Key="L.Perf.Subtitle">Orchestriere CPU-Priorität und Kern-Affinität, damit inaktive Clients niemals P-Core-Zyklen stehlen.</sys:String>
     <sys:String x:Key="L.Perf.GlobalSettings">Globale Einstellungen</sys:String>
     <sys:String x:Key="L.Perf.ManageAffinity">Affinitäts-/Prioritätsverwaltung für Hintergrund-Clients aktivieren</sys:String>
-    <sys:String x:Key="L.Perf.ManageAffinityNote">Wenn aktiviert, werden inaktive EVE-Clients auf die Priorität „Leerlauf“ herabgesetzt, um Ruckeln zu verhindern.</sys:String>
+    <sys:String x:Key="L.Perf.ManageAffinityNote">Wenn aktiviert, werden inaktive EVE-Clients auf die Priorität „Niedriger als normal“ herabgesetzt, um Ruckeln zu verhindern. Ein Client unter Beschuss behält normale Priorität.</sys:String>
     <sys:String x:Key="L.Perf.AutoBalance">Inaktive Clients automatisch auf E-Cores ausbalancieren (App entscheidet)</sys:String>
     <sys:String x:Key="L.Perf.AutoBalanceNote">Verteilt inaktive Clients dynamisch im Round-Robin-Verfahren auf die untere Hälfte deiner logischen Kerne (E-Cores oder 2. CCD).</sys:String>
     <sys:String x:Key="L.Perf.GpuOpt">Vorschau-GPU-Optimierung</sys:String>
@@ -1703,7 +1703,7 @@
     <sys:String x:Key="L.S.CoreTable.CoreFor">Kern für {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.Intro">Mit vielen Clients sollte der, den du spielst, den Prozessor bekommen. MultiPreview kann die anderen drosseln und jeden auf einem Kern halten.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.priority.Title">Hintergrundpriorität und Kerne</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.perf.cpu.priority.Body">Ist **Hintergrundpriorität verwalten** an, läuft jeder Client, den du nicht spielst, mit niedriger Priorität; der vordere läuft normal auf allen Kernen. Ausgeschaltet bekommt jeder Client wieder normale Priorität und alle Kerne.&#x0A;- **Hintergrund-Clients auf die letzten Kerne verteilen** gibt jedem einen Kern aus der zweiten Hälfte deiner Kerne.&#x0A;- Ein **festgelegter Kern** hält einen Charakter auf dem gewählten Kern. Die Seite des Charakters hat dieselbe Einstellung.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.perf.cpu.priority.Body">Ist **Hintergrundpriorität verwalten** an, läuft jeder Client, den du nicht spielst, mit niedriger Priorität; der vordere läuft normal auf allen Kernen. Ausgeschaltet bekommt jeder Client wieder normale Priorität und alle Kerne. Ein Client unter Beschuss (die Beschuss-Anzeige muss an sein) behält normale Priorität und alle Kerne, bis die Anzeige erlischt.&#x0A;- **Hintergrund-Clients auf die letzten Kerne verteilen** gibt jedem einen Kern aus der zweiten Hälfte deiner Kerne.&#x0A;- Ein **festgelegter Kern** hält einen Charakter auf dem gewählten Kern. Die Seite des Charakters hat dieselbe Einstellung.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu">GPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu.Desc">Spare Grafikleistung, wenn du viele Clients betreibst.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.gpu.preset">Schnelleinrichtung</sys:String> <!-- draft -->

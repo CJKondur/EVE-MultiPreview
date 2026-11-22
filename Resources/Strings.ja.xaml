@@ -315,7 +315,7 @@
     <sys:String x:Key="L.Perf.Subtitle">CPU の優先度とコアアフィニティを調整し、非アクティブなクライアントが P-Core のサイクルを奪わないようにします。</sys:String>
     <sys:String x:Key="L.Perf.GlobalSettings">グローバル設定</sys:String>
     <sys:String x:Key="L.Perf.ManageAffinity">バックグラウンドクライアントのアフィニティ/優先度管理を有効化</sys:String>
-    <sys:String x:Key="L.Perf.ManageAffinityNote">有効にすると、非アクティブな EVE クライアントは「アイドル」優先度に下げられ、カクつきを防ぎます。</sys:String>
+    <sys:String x:Key="L.Perf.ManageAffinityNote">有効にすると、非アクティブな EVE クライアントは「通常以下」優先度に下げられ、カクつきを防ぎます。攻撃を受けているクライアントは通常の優先度のままです。</sys:String>
     <sys:String x:Key="L.Perf.AutoBalance">非アクティブなクライアントを E-Core に自動バランス（アプリに任せる）</sys:String>
     <sys:String x:Key="L.Perf.AutoBalanceNote">非アクティブなクライアントを論理コアの下半分（E-Core または 2 つ目の CCD）に動的にラウンドロビンで割り当てます。</sys:String>
     <sys:String x:Key="L.Perf.GpuOpt">サムネイルの GPU 最適化</sys:String>
@@ -1704,7 +1704,7 @@
     <sys:String x:Key="L.S.CoreTable.CoreFor">{0} のコア</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.Intro">クライアントが多いときは、プレイ中のものにプロセッサを回すべきです。MultiPreview はほかを下げ、それぞれを1コアに固定できます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.priority.Title">バックグラウンド優先度とコア</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.perf.cpu.priority.Body">**バックグラウンド優先度を管理**をオンにすると、プレイしていない各クライアントは低い優先度で動き、前面のクライアントはすべてのコアで通常どおり動きます。オフにすると、各クライアントは通常の優先度とすべてのコアに戻ります。&#x0A;- **バックグラウンドのクライアントを後ろのコアに分散**は、各クライアントにコアの後半から1コアを割り当てます。&#x0A;- **固定したコア**は、キャラクターを選んだコアに固定します。キャラクター自身のページにも同じ設定があります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.perf.cpu.priority.Body">**バックグラウンド優先度を管理**をオンにすると、プレイしていない各クライアントは低い優先度で動き、前面のクライアントはすべてのコアで通常どおり動きます。オフにすると、各クライアントは通常の優先度とすべてのコアに戻ります。攻撃を受けているクライアント（被弾インジケーターがオンの場合）は、インジケーターが消えるまで通常の優先度とすべてのコアを保ちます。&#x0A;- **バックグラウンドのクライアントを後ろのコアに分散**は、各クライアントにコアの後半から1コアを割り当てます。&#x0A;- **固定したコア**は、キャラクターを選んだコアに固定します。キャラクター自身のページにも同じ設定があります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu">GPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu.Desc">多くのクライアントを動かすときのグラフィック負荷を節約します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.gpu.preset">クイック設定</sys:String> <!-- draft -->

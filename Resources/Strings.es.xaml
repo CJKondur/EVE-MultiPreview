@@ -315,7 +315,7 @@
     <sys:String x:Key="L.Perf.Subtitle">Orquesta la prioridad de CPU y la afinidad de núcleos para asegurar que los clientes inactivos nunca roben ciclos de P-Core.</sys:String>
     <sys:String x:Key="L.Perf.GlobalSettings">Configuración global</sys:String>
     <sys:String x:Key="L.Perf.ManageAffinity">Activar gestión de afinidad/prioridad de clientes en segundo plano</sys:String>
-    <sys:String x:Key="L.Perf.ManageAffinityNote">Cuando está activo, los clientes de EVE inactivos se bajan a prioridad 'Inactivo' para evitar tirones.</sys:String>
+    <sys:String x:Key="L.Perf.ManageAffinityNote">Cuando está activo, los clientes de EVE inactivos se bajan a prioridad 'Por debajo de lo normal' para evitar tirones. Un cliente bajo fuego mantiene la prioridad normal.</sys:String>
     <sys:String x:Key="L.Perf.AutoBalance">Autoequilibrar clientes inactivos a E-Cores (la app decide)</sys:String>
     <sys:String x:Key="L.Perf.AutoBalanceNote">Reparte dinámicamente los clientes inactivos en turnos por la mitad inferior de tus núcleos lógicos (E-Cores o 2.º CCD).</sys:String>
     <sys:String x:Key="L.Perf.GpuOpt">Optimización de GPU de miniaturas</sys:String>
@@ -1725,7 +1725,7 @@
     <sys:String x:Key="L.S.CoreTable.CoreFor">Núcleo para {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.Intro">Con muchos clientes, el que juegas debería llevarse el procesador. MultiPreview puede bajar los demás y mantener cada uno en un núcleo.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.priority.Title">Prioridad en segundo plano y núcleos</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.perf.cpu.priority.Body">Con **Gestionar la prioridad en segundo plano** activado, cada cliente que no juegas funciona con prioridad baja; el que está delante funciona normal en todos los núcleos. Desactivado, cada cliente recupera su prioridad normal y todos los núcleos.&#x0A;- **Repartir los clientes en segundo plano entre los últimos núcleos** da a cada uno un núcleo de la segunda mitad de tus núcleos.&#x0A;- Un **núcleo fijado** mantiene a un personaje en el núcleo que elijas. La página del personaje tiene el mismo ajuste.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.perf.cpu.priority.Body">Con **Gestionar la prioridad en segundo plano** activado, cada cliente que no juegas funciona con prioridad baja; el que está delante funciona normal en todos los núcleos. Desactivado, cada cliente recupera su prioridad normal y todos los núcleos. Un cliente bajo fuego (el indicador de bajo fuego debe estar activado) mantiene la prioridad normal y todos los núcleos hasta que el indicador se apague.&#x0A;- **Repartir los clientes en segundo plano entre los últimos núcleos** da a cada uno un núcleo de la segunda mitad de tus núcleos.&#x0A;- Un **núcleo fijado** mantiene a un personaje en el núcleo que elijas. La página del personaje tiene el mismo ajuste.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu">GPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu.Desc">Ahorra potencia gráfica cuando usas muchos clientes.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.gpu.preset">Ajuste rápido</sys:String> <!-- draft -->

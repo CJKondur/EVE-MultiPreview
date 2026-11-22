@@ -315,7 +315,7 @@
     <sys:String x:Key="L.Perf.Subtitle">协调 CPU 优先级和核心亲和性，确保非活动客户端永不抢占 P 核周期。</sys:String>
     <sys:String x:Key="L.Perf.GlobalSettings">全局设置</sys:String>
     <sys:String x:Key="L.Perf.ManageAffinity">启用后台客户端亲和性/优先级管理</sys:String>
-    <sys:String x:Key="L.Perf.ManageAffinityNote">启用后，非活动的 EVE 客户端会被降至“空闲”优先级以防止卡顿。</sys:String>
+    <sys:String x:Key="L.Perf.ManageAffinityNote">启用后，非活动的 EVE 客户端会被降至“低于正常”优先级以防止卡顿。正在受到攻击的客户端保持正常优先级。</sys:String>
     <sys:String x:Key="L.Perf.AutoBalance">自动平衡非活动客户端到 E 核（应用决定）</sys:String>
     <sys:String x:Key="L.Perf.AutoBalanceNote">动态地将非活动客户端轮流分配到逻辑核心的后半部分（E 核或第二个 CCD）。</sys:String>
     <sys:String x:Key="L.Perf.GpuOpt">缩略图 GPU 优化</sys:String>
@@ -1721,7 +1721,7 @@
     <sys:String x:Key="L.S.CoreTable.CoreFor">{0} 的核心</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.Intro">客户端很多时，处理器应该留给你正在玩的那个。MultiPreview 可以降低其他客户端的优先级，并把每个固定在一个核心上。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.priority.Title">后台优先级与核心</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.perf.cpu.priority.Body">开启**管理后台优先级**后，你没在玩的每个客户端都以低优先级运行；前台的客户端在所有核心上正常运行。关闭后，每个客户端恢复正常优先级和所有核心。&#x0A;- **将后台客户端分散到最后几个核心**会给每个客户端分配你核心后半部分中的一个核心。&#x0A;- **固定的核心**会把某个角色固定在你选的核心上。角色自己的页面有相同的设置。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.perf.cpu.priority.Body">开启**管理后台优先级**后，你没在玩的每个客户端都以低优先级运行；前台的客户端在所有核心上正常运行。关闭后，每个客户端恢复正常优先级和所有核心。正在受到攻击的客户端（需开启受攻击指示）在指示消失前保持正常优先级和所有核心。&#x0A;- **将后台客户端分散到最后几个核心**会给每个客户端分配你核心后半部分中的一个核心。&#x0A;- **固定的核心**会把某个角色固定在你选的核心上。角色自己的页面有相同的设置。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu">GPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu.Desc">运行多个客户端时节省显卡性能。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.gpu.preset">快速设置</sys:String> <!-- draft -->

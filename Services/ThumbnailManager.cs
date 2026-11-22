@@ -2624,7 +2624,9 @@ public sealed class ThumbnailManager : IDisposable
                 if (pid > 0)
                 {
                     var p = Process.GetProcessById(pid);
-                    activeEves.Add((p, thumb.CharacterName, hwnd == activeHwnd));
+                    // A client under fire keeps its full share even in the background: starving it mid-fight
+                    // froze its screen (lock-ups reported in 3.1.9 with this setting on).
+                    activeEves.Add((p, thumb.CharacterName, hwnd == activeHwnd || _underFireChars.ContainsKey(thumb.CharacterName)));
                 }
             }
             catch { /* Process might have just exited */ }
@@ -2648,9 +2650,10 @@ public sealed class ThumbnailManager : IDisposable
                 }
                 else
                 {
-                    // Inactive client: Idle priority
-                    if (eve.Proc.PriorityClass != ProcessPriorityClass.Idle)
-                        eve.Proc.PriorityClass = ProcessPriorityClass.Idle;
+                    // Inactive client: Below normal, never Idle. Idle threads run only when nothing at Normal
+                    // wants the processor, so in a fight background clients got no time at all and froze.
+                    if (eve.Proc.PriorityClass != ProcessPriorityClass.BelowNormal)
+                        eve.Proc.PriorityClass = ProcessPriorityClass.BelowNormal;
 
                     // Inactive Core Assignment
                     long affinityMask = 0;
@@ -2678,7 +2681,7 @@ public sealed class ThumbnailManager : IDisposable
                     }
                     else
                     {
-                        // Restore to all cores but keep 'Idle' priority
+                        // Restore to all cores but keep 'Below normal' priority
                         long allCoresMask = AllCoresMask();
                         if ((long)eve.Proc.ProcessorAffinity != allCoresMask)
                             eve.Proc.ProcessorAffinity = (IntPtr)allCoresMask;

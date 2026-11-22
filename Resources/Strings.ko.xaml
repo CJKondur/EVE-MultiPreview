@@ -315,7 +315,7 @@
     <sys:String x:Key="L.Perf.Subtitle">CPU 우선순위와 코어 친화도를 조율하여 비활성 클라이언트가 P-Core 사이클을 절대 뺏지 않도록 해요.</sys:String>
     <sys:String x:Key="L.Perf.GlobalSettings">전역 설정</sys:String>
     <sys:String x:Key="L.Perf.ManageAffinity">백그라운드 클라이언트 친화도/우선순위 관리 사용</sys:String>
-    <sys:String x:Key="L.Perf.ManageAffinityNote">사용하면 비활성 EVE 클라이언트가 'Idle' 우선순위로 낮아져 끊김을 방지해요.</sys:String>
+    <sys:String x:Key="L.Perf.ManageAffinityNote">사용하면 비활성 EVE 클라이언트가 '보통 이하' 우선순위로 낮아져 끊김을 방지해요. 공격받는 클라이언트는 보통 우선순위를 유지해요.</sys:String>
     <sys:String x:Key="L.Perf.AutoBalance">비활성 클라이언트를 E-Core로 자동 분산(앱이 결정)</sys:String>
     <sys:String x:Key="L.Perf.AutoBalanceNote">비활성 클라이언트를 논리 코어의 하위 절반(E-Core 또는 두 번째 CCD)에 걸쳐 동적으로 라운드로빈해요.</sys:String>
     <sys:String x:Key="L.Perf.GpuOpt">썸네일 GPU 최적화</sys:String>
@@ -1704,7 +1704,7 @@
     <sys:String x:Key="L.S.CoreTable.CoreFor">{0}의 코어</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.Intro">클라이언트가 많을 때는 플레이 중인 것이 프로세서를 가져야 해요. MultiPreview는 나머지를 낮추고 각각을 한 코어에 고정할 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.priority.Title">백그라운드 우선순위와 코어</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.perf.cpu.priority.Body">**백그라운드 우선순위 관리**를 켜면 플레이하지 않는 모든 클라이언트가 낮은 우선순위로 실행되고, 앞에 있는 클라이언트는 모든 코어에서 정상적으로 실행돼요. 끄면 모든 클라이언트가 보통 우선순위와 모든 코어로 돌아가요.&#x0A;- **백그라운드 클라이언트를 마지막 코어에 분산**은 각 클라이언트에 코어 후반부의 코어 하나를 줘요.&#x0A;- **고정한 코어**는 캐릭터를 고른 코어에 묶어 둬요. 캐릭터 자체 페이지에도 같은 설정이 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.perf.cpu.priority.Body">**백그라운드 우선순위 관리**를 켜면 플레이하지 않는 모든 클라이언트가 낮은 우선순위로 실행되고, 앞에 있는 클라이언트는 모든 코어에서 정상적으로 실행돼요. 끄면 모든 클라이언트가 보통 우선순위와 모든 코어로 돌아가요. 공격받는 클라이언트(피격 표시가 켜져 있어야 해요)는 표시가 꺼질 때까지 보통 우선순위와 모든 코어를 유지해요.&#x0A;- **백그라운드 클라이언트를 마지막 코어에 분산**은 각 클라이언트에 코어 후반부의 코어 하나를 줘요.&#x0A;- **고정한 코어**는 캐릭터를 고른 코어에 묶어 둬요. 캐릭터 자체 페이지에도 같은 설정이 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu">GPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu.Desc">클라이언트를 많이 실행할 때 그래픽 성능을 아껴요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.gpu.preset">빠른 설정</sys:String> <!-- draft -->
