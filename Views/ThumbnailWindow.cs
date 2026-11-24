@@ -492,15 +492,25 @@ public class ThumbnailWindow : Form
         old?.Dispose();
     }
 
+    /// <summary>Drops the hidden owner WinForms gives a ShowInTaskbar=false form (#119). An OWNED window's z-order follows
+    /// its owner: Pooooooky's [Thumb:Stuck] log showed every stuck thumbnail with topmost=False beside swpOk=True and a
+    /// non-zero owner=, the raise succeeding and not holding. 3.1.4 cleared it in OnHandleCreated, but Form.CreateHandle
+    /// sets the owner AFTER base.CreateHandle raises that event (UpdateHandleWithOwner, then the "no taskbar entry
+    /// needs an owner" block), so it came straight back. WS_EX_TOOLWINDOW (CreateParams) keeps the thumbnail off the
+    /// taskbar and Alt+Tab without it. The topmost state is set again unowned, as the owned window may not have kept it.</summary>
+    protected override void CreateHandle()
+    {
+        base.CreateHandle();
+        if (!IsHandleCreated) return;
+        User32.SetWindowLongPtr(Handle, User32.GWLP_HWNDPARENT, IntPtr.Zero);
+        if (_isTopmost) SetBodyZOrder(User32.HWND_TOPMOST, User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE);
+    }
+
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
         _ownHwnd = Handle;
-        // Drop the hidden owner WinForms gives a ShowInTaskbar=false form (#119). An OWNED window's z-order follows its
-        // owner: a user's [Thumb:Stuck] log showed every stuck thumbnail with topmost=False beside swpOk=True and a
-        // non-zero owner=, the signature the crops had (#80/#87, CropWindow.OnLoaded). WS_EX_TOOLWINDOW (CreateParams)
-        // already keeps the thumbnail off the taskbar and Alt+Tab, so the owner buys nothing.
-        User32.SetWindowLongPtr(_ownHwnd, User32.GWLP_HWNDPARENT, IntPtr.Zero);
+        // The hidden owner is dropped in CreateHandle below, not here: WinForms sets it after this event (#119).
         // A radius set before the handle only stored the Region. Forget what it was made for, so it is pushed to the new HWND.
         _regionFor = default;
         ApplyCornerRegion();
