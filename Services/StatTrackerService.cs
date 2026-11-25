@@ -62,8 +62,7 @@ public sealed class StatTrackerService
 
         if (isNpc && !CountNpcDamage)
         {
-            // Left out of every damage number (IDEAS P32). Ratting still sees the NPC hit, and the CSV log keeps it.
-            if (!isIncoming) stats.BountyTicks.Add(entry);
+            // Left out of every damage number (IDEAS P32). The CSV log keeps it.
             CheckAndPrune(character, stats);
             LogCsv(character, isIncoming ? "DMG_IN" : "DMG_OUT", amount);
             return;
@@ -94,10 +93,7 @@ public sealed class StatTrackerService
                 stats.HitsOut++;
             else if (hitQuality == "glance" || hitQuality == "miss")
                 stats.MissesOut++;
-
-            // Bounty tracking — only NPC kills count as ratting ISK
-            if (isNpc)
-                stats.BountyTicks.Add(entry);
+            // A hit is never bounty: ISK/hr counts only (bounty) lines (RecordBounty).
         }
 
         CheckAndPrune(character, stats);
@@ -141,7 +137,7 @@ public sealed class StatTrackerService
     public void RecordBounty(string character, double amount)
     {
         var stats = GetOrCreate(character);
-        stats.BountyTicks.Add(new TimedValue(DateTime.UtcNow, amount));
+        stats.FirstBountyAt ??= DateTime.UtcNow;
         stats.BountySession += amount;
         stats.LastBountyTick = amount;
         CheckAndPrune(character, stats);
@@ -242,19 +238,21 @@ public sealed class StatTrackerService
         return CalculateMiningRate(stats.IceMining);
     }
 
-    /// <summary>Get ratting bounty rate (ISK/hr estimate from NPC kills).</summary>
-    public double GetBountyRate(string character)
+    /// <summary>Ratting ISK/hr (TIPH): the session's bounty ISK over the time since its first bounty.</summary>
+    public double GetBountyRate(string character) =>
+        _stats.TryGetValue(character, out var stats) ? BountyRate(stats.BountySession, stats.FirstBountyAt, DateTime.UtcNow) : 0;
+
+    /// <summary>When this character's first bounty of the session came (UTC), or null before one has.</summary>
+    public DateTime? FirstBountyAt(string character) => _stats.TryGetValue(character, out var stats) ? stats.FirstBountyAt : null;
+
+    /// <summary>As the AHK version: session bounty ISK over the seconds since the first bounty, per hour, once that is more
+    /// than a minute (0 before, and 0 without a bounty). Not the 30 s damage window: bounties come a kill at a time, and
+    /// the window held too few of them, never 60 s' worth, so the rate was always 0.</summary>
+    public static double BountyRate(double session, DateTime? firstBountyAt, DateTime now)
     {
-        if (!_stats.TryGetValue(character, out var stats)) return 0;
-        // AHK: Calculate from bountyTicks array, require >60s elapsed
-        var cutoff = DateTime.UtcNow - _windowDuration;
-        var recent = stats.BountyTicks.Where(v => v.Timestamp > cutoff).ToList();
-        if (recent.Count == 0) return 0;
-        var oldest = recent.Min(v => v.Timestamp);
-        double elapsed = (DateTime.UtcNow - oldest).TotalSeconds;
-        if (elapsed < 60) return 0;
-        double total = recent.Sum(v => v.Value);
-        return (total / elapsed) * 3600;
+        if (firstBountyAt is not DateTime first) return 0;
+        double elapsed = (now - first).TotalSeconds;
+        return elapsed < 60 ? 0 : session / elapsed * 3600;
     }
 
     public double GetPeakVolley(string character)
@@ -445,7 +443,6 @@ public sealed class StatTrackerService
             pruned += PruneWindow(stats.MiningYield, cutoff);
             pruned += PruneWindow(stats.GasMining, cutoff);
             pruned += PruneWindow(stats.IceMining, cutoff);
-            pruned += PruneWindow(stats.BountyTicks, cutoff);
 
             if (pruned > 0)
                 Debug.WriteLine($"[StatTracker:Prune] 🧹 Pruned {pruned} old events for '{charName}'");
@@ -467,7 +464,6 @@ public sealed class StatTrackerService
             PruneWindow(stats.MiningYield, cutoff);
             PruneWindow(stats.GasMining, cutoff);
             PruneWindow(stats.IceMining, cutoff);
-            PruneWindow(stats.BountyTicks, cutoff);
         }
     }
 
@@ -626,7 +622,7 @@ public sealed class StatTrackerService
         public double IceLastCycle { get; set; } = 0;
 
         // Ratting
-        public ConcurrentBag<TimedValue> BountyTicks { get; } = new();
+        public DateTime? FirstBountyAt { get; set; }   // set by the session's first bounty; ISK/hr (TIPH) runs from here
         public double BountySession { get; set; } = 0;
         public double LastBountyTick { get; set; } = 0;
     }
